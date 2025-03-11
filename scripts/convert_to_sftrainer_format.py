@@ -34,7 +34,7 @@ def convert_to_sftrainer_format(input_json_path, output_dir):
     # Create the output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
-    base_filename = os.path.basename(input_json_path)
+    base_filename = os.path.splitext(os.path.basename(input_json_path))[0]
     output_json_path_search = os.path.join(output_dir, f"{base_filename}_search.json")
     output_json_path_optimal = os.path.join(output_dir, f"{base_filename}_optimal.json")
     
