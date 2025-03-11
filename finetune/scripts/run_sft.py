@@ -119,7 +119,7 @@ def main():
         device_map=get_kbit_device_map() if quantization_config is not None else None,
         quantization_config=quantization_config,
     )
-
+    training_args.model_init_kwargs = model_kwargs
     model = model_args.model_name_or_path
     # For ChatML we need to add special tokens and resize the embedding layer
     if "<|im_start|>" in tokenizer.chat_template and "gemma-tokenizer-chatml" not in tokenizer.name_or_path:
@@ -145,12 +145,12 @@ def main():
     ##########################
     # Decontaminate benchmarks
     ##########################
-    num_raw_train_samples = len(raw_datasets["train"])
-    raw_datasets = raw_datasets.filter(decontaminate_humaneval, batched=True, batch_size=10_000, num_proc=1)
-    num_filtered_train_samples = num_raw_train_samples - len(raw_datasets["train"])
-    logger.info(
-        f"Decontaminated {num_filtered_train_samples} ({num_filtered_train_samples/num_raw_train_samples * 100:.2f}%) samples from the training set."
-    )
+    # num_raw_train_samples = len(raw_datasets["train"])
+    # raw_datasets = raw_datasets.filter(decontaminate_humaneval, batched=True, batch_size=10_000, num_proc=1)
+    # num_filtered_train_samples = num_raw_train_samples - len(raw_datasets["train"])
+    # logger.info(
+    #     f"Decontaminated {num_filtered_train_samples} ({num_filtered_train_samples/num_raw_train_samples * 100:.2f}%) samples from the training set."
+    # )
 
     train_dataset = raw_datasets["train"]
     eval_dataset = raw_datasets["test"]
@@ -162,21 +162,18 @@ def main():
     ########################
     # Initialize the Trainer
     ########################
-    training_args.model_init_kwargs = model_kwargs # Some SFTTrainer args got moved to SFTConfig args
-    training_args.dataset_text_field = "text"
-    training_args.packing = True
-
+    # Some SFTTrainer args are moved to SFTConfig args
     trainer = SFTTrainer(
         model=model,
-        # model_init_kwargs=model_kwargs,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
+        tokenizer=tokenizer,
+        peft_config=get_peft_config(model_args),
+        # model_init_kwargs=model_kwargs,
         # dataset_text_field="text",
         # max_seq_length=training_args.max_seq_length,
-        tokenizer=tokenizer,
         # packing=True,
-        peft_config=get_peft_config(model_args),
         # dataset_kwargs=training_args.dataset_kwargs,
     )
 

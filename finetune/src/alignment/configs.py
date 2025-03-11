@@ -251,6 +251,13 @@ class SFTConfig(trl.SFTConfig):
         default=True,
         metadata={"help": ("Whether to log and evaluate the first global_step or not.")},
     )
+    # Moved from SFTTrainer to SFTConfig
+    dataset_text_field: Optional[str] = field(
+        default="text",
+        metadata={"help": "The column name to use for the text in the dataset (only used for continued pretraining)."},
+    )
+    packing: bool = field(default=True)
+    model_init_kwargs: Optional[Dict[str, Any]] = field(default=None)
 
 
 @dataclass
@@ -269,3 +276,4 @@ class DPOConfig(trl.DPOConfig):
     )
     optim: Optional[str] = field(default="rmsprop")
     remove_unused_columns: bool = field(default=False)
+    
