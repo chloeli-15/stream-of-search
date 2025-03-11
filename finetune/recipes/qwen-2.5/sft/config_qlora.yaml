@@ -80,7 +80,7 @@ dataset_mixer:
   BrownianNotion/Stream-of-Search-Countdown: 0.002 #500k in total
 dataset_splits:
 - train
-- test
+- validation
 preprocessing_num_workers: 12
 
 # SFT trainer config
@@ -91,7 +91,7 @@ gradient_accumulation_steps: 2
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-7b-instruct-sft-qlora-countdown1k
+hub_model_id: qwen-2.5-7b-instruct-sft-qlora-countdown1k # modify this
 hub_strategy: every_save
 learning_rate: 2.0e-04
 log_level: info
@@ -101,7 +101,7 @@ lr_scheduler_type: cosine
 max_seq_length: 2048
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/qwen-2.5-7b-instruct-sft-qlora-countdown1k
+output_dir: ./models/qwen-2.5-7b-instruct-sft-qlora-countdown1k # modify this
 overwrite_output_dir: true
 per_device_eval_batch_size: 8
 per_device_train_batch_size: 4
