@@ -1,7 +1,7 @@
 #%%
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_name = "Qwen/Qwen2.5-7B-Instruct"
+model_name = "Qwen/Qwen2.5-1.5B-Instruct"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
@@ -12,9 +12,9 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 # print(tokenizer.chat_template)
 
 #%%
-prompt = "Give me a short introduction to large language model."
+prompt = "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations."
 messages = [
-    {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
+    # {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
     {"role": "user", "content": prompt}
 ]
 text = tokenizer.apply_chat_template(
@@ -33,3 +33,5 @@ generated_ids = [
 ]
 
 response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
+
+# %%
