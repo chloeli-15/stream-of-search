@@ -82,6 +82,8 @@ dataset_splits:
 - train
 - validation
 preprocessing_num_workers: 12
+dataset_kwargs:
+  revision: refs/convert/parquet # Important for large datasets
 
 # SFT trainer config
 bf16: true

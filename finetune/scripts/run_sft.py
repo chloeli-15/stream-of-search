@@ -87,6 +87,7 @@ def main():
     ###############
     raw_datasets = get_datasets(
         data_args,
+        data_kwargs = data_args.data_kwargs,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
         columns_to_keep=["messages", "chosen", "rejected", "prompt", "completion", "label"],

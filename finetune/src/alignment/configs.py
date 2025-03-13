@@ -215,6 +215,10 @@ class DataArguments:
         default_factory=lambda: ["train", "test"],
         metadata={"help": ("List of train test splits to use in the dataset")},
     )
+    dataset_kwargs: Optional[Dict[str, Any]] = field(
+        default=None,
+        metadata={"help": "Additional kwargs to pass to the load_dataset function."},
+    )
     dataset_configs: Optional[List[str]] = field(
         default=None,
         metadata={"help": "List of dataset config names. If given must be the same length as 'dataset_mixer' keys."},
