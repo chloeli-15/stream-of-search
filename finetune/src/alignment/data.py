@@ -124,7 +124,6 @@ def is_openai_format(messages: Any) -> bool:
 
 def get_datasets(
     data_config: DataArguments | dict,
-    data_kwargs: dict,
     splits: Optional[List[str]] = None,
     configs: Optional[List[str]] = None,
     columns_to_keep: Optional[List[str]] = None,
@@ -169,7 +168,6 @@ def get_datasets(
 
     raw_datasets = mix_datasets(
         dataset_mixer,
-        data_kwargs=data_kwargs,
         splits=splits,
         configs=configs,
         columns_to_keep=columns_to_keep,
@@ -180,7 +178,6 @@ def get_datasets(
 
 def mix_datasets(
     dataset_mixer: dict,
-    data_kwargs: dict, 
     splits: Optional[List[str]] = None,
     configs: Optional[List[str]] = None,
     columns_to_keep: Optional[List[str]] = None,
@@ -218,10 +215,13 @@ def mix_datasets(
         for split in splits:
             try:
                 # Try first if dataset on a Hub repo
-                dataset = load_dataset(ds, ds_config, *data_kwargs, split=split)
+                dataset = load_dataset(ds, ds_config, split=split)
             except DatasetGenerationError:
                 # If not, check local dataset
-                dataset = load_from_disk(os.path.join(ds, split))
+                try: 
+                    dataset = load_dataset(ds, ds_config, revision="refs/convert/parquet", split=split)
+                except DatasetGenerationError:
+                    dataset = load_from_disk(os.path.join(ds, split))
 
             # Remove redundant columns to avoid schema conflicts on load
             dataset = dataset.remove_columns([col for col in dataset.column_names if col not in columns_to_keep])

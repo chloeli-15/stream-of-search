@@ -16,7 +16,6 @@
 """
 Supervised fine-tuning script for decoder language models.
 """
-
 import logging
 import random
 import sys
@@ -49,6 +48,7 @@ logger = logging.getLogger(__name__)
 def main():
     parser = H4ArgumentParser((ModelArguments, DataArguments, SFTConfig))
     model_args, data_args, training_args = parser.parse()
+    print(f"data_args: {data_args}")
 
     # Set seed for reproducibility
     set_seed(training_args.seed)
@@ -87,7 +87,6 @@ def main():
     ###############
     raw_datasets = get_datasets(
         data_args,
-        data_kwargs = data_args.data_kwargs,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
         columns_to_keep=["messages", "chosen", "rejected", "prompt", "completion", "label"],
@@ -155,7 +154,7 @@ def main():
     # )
 
     train_dataset = raw_datasets["train"]
-    eval_dataset = raw_datasets["test"]
+    # eval_dataset = raw_datasets["test"]
 
     with training_args.main_process_first(desc="Log a few random samples from the processed training set"):
         for index in random.sample(range(len(raw_datasets["train"])), 3):
@@ -169,7 +168,7 @@ def main():
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        # eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
         # model_init_kwargs=model_kwargs,

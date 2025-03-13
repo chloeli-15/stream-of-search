@@ -69,7 +69,7 @@ class H4ArgumentParser(HfArgumentParser):
 
                     if base_type == List[str]:
                         inputs[arg] = [str(v) for v in val.split(",")]
-
+                
                     # bool of a non-empty string is True, so we manually check for bools
                     if base_type is bool:
                         if val in ["true", "True"]:
@@ -214,10 +214,6 @@ class DataArguments:
     dataset_splits: Optional[List[str]] = field(
         default_factory=lambda: ["train", "test"],
         metadata={"help": ("List of train test splits to use in the dataset")},
-    )
-    dataset_kwargs: Optional[Dict[str, Any]] = field(
-        default=None,
-        metadata={"help": "Additional kwargs to pass to the load_dataset function."},
     )
     dataset_configs: Optional[List[str]] = field(
         default=None,

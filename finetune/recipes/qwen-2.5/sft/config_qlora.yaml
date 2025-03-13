@@ -77,23 +77,20 @@ chat_template: |
   {%- endif %}
 
 dataset_mixer:
-  BrownianNotion/Stream-of-Search-Countdown: 0.002 #500k in total
+  chloeli/stream-of-search-countdown-10k: 0.1 #500k in total
 dataset_splits:
-- train
-- validation
+- train_search
 preprocessing_num_workers: 12
-dataset_kwargs:
-  revision: refs/convert/parquet # Important for large datasets
 
 # SFT trainer config
 bf16: true
-do_eval: true
-eval_strategy: epoch
+do_eval: false
+eval_strategy: "no" #[no, epoch, steps]
 gradient_accumulation_steps: 2
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-7b-instruct-sft-qlora-countdown1k # modify this
+hub_model_id: qwen-2.5-7b-instruct-sft-qlora-countdown-search-1k # modify this
 hub_strategy: every_save
 learning_rate: 2.0e-04
 log_level: info
@@ -103,7 +100,7 @@ lr_scheduler_type: cosine
 max_seq_length: 2048
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/qwen-2.5-7b-instruct-sft-qlora-countdown1k # modify this
+output_dir: ./models/qwen-2.5-7b-instruct-sft-qlora-countdown-search-1k # modify this
 overwrite_output_dir: true
 per_device_eval_batch_size: 8
 per_device_train_batch_size: 4
