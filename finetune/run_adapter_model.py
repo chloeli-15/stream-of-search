@@ -3,6 +3,7 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel, PeftConfig
 import logging
+import os, glob
 
 #%%
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -11,6 +12,11 @@ logger = logging.getLogger(__name__)
 def load_model(adapter_path, base_model=None):
     """Load a QLoRA fine-tuned model from Hugging Face"""
     # Get base model name from adapter config if not provided
+    # Look for model in local directory
+    
+    if glob.glob(f"{adapter_path}/adapter_config.json") == []:
+        adapter_path = glob.glob(f"{adapter_path}/*/*/adapter_config.json")[0].split("/adapter_config.json")[0]
+
     peft_config = PeftConfig.from_pretrained(adapter_path)
     base_model = base_model or peft_config.base_model_name_or_path
     logger.info(f"Using base model: {base_model}")

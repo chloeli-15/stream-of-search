@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run eval_custom.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [                
+                "--adapter", "~/.cache/huggingface/hub/models--chloeli--qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k/",
+                "-n", "1000",
+                "-o", "0",
+                "-d", "chloeli/stream-of-search-countdown-10k",
+                "--temperature", "0.1",
+                "--batch_size", "8",
+                "--data_dir", "",
+                "--gens", "1"
+            ],        
+            "env": {
+            "CONDA_DEFAULT_ENV": "sos"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ],
+}

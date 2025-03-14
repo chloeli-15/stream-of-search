@@ -167,3 +167,7 @@ cython_debug/
 .idea/modules.xml
 .idea/vcs.xml
 .idea/misc.xml
+
+archive
+data
+models
