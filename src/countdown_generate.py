@@ -33,6 +33,8 @@ parser.add_argument("--search", type=str, default="random", help="Search type")
 # split for growth mode on or off 
 parser.add_argument("--grow", action="store_true", help="grow mode on or off, only a new train set is created")
 parser.add_argument("--offset", type=int, default=1, help="offset for random seed")
+parser.add_argument("--text_template", type=str, default="sos", help="offset for random seed")
+
 
 
 if __name__ == "__main__":
@@ -99,17 +101,17 @@ if __name__ == "__main__":
                 # astar not adapted to new format
                 raise NotImplementedError
             elif args.search == "dfs":
-                search_path = dfs(target, nums, heuristic=sum_heuristic, threshold=target)
+                search_path = dfs(target, nums, heuristic=sum_heuristic, threshold=target, text_template_name=args.text_template)
             elif args.search == "bfs":
-                search_path = bfs(target, nums, 5, heuristic=mult_heuristic)
+                search_path = bfs(target, nums, 5, heuristic=mult_heuristic, text_template_name=args.text_template)
             elif args.search == "random":
                 heuristic = random.choice([sum_heuristic, mult_heuristic])
                 search = random.choice([dfs, bfs])
                 if search == dfs:
-                    search_path = dfs(target, nums, heuristic=heuristic, threshold=target)
+                    search_path = dfs(target, nums, heuristic=heuristic, threshold=target, text_template_name=args.text_template)
                 elif search == bfs:
                     beam_size = random.choice([1, 2, 3, 4, 5])
-                    search_path = bfs(target, nums, beam_size, heuristic=heuristic)
+                    search_path = bfs(target, nums, beam_size, heuristic=heuristic, text_template_name=args.text_template)
 
             else:
                 raise ValueError(f"Search type {args.search} not supported")

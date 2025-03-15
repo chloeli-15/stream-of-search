@@ -5,9 +5,25 @@ import random
 import tiktoken
 
 from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn
+from countdown_texts import TEXT_TEMPLATES, HEURISTIC_DESCRIPTIONS, SEARCH_DESCRIPTIONS
 
-def bfs(target, nums, beam_size, heuristic=sum_heuristic):
-    search_trace = ""
+def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="sos"):
+
+
+    text_template = TEXT_TEMPLATES.get(text_template_name)
+    heuristic_description = HEURISTIC_DESCRIPTIONS.get(heuristic.__name__)
+    search_name = SEARCH_DESCRIPTIONS.get("bfs")["name"]\
+                    .format(beam_size=beam_size)
+    search_description = SEARCH_DESCRIPTIONS.get("bfs")["description"]\
+                    .format(beam_size=beam_size)
+
+    search_trace = text_template["prefix"].format(
+            target=target
+            , nums=nums
+            , heuristic_description=heuristic_description
+            , search_name=search_name
+            , search_description=search_description) + "\n"
+    
     open_set = []
     # Push the initial node with its index, heuristic value, and parent index
     heapq.heappush(open_set, (heuristic(nums, target), CountdownNode(0, None, nums, [], heuristic(nums, target))))
@@ -19,8 +35,15 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic):
         if not current_nodes:
             break  # Exit if no nodes are left to expand
 
-        for idx, (_, current_node) in enumerate(current_nodes):
-            search_trace += f"Current State: {target}:{current_node.nums}, Operations: {current_node.operations}\n"
+        for idx, (score, current_node) in enumerate(current_nodes):
+            selection_text = text_template["node_selection"].format(
+                target=target,
+                nums=current_node.nums,
+                operations=current_node.operations,
+                score=score,             # For explained mode.
+                node_idx=current_node.idx  # For explained mode.
+            )
+            search_trace += selection_text
             # Store nodes generated at this level for pruning
             generated_nodes = []
             # Generate successors for each node
@@ -42,20 +65,33 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic):
             random.shuffle(generated_nodes)
             # Add remaining nodes back to open_set
             node_idx = 0
-            for node_tuple in generated_nodes:
-                node = node_tuple[-1]
+            for heuristic_val, node in generated_nodes:
+
                 node.idx = f"{node.parent.idx},{node_idx}"
-                operation = node.operations[-1]
-                nums = node.nums
-                search_trace += f"Exploring Operation: {operation}, Resulting Numbers: {nums}\n"
+                
+                op_text = text_template["operation_selection"].format(
+                    node_idx=node.idx,
+                    target=target,
+                    nums=node.nums,
+                    operation=node.operations[-1],
+                    score=heuristic_val
+                )
+                search_trace += op_text 
+
                 if len(node.nums) == 1 and node.nums[0] == target:
                     search_trace += f"{node.nums[0]},{target} equal: Goal Reached\n"
                     return search_trace
                 elif len(new_node.nums) == 1:
                     search_trace += f"{node.nums[0]},{target} unequal: No Solution\n"
                 else:
-                    search_trace += f"Generated Node #{node.idx}: {target}:{node.nums} Operation: {operation}\n"
-                    node_idx += 1
+                    gen_text = text_template["node_generation"].format(
+                        node_idx=node.idx,
+                        target=target,
+                        nums=node.nums,
+                        operation=node.operations[-1]
+                    )
+                    search_trace += gen_text
+                node_idx += 1
             generated_nodes.sort()
             for node_tuple in generated_nodes:
                 heapq.heappush(open_set, node_tuple)
@@ -63,8 +99,10 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic):
             # Note transition to the next node within the current set
             if idx < len(current_nodes) - 1:
                 _, next_node = current_nodes[idx + 1]
-                next_index = next_node.idx
-                search_trace += f"Moving to Node #{next_index}\n"
+                backtracking_text = text_template["backtracking"].format(
+                    next_index=next_node.idx
+                )
+                search_trace += backtracking_text
             
 
         # Backtracking trace
@@ -73,8 +111,10 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic):
             next_node_to_explore = open_set[0] if open_set else None
             if next_node_to_explore:
                 _, next_node = next_node_to_explore
-                next_index = next_node.idx
-                search_trace += f"Moving to Node #{next_index}\n"
+                transition_text = text_template["backtracking"].format(
+                    next_index=next_node.idx
+                )
+                search_trace += transition_text
 
     search_trace += "No solution found."
     return search_trace
@@ -82,9 +122,9 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic):
 if __name__ == "__main__":
     # Example usage
     random.seed(4)
-    target = 24
-    nums = [4,9,3]
-    search_path = bfs(target, nums, 3, heuristic=mult_heuristic)
+    target = 10
+    nums = [2,4,1,1]
+    search_path = bfs(target, nums, 3, heuristic=mult_heuristic, text_template_name="sos_explained_v1")
     print(search_path)
     print(len(search_path))
     print(metric_fn(search_path))
