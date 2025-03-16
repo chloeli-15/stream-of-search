@@ -139,6 +139,14 @@ def parse_trajectory(search_path, mode="dt"):
 
     return "Valid path."
 
+def metric_fn_custom(search_path, mode="sft"):
+  # with the numbers [58, 84, 48, 62] using standard arithmetic operations.'
+
+  pattern = r"\[(\d+(?:\s*,\s*\d+)*)\]"
+  match = re.search(pattern, search_path)
+
+  target_nums_match = re.search(r"Current State: (\d+):\[(.*?)\]", first_line)
+
 
 def metric_fn(search_path, mode="dt"):
     rating = parse_trajectory(search_path, mode=mode)
@@ -149,6 +157,7 @@ def metric_fn(search_path, mode="dt"):
             first_line = first_line.split("->")[1]
         target_nums_match = re.match(r"Current State: (\d+):\[(.*?)\]", first_line)
         target, nums = int(target_nums_match.group(1)), [int(n) for n in target_nums_match.group(2).split(", ")]
+
         if len(nums) == 2:
             # 2c2 x ops (4) = 4
             max_nodes = 4

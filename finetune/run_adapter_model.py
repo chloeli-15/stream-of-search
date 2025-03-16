@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 def load_model(adapter_path, base_model=None):
     """Load a QLoRA fine-tuned model from Hugging Face"""
+
     # Get base model name from adapter config if not provided
     # Look for model in local directory
-    
-    if glob.glob(f"{adapter_path}/adapter_config.json") == []:
+    if glob.glob(f"{adapter_path}") and glob.glob(f"{adapter_path}/adapter_config.json") == []:
         adapter_path = glob.glob(f"{adapter_path}/*/*/adapter_config.json")[0].split("/adapter_config.json")[0]
 
     peft_config = PeftConfig.from_pretrained(adapter_path)
@@ -60,10 +60,29 @@ def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             top_p=0.9,
-            do_sample=True
+            do_sample=temperature>0.0
         )
     
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
+    """
+    Generate text using the loaded model    
+    Takes input str after chat template has been applied  
+    """
+    inputs = tokenizer(prompt, return_tensors="pt", padding=True, truncation=True, padding_side='right').to(model.device)
+    
+    # Generate with sampling
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            top_p=0.9,
+            do_sample=temperature>0.0
+        )
+    
+    return tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
 #%%
 if __name__ == "__main__":
@@ -77,6 +96,8 @@ if __name__ == "__main__":
 #%%
     # Generate text
     prompt = "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations."
+    
+    
     response = generate(model, tokenizer, prompt)
     
     print(f"\nPrompt: {prompt}")
