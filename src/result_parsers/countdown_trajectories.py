@@ -1,16 +1,16 @@
 from tqdm import tqdm
-from datasets import load_dataset
+# from datasets import load_dataset
 import re
 import json, sys, os, glob
 import numpy as np
 import matplotlib.pyplot as plt
-def evaluate_countdown_trajectory(problem_text, solution_text):
+import re
+def evaluate_countdown_trajectory(prompt, trajectory):
     """
     Evaluates a countdown puzzle solver trajectory to determine if it correctly found a solution.
     
     Args:
-        problem_text (str): The text describing the countdown problem
-        solution_text (str): The text containing the solver's trajectory
+        trajectory (str): A string containing the full trajectory of a countdown solver run
     
     Returns:
         dict: A dictionary containing evaluation results with keys:
@@ -20,79 +20,74 @@ def evaluate_countdown_trajectory(problem_text, solution_text):
             - 'operations': List of operations performed to reach the solution (if solved)
             - 'final_value': The final value reached by the solver
     """
-    # Parse the problem to extract target and numbers
-    if "Make" in problem_text and "with the numbers" in problem_text:
-        # Pattern: "Make X with the numbers [a, b, c, d] using standard arithmetic operations."
-        target_str = problem_text.split("Make ")[1].split(" with")[0].strip()
-        target = int(target_str)
-        numbers_str = problem_text.split("with the numbers ")[1].split(" using")[0].strip()
-        initial_numbers = [int(num.strip()) for num in numbers_str.strip("[]").split(",")]
-    else:
-        # Try to extract from the solution's first line
-        lines = solution_text.strip().split('\n')
-        initial_line = lines[0]
-        if "Current State:" in initial_line:
-            target_and_numbers = initial_line.split("Current State: ")[1].split(", Operations:")[0]
-            target = int(target_and_numbers.split(":")[0])
-            initial_numbers_str = target_and_numbers.split(":")[1].strip()
-            initial_numbers = [int(float(num)) for num in initial_numbers_str.strip("[]").split(", ")]
-        else:
-            # Default values if parsing fails
-            target = None
-            initial_numbers = []
+    lines = trajectory.strip().split('\n')
+    
+    # Extract initial state from the first line
+    # initial_line = lines[0]
+    # target_and_numbers = initial_line.split("Current State: ")[1].split(", Operations:")[0]
+    
+    problem_match = re.search(r"Make (\d+) with the numbers \[([0-9, ]+)\]", prompt)
+    target = int(problem_match.group(1))
+    initial_numbers = [int(num.strip()) for num in problem_match.group(2).split(',')]
+    
+
+    # target = int(target_and_numbers.split(":")[0])
+    # initial_numbers_str = target_and_numbers.split(":")[1].strip()
+    # initial_numbers = [int(num) for num in initial_numbers_str.strip("[]").split(", ")]
     
     # Check if a solution was found
-    lines = solution_text.strip().split('\n')
     solved = False
     operations = []
     final_value = None
-    
-    # Check last 3 lines first for conclusion
-    for line in lines[-3:]:
-        # Check for "Goal Reached" message
-        if "equal: Goal Reached" in line:
-            solved = True
-            # Extract the final value from the comparison
-            comparison_part = line.split("equal:")[0].strip()
-            final_value = int(float(comparison_part.split(",")[0]))
-            break
-    
-    # If we found a solution, look for the operations
-    if solved:
-        # Find the operations from the last state before "Goal Reached"
-        for i in range(len(lines)-1, -1, -1):
-            if "Operations:" in lines[i]:
-                operations_str = lines[i].split("Operations: ")[1].strip()
-                # Handle empty operations list
-                if operations_str == "[]":
-                    operations = []
-                else:
-                    # Remove brackets and split by comma and apostrophes
-                    operations_str = operations_str.strip("[]")
-                    # Handle different formats of operations list
-                    if "', '" in operations_str:
-                        operations = operations_str.split("', '")
-                    else:
-                        operations = [op.strip("'") for op in operations_str.split(", ")]
-                # Clean up operations if they have quotes
-                operations = [op.strip("'") for op in operations]
-                break
-    else:
-        # Check for explicit "No solution found" message or lack of solution
+    try:
         for line in lines:
+            # Check for "Goal Reached" message
+            if "Goal Reached" in line:
+                solved = True
+                # Extract the final value from the comparison
+                comparison_part = line.split("equal:")[0].strip()
+                final_value = int(comparison_part.split(",")[0])
+                
+                # Find the operations from the last state before "Goal Reached"
+                for i in range(lines.index(line) - 1, -1, -1):
+                    if "Operations:" in lines[i]:
+                        operations_str = lines[i].split("Operations: ")[1].strip()
+                        # Handle empty operations list
+                        if operations_str == "[]":
+                            operations = []
+                        else:
+                            # Remove brackets and split by comma
+                            operations_str = operations_str.strip("[]'")
+                            operations = operations_str.split("', '")
+                        break
+                break
+            
+            # Check for explicit "No solution found" message
             if "No solution found" in line:
                 solved = False
                 final_value = None
                 operations = []
                 break
     
-    return {
-        'solved': solved,
-        'target': target,
-        'initial_numbers': initial_numbers,
-        'operations': operations,
-        'final_value': final_value
-    }
+        return {
+            'solved': solved,
+            'target': target,
+            'initial_numbers': initial_numbers,
+            'operations': operations,
+            'final_value': final_value
+        }
+
+    except Exception as e:
+        # print(f"Error evaluating trajectory: {e}")
+        return {
+            'solved': False,
+            'target': target,
+            'initial_numbers': initial_numbers,
+            'operations': [],
+            'final_value': None
+        }
+        
+        
 
 def evaluate_countdown_trajectories(results_all_trials):
     """
@@ -188,45 +183,45 @@ def plot_results(results_all_trials):
     
     
 
-if __name__ == "__main__":
-    # Example usage
-    # %% Testing on the generated trajectories
-    data = load_dataset("chloeli/stream-of-search-countdown-10k")
-    data.keys()
+# if __name__ == "__main__":
+#     # Example usage
+#     # %% Testing on the generated trajectories
+#     data = load_dataset("chloeli/stream-of-search-countdown-10k")
+#     data.keys()
 
-    # load
-    for split in data.keys():
-        prompts= data[split]['messages']
-        # do this with map function
-        results = list(map(lambda x: {
-            'prompt': x[0]['content'],
-            'completion': x[1]['content']
-        }, prompts))
+#     # load
+#     for split in data.keys():
+#         prompts= data[split]['messages']
+#         # do this with map function
+#         results = list(map(lambda x: {
+#             'prompt': x[0]['content'],
+#             'completion': x[1]['content']
+#         }, prompts))
         
-        res = []
-        for i in tqdm(range(len(results))):
-            problem_text = results[i].get("prompt", "")
-            solution_text = results[i].get("completion", "")
-            res.append(evaluate_countdown_trajectory(problem_text, solution_text))
+#         res = []
+#         for i in tqdm(range(len(results))):
+#             problem_text = results[i].get("prompt", "")
+#             solution_text = results[i].get("completion", "")
+#             res.append(evaluate_countdown_trajectory(problem_text, solution_text))
 
-        # aggregate for accuracy
-        successes = [r["solved"] for r in res]
-        success_rate = sum(successes) / len(successes)
-        print(f"Success rate for file {split}: {success_rate:.4f} ({sum(successes)}/{len(successes)})")
-        assert success_rate>0.3, f"sanity check failed training dataset is poor: success_rate {success_rate} < 0.3"
+#         # aggregate for accuracy
+#         successes = [r["solved"] for r in res]
+#         success_rate = sum(successes) / len(successes)
+#         print(f"Success rate for file {split}: {success_rate:.4f} ({sum(successes)}/{len(successes)})")
+#         assert success_rate>0.3, f"sanity check failed training dataset is poor: success_rate {success_rate} < 0.3"
         
         
-    #%% Evaluation on LLM generated trajectories
-    files = glob.glob("/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search/results/chloeli_stream-of-search-countdown-10k/*")
-    for file in files:
-        # Extract a friendly name for display
-        file_name = file.split('qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k_')[-1]
+#     #%% Evaluation on LLM generated trajectories
+#     files = glob.glob("/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search/results/chloeli_stream-of-search-countdown-10k/*")
+#     for file in files:
+#         # Extract a friendly name for display
+#         file_name = file.split('qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k_')[-1]
 
         
-        # Load the data
-        with open(file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+#         # Load the data
+#         with open(file, 'r', encoding='utf-8') as f:
+#             data = json.load(f)
             
-        # Evaluate the data
-        file_results = evaluate_countdown_trajectories(data)
+#         # Evaluate the data
+#         file_results = evaluate_countdown_trajectories(data)
         
