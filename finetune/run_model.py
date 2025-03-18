@@ -12,7 +12,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 # print(tokenizer.chat_template)
 
 #%%
-prompt = "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations."
+prompt = "Make 11 with the numbers [75,2,72,66] using standard arithmetic operations."
 messages = [
     # {"role": "system", "content": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."},
     {"role": "user", "content": prompt}
@@ -34,4 +34,6 @@ generated_ids = [
 
 response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 
+# %%
+print(response)
 # %%

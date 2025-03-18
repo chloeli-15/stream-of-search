@@ -154,7 +154,7 @@ def main():
     # )
 
     train_dataset = raw_datasets["train"]
-    # eval_dataset = raw_datasets["test"]
+    eval_dataset = raw_datasets["test"] if training_args.do_eval else None
 
     with training_args.main_process_first(desc="Log a few random samples from the processed training set"):
         for index in random.sample(range(len(raw_datasets["train"])), 3):
@@ -168,7 +168,7 @@ def main():
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        # eval_dataset=eval_dataset,
+        eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
         # model_init_kwargs=model_kwargs,
@@ -221,6 +221,7 @@ def main():
     ##########
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
+        tokenizer.padding_side = 'left'
         metrics = trainer.evaluate()
         metrics["eval_samples"] = len(eval_dataset)
         trainer.log_metrics("eval", metrics)

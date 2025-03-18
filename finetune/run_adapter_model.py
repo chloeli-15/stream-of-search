@@ -43,7 +43,7 @@ def load_model(adapter_path, base_model=None):
         
     return model, tokenizer
 
-def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
+def generate(model, tokenizer, prompt, max_new_tokens=1024, temperature=1.0):
     """Generate text using the loaded model"""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     
@@ -51,18 +51,17 @@ def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=0.9,
+            # max_new_tokens=max_new_tokens,
+            # temperature=temperature,
+            # top_p=0.9,
             do_sample=True
         )
-    
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 #%%
 if __name__ == "__main__":
     # Example usage
-    adapter_path = "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
+    adapter_path = "chloeli/qwen-2.5-7b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
     
     # Load model
     model, tokenizer = load_model(adapter_path)
@@ -70,9 +69,10 @@ if __name__ == "__main__":
     # print(tokenizer.chat_template)
 #%%
     # Generate text
-    prompt = "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations."
+    prompt = "Make 11 with the numbers [75, 2, 72, 66] using standard arithmetic operations."
     response = generate(model, tokenizer, prompt)
     
     print(f"\nPrompt: {prompt}")
     print(f"\nResponse: {response}")
+
 # %%
