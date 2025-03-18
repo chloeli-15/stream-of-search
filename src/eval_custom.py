@@ -32,6 +32,8 @@ parser.add_argument("--batch_size", type=int, default=64)
 parser.add_argument("--ctx", type=int, default=4096)
 parser.add_argument("--gens", type=int, default=1)
 parser.add_argument("--split_range", type=str, default="0:6")
+parser.add_argument("--chat_template", type=bool, default="True")
+
 
 def eval_ll(model, tokenizer, data, batch_size=128, context_len=4096, temperature=0.0, n=1):
     """
@@ -41,8 +43,10 @@ def eval_ll(model, tokenizer, data, batch_size=128, context_len=4096, temperatur
 
     for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
         # tokenize and generate data_batch['test_prompt']. Input is a list of dicts with role
-        chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
-        # chat_inputs = data_batch["test_prompt"]["content"] # if no chat template 
+        if args.chat_template:
+            chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
+        else:
+            chat_inputs = data_batch["test_prompt"]["content"] # if no chat template 
         outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
         output_texts_concat.extend(outputs)
             
@@ -55,7 +59,7 @@ torch.manual_seed(args.seed)
 model, tokenizer = load_model(args.adapter, args.ckpt)
 
 model.eval()
-model.cuda()
+model.bfloat16().cuda()
 
 tokenizer.pad_token = tokenizer.eos_token
 

@@ -91,7 +91,9 @@ if __name__ == "__main__":
     
     # Load model
     model, tokenizer = load_model(adapter_path)
-    
+        
+    model.eval()
+    model.bfloat16().cuda()
     # print(tokenizer.chat_template)
 #%%
     # Generate text

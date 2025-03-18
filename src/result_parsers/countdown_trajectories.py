@@ -198,11 +198,11 @@ def plot_results(results_all_trials):
 #             'completion': x[1]['content']
 #         }, prompts))
         
-#         res = []
-#         for i in tqdm(range(len(results))):
-#             problem_text = results[i].get("prompt", "")
-#             solution_text = results[i].get("completion", "")
-#             res.append(evaluate_countdown_trajectory(problem_text, solution_text))
+        res = []
+        for i in range(len(results)):
+            problem_text = results[i].get("prompt", "")
+            solution_text = results[i].get("completion", "")
+            res.append(evaluate_countdown_trajectory(problem_text, solution_text))
 
 #         # aggregate for accuracy
 #         successes = [r["solved"] for r in res]
