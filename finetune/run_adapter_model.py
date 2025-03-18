@@ -51,7 +51,7 @@ def generate(model, tokenizer, prompt, max_new_tokens=1024, temperature=1.0):
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            # max_new_tokens=max_new_tokens,
+            max_new_tokens=max_new_tokens,
             # temperature=temperature,
             # top_p=0.9,
             do_sample=True

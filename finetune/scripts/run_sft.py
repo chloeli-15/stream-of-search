@@ -142,6 +142,7 @@ def main():
         remove_columns=column_names,
         desc="Applying chat template",
     )
+    logger.info(f"Example prompt: {raw_datasets['train'][0]['text']}")
 
     ##########################
     # Decontaminate benchmarks
