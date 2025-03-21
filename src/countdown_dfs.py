@@ -1,14 +1,14 @@
 import itertools
 import tiktoken
 
-from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn
+from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn, generate_sum_heuristic_string, generate_mult_heuristic_string
 from countdown_texts import TEXT_TEMPLATES, HEURISTIC_DESCRIPTIONS, SEARCH_DESCRIPTIONS
 
 
 def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], search_trace="", text_template_name="sos"):
     
     text_template = TEXT_TEMPLATES.get(text_template_name)
-
+    generate_heuristic_arithmetic_string = generate_mult_heuristic_string if heuristic.__name__ == "mult_heuristic" else generate_sum_heuristic_string
     if search_trace == "":
         search_name = SEARCH_DESCRIPTIONS.get("bfs")["name"]
         search_description = SEARCH_DESCRIPTIONS.get("bfs")["description"]
@@ -28,11 +28,12 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
         # Sort open_set by heuristic value, then pop the best node (lowest heuristic)
         open_set.sort(key=lambda x: -x[0])
         score, current_node = open_set.pop()
+        heuristic_arithmetic_string = generate_heuristic_arithmetic_string(current_node.nums, target)
         selection_text = text_template["node_selection"].format(
                 target=target,
                 nums=current_node.nums,
                 operations=current_node.operations,
-                score=score,             # For explained mode.
+                heuristic_arithmetic_string=heuristic_arithmetic_string,             # For explained mode.
                 node_idx=current_node.idx  # For explained mode.
             )
         search_trace += selection_text
@@ -60,13 +61,13 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
         node_index = 0
         for g, (heuristic_val, new_node) in enumerate(generated_nodes):
             new_node.idx = f"{new_node.parent.idx},{node_index}"
-
+            heuristic_arithmetic_string = generate_heuristic_arithmetic_string(new_node.nums, target)
             op_text = text_template["operation_selection"].format(
                 node_idx=new_node.idx,
                 target=target,
                 nums=new_node.nums,
                 operation=new_node.operations[-1],
-                score=heuristic_val
+                heuristic_arithmetic_string=heuristic_arithmetic_string
             )
             search_trace += op_text 
 
@@ -100,12 +101,13 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
                     next_index=next_index
                 )
                 search_trace += backtracking_text
+                heuristic_arithmetic_string = generate_heuristic_arithmetic_string(new_node.nums, target)
                 op_text = text_template["operation_selection"].format(
                     node_idx=next_index,
                     target=target,
-                    nums=next_index,
+                    nums=new_node.nums,
                     operation=new_node.parent.operations,
-                    score=heuristic_val
+                    heuristic_arithmetic_string=heuristic_arithmetic_string
                 )
                 search_trace += op_text 
 
@@ -124,7 +126,7 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
 if __name__ == "__main__":
     # Example usage
     target = 10
-    nums = [2,4,1,1]
+    nums = [80,4,1,1]
     search_path = dfs(target, nums, heuristic=mult_heuristic, threshold=target, text_template_name="sos_explained_v1")
     print(search_path)
     print(len(search_path))

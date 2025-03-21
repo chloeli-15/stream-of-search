@@ -4,7 +4,7 @@ import random
 
 import tiktoken
 
-from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn
+from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn, generate_mult_heuristic_string, generate_sum_heuristic_string
 from countdown_texts import TEXT_TEMPLATES, HEURISTIC_DESCRIPTIONS, SEARCH_DESCRIPTIONS
 
 def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="sos"):
@@ -12,6 +12,7 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="so
 
     text_template = TEXT_TEMPLATES.get(text_template_name)
     heuristic_description = HEURISTIC_DESCRIPTIONS.get(heuristic.__name__)
+    generate_heuristic_arithmetic_string = generate_mult_heuristic_string if heuristic.__name__ == "mult_heuristic" else generate_sum_heuristic_string
     search_name = SEARCH_DESCRIPTIONS.get("bfs")["name"]\
                     .format(beam_size=beam_size)
     search_description = SEARCH_DESCRIPTIONS.get("bfs")["description"]\
@@ -36,11 +37,12 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="so
             break  # Exit if no nodes are left to expand
 
         for idx, (score, current_node) in enumerate(current_nodes):
+            heuristic_arithmetic_string = generate_heuristic_arithmetic_string(current_node.nums, target)
             selection_text = text_template["node_selection"].format(
                 target=target,
                 nums=current_node.nums,
                 operations=current_node.operations,
-                score=score,             # For explained mode.
+                heuristic_arithmetic_string=heuristic_arithmetic_string,             # For explained mode.
                 node_idx=current_node.idx  # For explained mode.
             )
             search_trace += selection_text
@@ -68,13 +70,13 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="so
             for heuristic_val, node in generated_nodes:
 
                 node.idx = f"{node.parent.idx},{node_idx}"
-                
+                heuristic_arithmetic_string = generate_heuristic_arithmetic_string(node.nums, target)
                 op_text = text_template["operation_selection"].format(
                     node_idx=node.idx,
                     target=target,
                     nums=node.nums,
                     operation=node.operations[-1],
-                    score=heuristic_val
+                    heuristic_arithmetic_string=heuristic_arithmetic_string
                 )
                 search_trace += op_text 
 
@@ -123,7 +125,7 @@ if __name__ == "__main__":
     # Example usage
     random.seed(4)
     target = 10
-    nums = [2,4,1,1]
+    nums = [4, 2, 1, 1]
     search_path = bfs(target, nums, 3, heuristic=mult_heuristic, text_template_name="sos_explained_v1")
     print(search_path)
     print(len(search_path))
