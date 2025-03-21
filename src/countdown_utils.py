@@ -36,6 +36,24 @@ def sum_heuristic(nums, target):
     if len(nums) == 1:
         return abs(nums[0] - target)
     return sum(abs(num - target) for num in nums) / len(nums)
+  
+def generate_sum_heuristic_string(nums, target):
+    """
+    Generate a string that shows the arithmetic calculation
+    of the sum heuristic applied to a list of numbers.
+    
+    For example, for nums=[4,2,1,1] and target=10, it returns:
+    "(|4-10| + |2-10| + |1-10| + |1-10|)/4 = 8"
+    """
+    # Create the string representation for each absolute difference.
+    diff_str = " + ".join(f"|{num}-{target}|" for num in nums)
+    
+    # Compute the average absolute difference.
+    avg_diff = sum(abs(num - target) for num in nums) / len(nums)
+    
+    # Format the result string.
+    result_str = f"({diff_str})/{len(nums)} = {avg_diff:.2f}"
+    return result_str
 
 def mult_heuristic(nums, target):
     # get closer to factors of target
@@ -44,6 +62,37 @@ def mult_heuristic(nums, target):
     factors = [i for i in range(2, target+1) if target % i == 0]
     return sum([min(abs(num - factor) for factor in factors) for num in nums])
     
+def generate_mult_heuristic_string(nums, target):
+    """
+    Generate a string that shows the arithmetic calculation of the mult heuristic.
+    
+    For example, for nums=[4,2,1,1] and target=10, it returns:
+    "min(|4-2|, |4-5|, |4-10|) + min(|2-2|, |2-5|, |2-10|) + min(|1-2|, |1-5|, |1-10|) + min(|1-2|, |1-5|, |1-10|) 
+    = 1 + 0 + 1 + 1 = 3"
+    """
+    # Determine factors of the target (from 2 to target inclusive)
+    factors = [i for i in range(2, target + 1) if target % i == 0]
+    
+    term_strings = []
+    result_values = []
+    
+    # Process each number to compute its minimal difference to any factor
+    for num in nums:
+        differences = [abs(num - factor) for factor in factors]
+        min_diff = min(differences)
+        result_values.append(min_diff)
+        # Create a string representation for the term
+        diff_str = ", ".join(f"|{num}-{factor}|" for factor in factors)
+        term_strings.append(f"min({diff_str})")
+    
+    # Construct the final arithmetic expression string
+    arithmetic_part = " + ".join(term_strings)
+    values_part = " + ".join(str(val) for val in result_values)
+    total = sum(result_values)
+    final_str = f"{arithmetic_part} = {values_part} = {total}"
+    return final_str
+
+
 # prune functions
 def great_prune(heuristic, target):
     # Simple pruning based on result magnitude

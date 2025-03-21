@@ -152,5 +152,5 @@ if __name__ == "__main__":
         print(f"average reward: start size 3: {(sum(average_reward[3]) / total_samples[3]) if total_samples[3] else None}, start size 4: {(sum(average_reward[4]) / total_samples[4]) if total_samples[4] else None}, start size 5: {(sum(average_reward[5]) / total_samples[5]) if total_samples[5] else None}")
 
         os.makedirs(args.data_dir, exist_ok=True)
-        with open(f"{args.data_dir}/{split}{args.offset}_b{args.start_range}_t{args.max_target}_n{args.num_samples}_{args.search}.json", "w") as f:
+        with open(f"{args.data_dir}/{split}{args.offset}_b{args.start_range}_t{args.max_target}_n{args.num_samples}_{args.search}_{args.text_template}.json", "w") as f:
             json.dump(data_samples[split], f, indent=4)
