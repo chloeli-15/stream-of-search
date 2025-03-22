@@ -58,8 +58,8 @@ def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
         outputs = model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=0.9,
+            temperature=temperature if temperature>0.0 else None,
+            top_p=0.9, 
             do_sample=temperature>0.0
         )
     
@@ -77,8 +77,8 @@ def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7
         outputs = model.generate(
             **inputs,
             max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=0.9,
+            temperature=temperature if temperature>0.0 else None,
+            top_p=0.9, 
             do_sample=temperature>0.0
         )
     

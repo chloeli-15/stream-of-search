@@ -62,7 +62,7 @@ model, tokenizer = load_model(args.adapter, args.ckpt)
 
 
 model.eval()
-model.bfloat16().cuda()
+model.cuda()
 
 tokenizer.pad_token = tokenizer.eos_token
 
@@ -70,7 +70,9 @@ data_file = os.path.join(args.data_dir, args.data)
 
 data_all = load_dataset("chloeli/stream-of-search-countdown-10k")
 
-keys = list(data_all.keys())[int(args.split_range.split(":")[0]):int(args.split_range.split(":")[1])]
+# keys = list(data_all.keys())[int(args.split_range.split(":")[0]):int(args.split_range.split(":")[1])]
+# only the keys that have the word 'search' in them
+keys = [key for key in data_all.keys() if 'search' in key]
 
 for split in keys:
     results_all_trials = []
@@ -100,6 +102,10 @@ for split in keys:
         results_all_trials.append(results)
     
     eval_results = evaluate_countdown_trajectories(results_all_trials)
+    eval_results.insert(0, {
+        # all args
+        [k for k in vars(args).keys()]: [v for v in vars(args).values()]
+    })
             
     save_path = os.path.join("results", f'{args.data.replace("/", "_")}')
     if not os.path.exists(save_path):
