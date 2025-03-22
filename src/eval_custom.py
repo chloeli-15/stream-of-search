@@ -14,6 +14,8 @@ from datasets import load_dataset, DatasetDict, Dataset
 from countdown_utils import *
 from countdown_bfs import bfs
 from countdown_dfs import dfs
+import sys
+sys.path.insert(0,"/workspace/stream-of-search")
 from finetune.run_adapter_model import load_model, generate, generate_batch
 from result_parsers.countdown_trajectories import evaluate_countdown_trajectories
 
@@ -57,6 +59,7 @@ args = parser.parse_args()
 torch.manual_seed(args.seed)
 
 model, tokenizer = load_model(args.adapter, args.ckpt)
+
 
 model.eval()
 model.bfloat16().cuda()

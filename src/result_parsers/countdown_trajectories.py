@@ -3,6 +3,7 @@ from tqdm import tqdm
 import re
 import json, sys, os, glob
 import numpy as np
+
 import matplotlib.pyplot as plt
 import re
 def evaluate_countdown_trajectory(prompt, trajectory):
@@ -198,11 +199,11 @@ def plot_results(results_all_trials):
 #             'completion': x[1]['content']
 #         }, prompts))
         
-        res = []
-        for i in range(len(results)):
-            problem_text = results[i].get("prompt", "")
-            solution_text = results[i].get("completion", "")
-            res.append(evaluate_countdown_trajectory(problem_text, solution_text))
+        # res = []
+        # for i in range(len(results)):
+        #     problem_text = results[i].get("prompt", "")
+        #     solution_text = results[i].get("completion", "")
+        #     res.append(evaluate_countdown_trajectory(problem_text, solution_text))
 
 #         # aggregate for accuracy
 #         successes = [r["solved"] for r in res]
