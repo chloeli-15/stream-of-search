@@ -1,12 +1,14 @@
+#%%
 import json
 import os
 import argparse
 from tqdm import tqdm
 
+#%%
 # should only taken 30s if you have the files
 def convert_to_sftrainer_format(file_prefix, input_dir, output_dir):
     data = {}
-    
+
     template_names = os.listdir(input_dir)
     
     for template_name in template_names:
@@ -66,3 +68,51 @@ if __name__ == "__main__":
     else:
         raise ValueError("Not a directory")
 
+#%%
+def load_json(file):
+    with open(file, 'r') as f:
+        return json.load(f)
+
+#%%
+original_data=load_json("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/train1_b4_t100_n500000_random.json")[:10000]
+
+search_data=load_json("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/train1_b4_t100_n500000_random_optimal.json")[:10000]
+
+for i in range(len(original_data)):
+    original_data[i]['messages'] = search_data[i]['messages']
+
+#%%
+with open("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/train1_b4_t100_n10000_random_optimal.json", "w+") as f:
+    json.dump(original_data, f, indent=4)
+
+#%%
+train_search_data=load_json("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/train1_b4_t100_n10000_random_optimal.json")
+
+#%%
+# Make a HF dataset
+from datasets import Dataset, DatasetDict
+train_search =  Dataset.from_dict({k: [d[k] for d in train_search_data] for k in train_search_data[0].keys()})
+
+# %%
+# dataset_dict = DatasetDict({
+#     "train_optimal": train_search
+# })
+
+dataset_dict["train_optimal"] = train_search
+
+dataset_dict.push_to_hub("chloeli/stream-of-search-countdown-10k")
+
+# %%
+original_test_data = load_json("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/val1_b4_t100_n500000_random.json")
+
+test_search_data = load_json("/Users/chloeli/Library/CloudStorage/GoogleDrive-chloeli561@gmail.com/My Drive/UCL/Term 2/Openendedness/stream-of-search/scripts/val1_b4_t100_n500000_random_search.json")
+
+for i in range(len(original_test_data)):
+    original_test_data[i]['messages'] = test_search_data[i]['messages']
+#%%
+test_search =  Dataset.from_dict({k: [d[k] for d in original_test_data] for k in original_test_data[0].keys()})
+dataset_dict["val_search"] = test_search
+# %%
+dataset_dict.push_to_hub("chloeli/stream-of-search-countdown-10k")
+
+# %%

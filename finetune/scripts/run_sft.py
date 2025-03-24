@@ -143,6 +143,7 @@ def main():
         remove_columns=column_names,
         desc="Applying chat template",
     )
+    logger.info(f"Example prompt: {raw_datasets['train'][0]['text']}")
 
     ##########################
     # Decontaminate benchmarks
@@ -224,6 +225,7 @@ def main():
     ##########
     if training_args.do_eval:
         logger.info("*** Evaluate ***")
+        tokenizer.padding_side = 'left'
         metrics = trainer.evaluate()
         metrics["eval_samples"] = len(eval_dataset)
         trainer.log_metrics("eval", metrics)

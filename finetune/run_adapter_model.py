@@ -49,7 +49,7 @@ def load_model(adapter_path, base_model=None):
         
     return model, tokenizer
 
-def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
+def generate(model, tokenizer, prompt, max_new_tokens=1024, temperature=1.0):
     """Generate text using the loaded model"""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     
@@ -63,7 +63,6 @@ def generate(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
             top_k=20 if temperature>0.0 else None,
             do_sample=temperature>0.0
         )
-
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7):
@@ -133,7 +132,6 @@ def download_models():
 #%%
 if __name__ == "__main__":
     download_models()
-    
 #     # Example usage
 #     adapter_path = "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
     
@@ -153,3 +151,4 @@ if __name__ == "__main__":
 #     print(f"\nPrompt: {prompt}")
 #     print(f"\nResponse: {response}")
 # # %%
+
