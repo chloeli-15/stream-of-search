@@ -38,9 +38,10 @@ from alignment import (
     get_peft_config,
     get_quantization_config,
     get_tokenizer,
+    DebugCallback,
+    CountdownEvaluationCallback,
 )
 from trl import SFTTrainer, setup_chat_format
-
 
 logger = logging.getLogger(__name__)
 
@@ -154,7 +155,7 @@ def main():
     # )
 
     train_dataset = raw_datasets["train"]
-    # eval_dataset = raw_datasets["test"]
+    eval_dataset = raw_datasets["test"] if training_args.do_eval else None
 
     with training_args.main_process_first(desc="Log a few random samples from the processed training set"):
         for index in random.sample(range(len(raw_datasets["train"])), 3):
@@ -164,13 +165,15 @@ def main():
     # Initialize the Trainer
     ########################
     # Some SFTTrainer args are moved to SFTConfig args
+    
     trainer = SFTTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
-        # eval_dataset=eval_dataset,
+        eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
+        callbacks=[DebugCallback(), CountdownEvaluationCallback()],
         # model_init_kwargs=model_kwargs,
         # dataset_text_field="text",
         # max_seq_length=training_args.max_seq_length,
