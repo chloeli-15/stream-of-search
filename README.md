@@ -20,6 +20,15 @@ conda activate sos
 pip install -r requirements.txt
 ```
 
+4. For me (yeok) I had some issues getting it to run after that
+I had to
+```bash
+pip uninstall transformers peft
+pip install transformers peft # it finds a slightly more matching version
+pip install bitsandbytes==0.44
+```
+
+
 ## Running the code
 Please update the scripts in the `scripts/` directory to reflect the correct paths to the data and model checkpoints. The following steps outline the process of running the code:
 1. Generate the countdown dataset
