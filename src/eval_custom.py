@@ -102,10 +102,9 @@ for split in keys:
         results_all_trials.append(results)
     
     eval_results = evaluate_countdown_trajectories(results_all_trials)
-    eval_results.insert(0, {
-        # all args
-        [k for k in vars(args).keys()]: [v for v in vars(args).values()]
-    })
+    eval_results.insert(0,
+        {"hyperparams": vars(args)}
+    )
             
     save_path = os.path.join("results", f'{args.data.replace("/", "_")}')
     if not os.path.exists(save_path):
