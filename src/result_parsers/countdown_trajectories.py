@@ -6,12 +6,23 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import re
+import re
+import ast
+
 def evaluate_countdown_trajectory(prompt, trajectory):
     """
     Evaluates a countdown puzzle solver trajectory to determine if it correctly found a solution.
     
+    The function supports two output formats:
+      1. A detailed reasoning trace with various intermediate steps.
+      2. A final answer block in the required format:
+          SOLUTION: YES/NO
+          OPERATIONS: [list of operations performed]
+          RESULT: final_value
+
     Args:
-        trajectory (str): A string containing the full trajectory of a countdown solver run
+        prompt (str): The original countdown puzzle prompt.
+        trajectory (str): A string containing the full trajectory of a countdown solver run.
     
     Returns:
         dict: A dictionary containing evaluation results with keys:
@@ -21,72 +32,100 @@ def evaluate_countdown_trajectory(prompt, trajectory):
             - 'operations': List of operations performed to reach the solution (if solved)
             - 'final_value': The final value reached by the solver
     """
-    lines = trajectory.strip().split('\n')
+    lines = trajectory.strip().split("\n")
     
-    # Extract initial state from the first line
-    # initial_line = lines[0]
-    # target_and_numbers = initial_line.split("Current State: ")[1].split(", Operations:")[0]
-    
+    # Extract target and initial numbers from the prompt.
     problem_match = re.search(r"Make (\d+) with the numbers \[([0-9, ]+)\]", prompt)
+    if not problem_match:
+        raise ValueError("Prompt format is incorrect.")
     target = int(problem_match.group(1))
     initial_numbers = [int(num.strip()) for num in problem_match.group(2).split(',')]
     
-
-    # target = int(target_and_numbers.split(":")[0])
-    # initial_numbers_str = target_and_numbers.split(":")[1].strip()
-    # initial_numbers = [int(num) for num in initial_numbers_str.strip("[]").split(", ")]
-    
-    # Check if a solution was found
+    # Initialize default values.
     solved = False
     operations = []
     final_value = None
-    try:
+    
+    # Try to find a final answer in the required format.
+    solution_line_index = None
+    for i, line in enumerate(lines):
+        if line.strip().startswith("SOLUTION:"):
+            solution_line_index = i  # store the last occurrence if there are multiple
+    
+    if solution_line_index is not None:
+        # Parse the SOLUTION line.
+        solution_line = lines[solution_line_index].strip()
+        solved_str = solution_line.split("SOLUTION:")[1].strip()
+        solved = (solved_str.upper() == "YES")
+        
+        # Look for the OPERATIONS line after the SOLUTION line.
+        operations_line = None
+        for j in range(solution_line_index + 1, len(lines)):
+            if lines[j].strip().startswith("OPERATIONS:"):
+                operations_line = lines[j].strip()
+                break
+        if operations_line:
+            ops_str = operations_line.split("OPERATIONS:")[1].strip()
+            try:
+                operations = ast.literal_eval(ops_str)
+            except Exception:
+                # Fallback in case literal_eval fails
+                ops_str = ops_str.strip("[]")
+                operations = [op.strip().strip("'") for op in ops_str.split(",")] if ops_str else []
+        
+        # Look for the RESULT line after the SOLUTION line.
+        result_line = None
+        for j in range(solution_line_index + 1, len(lines)):
+            if lines[j].strip().startswith("RESULT:"):
+                result_line = lines[j].strip()
+                break
+        if result_line:
+            final_value_str = result_line.split("RESULT:")[1].strip()
+            try:
+                final_value = int(final_value_str)
+            except Exception:
+                try:
+                    final_value = float(final_value_str)
+                except Exception:
+                    final_value = None
+    else:
+        # Fall back to the old logic.
         for line in lines:
-            # Check for "Goal Reached" message
             if "Goal Reached" in line:
                 solved = True
-                # Extract the final value from the comparison
-                comparison_part = line.split("equal:")[0].strip()
-                final_value = int(comparison_part.split(",")[0])
-                
-                # Find the operations from the last state before "Goal Reached"
+                try:
+                    # Extract the final value from the part before "equal:".
+                    comparison_part = line.split("equal:")[0].strip()
+                    final_value = int(comparison_part.split(",")[0])
+                except Exception:
+                    final_value = None
+                # Find the operations from the previous line that contains "Operations:".
                 for i in range(lines.index(line) - 1, -1, -1):
                     if "Operations:" in lines[i]:
                         operations_str = lines[i].split("Operations: ")[1].strip()
-                        # Handle empty operations list
                         if operations_str == "[]":
                             operations = []
                         else:
-                            # Remove brackets and split by comma
+                            # Remove extra quotes and split the operations.
                             operations_str = operations_str.strip("[]'")
                             operations = operations_str.split("', '")
                         break
                 break
             
-            # Check for explicit "No solution found" message
             if "No solution found" in line:
                 solved = False
                 final_value = None
                 operations = []
                 break
     
-        return {
-            'solved': solved,
-            'target': target,
-            'initial_numbers': initial_numbers,
-            'operations': operations,
-            'final_value': final_value
-        }
+    return {
+        'solved': solved,
+        'target': target,
+        'initial_numbers': initial_numbers,
+        'operations': operations,
+        'final_value': final_value
+    }
 
-    except Exception as e:
-        # print(f"Error evaluating trajectory: {e}")
-        return {
-            'solved': False,
-            'target': target,
-            'initial_numbers': initial_numbers,
-            'operations': [],
-            'final_value': None
-        }
         
         
 
