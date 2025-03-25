@@ -19,11 +19,13 @@ Supervised fine-tuning script for decoder language models.
 import logging
 import random
 import sys
+import os
 
 import datasets
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, set_seed
+from callbacks import DebugCallback, CountdownEvalCallback
 
 from alignment import (
     DataArguments,
@@ -38,8 +40,6 @@ from alignment import (
     get_peft_config,
     get_quantization_config,
     get_tokenizer,
-    DebugCallback,
-    CountdownEvaluationCallback,
 )
 from trl import SFTTrainer, setup_chat_format
 
@@ -90,11 +90,21 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=["messages", "chosen", "rejected", "prompt", "completion", "label"],
+        columns_to_keep=["messages_o3", "chosen", "rejected", "prompt", "completion", "label"],
     )
     logger.info(
         f"Training on the following datasets and their proportions: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
     )
+
+    # Rename messages_o3 to messages
+    for split in raw_datasets:
+        if "messages_o3" in raw_datasets[split].column_names:
+            raw_datasets[split] = raw_datasets[split].rename_column("messages_o3", "messages")
+
+    # Filter out examples where messages is None
+    for split in raw_datasets:
+        raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None)
+        logger.info(f"After filtering out None messages, {split} has {raw_datasets[split].num_rows} examples")
     column_names = list(raw_datasets["train"].features)
 
     ################
@@ -174,7 +184,7 @@ def main():
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
-        callbacks=[DebugCallback(), CountdownEvaluationCallback()],
+        # callbacks=[DebugCallback(), CountdownEvalCallback(tokenizer=tokenizer)],
         # model_init_kwargs=model_kwargs,
         # dataset_text_field="text",
         # max_seq_length=training_args.max_seq_length,

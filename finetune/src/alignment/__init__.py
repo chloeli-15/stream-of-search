@@ -10,6 +10,8 @@ from .model_utils import (
     get_quantization_config,
     get_tokenizer,
     is_adapter_model,
+    DebugCallback,
+    CountdownEvalCallback,
 )
 
 
@@ -28,4 +30,6 @@ __all__ = [
     "get_quantization_config",
     "get_tokenizer",
     "is_adapter_model",
+    "DebugCallback",
+    "CountdownEvalCallback"
 ]
