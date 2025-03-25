@@ -124,8 +124,8 @@ def bfs(target, nums, beam_size, heuristic=sum_heuristic, text_template_name="so
 if __name__ == "__main__":
     # Example usage
     random.seed(4)
-    target = 10
-    nums = [4, 2, 1, 1]
+    target =  81
+    nums = [77, 45, 67, 88]
     search_path = bfs(target, nums, 3, heuristic=mult_heuristic, text_template_name="sos_explained_v1")
     print(search_path)
     print(len(search_path))

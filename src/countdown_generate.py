@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 max_rating = 3*4*4
             elif start_size == 4:
                 # naive calculation of max nodes: 4c2 x 4 x 3c2 x 4 x 4 = 1152
-                max_rating = 1152
+                max_rating = 11520
             elif start_size == 5:
                 # naive calculation of max nodes: 5c2 x 4 x 4c2 x 4 x 3c2 x 4 x 4 = 46080
                 max_rating = 46080

@@ -3,6 +3,7 @@ Utility functions for countdown.py
 '''
 import re
 import json
+import numpy as np
 
 def combine_nums(a, b):
     # Implicitly makes assumptions about the order of operations and valid operations
@@ -46,13 +47,14 @@ def generate_sum_heuristic_string(nums, target):
     "(|4-10| + |2-10| + |1-10| + |1-10|)/4 = 8"
     """
     # Create the string representation for each absolute difference.
-    diff_str = " + ".join(f"|{num}-{target}|" for num in nums)
+    step_1 = " + ".join(f"|{num}-{target}|" for num in nums)
+    step_2 = " + ".join(f"{np.abs(num-target)}" for num in nums)
     
     # Compute the average absolute difference.
     avg_diff = sum(abs(num - target) for num in nums) / len(nums)
     
     # Format the result string.
-    result_str = f"({diff_str})/{len(nums)} = {avg_diff:.2f}"
+    result_str = f"({step_1})/{len(nums)} = ({step_2})/{len(nums)} = {avg_diff:.2f}"
     return result_str
 
 def mult_heuristic(nums, target):

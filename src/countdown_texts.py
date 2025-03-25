@@ -1,7 +1,7 @@
 HEURISTIC_DESCRIPTIONS = {
     "sum_heuristic": (
         "**sum-based** heuristic, which computes the average of the absolute differences between each number and the target number"
-        "For example, For example, for nums=[4,2,1,1] and target=10, the heuristic score is:\n"
+        "For example, for nums=[4,2,1,1] and target=10, the heuristic score is:\n"
         "(|4-10| + |2-10| + |1-10| + |1-10|)/4 = 8\n"
         "Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.\n"
     ),
@@ -39,65 +39,100 @@ SEARCH_DESCRIPTIONS = {
 
 TEXT_TEMPLATES = {
     "sos": {
-        "prefix": ("Make {target} with the numbers {nums} using standard arithmetic operations.\n"
-                   "==="),
-        "node_selection": "Current State: {target}:{nums}, Operations: {operations}\n",
+        "prefix": ( "Combine these initial numbers {target}, using only arithmetic operations (+, -, *, /) to reach the target value {nums}. All initial numbers must be used exactly once.\n"
+                    "Conclude with the final result in EXACTLY this format:\n"
+                    "```\n"
+                    "SOLUTION: YES/NO\n"
+                    "OPERATIONS: [list of operations performed]\n"
+                    "RESULT: final_value\n"
+                    "```\n"
+                    "\n"
+                    "For example, a successful solution for initial numbers [1, 2, 6] and target 5 might end with:\n"
+                    "```\n"
+                    "SOLUTION: YES\n"
+                    "OPERATIONS: ['6-2=4', '4+1=5']\n"
+                    "RESULT: 11\n"
+                    "```\n"
+                    "Note that each string in the list of OPERATIONS involves only 1 operation each. For example, 'A+B=C' is allowed, 'A+B/C=D' is not allowed because that involves 2 operations in the string.\n"
+                    "\n"
+                    "An unsuccessful attempt might end with:\n"
+                    "SOLUTION: NO\n"
+                    "OPERATIONS: []\n"
+                    "RESULT: None\n"
+                    "```\n"
+                    "===\n"),
+        "current_state": "Current State: {target}:{nums}, Operations: {operations}\n",
         "operation_selection": "Exploring Operation: {operation}, Resulting Numbers: {nums}\n",
         "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n",
-        "backtracking": "Moving to Node #{next_index}\n"
+        "move_to_node": "Moving to Node #{next_idx}\n"
     },
-    "sos_explained_v1": {
+    "sos_react": {
         "prefix": (
-        "## Countdown Game Explanation\n"
-        "In the Countdown game, we start with a set of four initial numbers (e.g., [4,2,1,1]) and a target value (e.g., 10). Our goal is to use arithmetic operations (+,–,*,/) to produce the target. Each time we apply an operation to two numbers, we remove those two numbers from the set and replace them with the operation’s result. We continue until we:\n"
-        "1. Obtain the target (success) and can provide a valid formula (e.g., 4*2+1+1=10), or\n"
-        "2. Exhaust all possibilities without finding the target (failure).\n"
+        "Combine these initial numbers {target}, using only arithmetic operations (+, -, *, /) to reach the target value {nums}. All initial numbers must be used exactly once.\n"
+        "Conclude with the final result in EXACTLY this format:\n"
+        "```\n"
+        "SOLUTION: YES/NO\n"
+        "OPERATIONS: [list of operations performed]\n"
+        "RESULT: final_value\n"
+        "```\n"
         "\n"
-        "## {search_name}\n"
-        "You will be using a {search_name} guided by a {heuristic_description}\n"
-        "The search process:\n"
-        "{search_description}\n"
+        "For example, a successful solution for initial numbers [1, 2, 6] and target 5 might end with:\n"
+        "```\n"
+        "SOLUTION: YES\n"
+        "OPERATIONS: ['6-2=4', '4+1=5']\n"
+        "RESULT: 11\n"
+        "```\n"
+        "Note that each string in the list of OPERATIONS involves only 1 operation each. For example, 'A+B=C' is allowed, 'A+B/C=D' is not allowed because that involves 2 operations in the string.\n"
         "\n"
-        "Make {target} with the numbers {nums} using standard arithmetic operations, and show your search step by step\n"
+        "An unsuccessful attempt might end with:\n"
+        "SOLUTION: NO\n"
+        "OPERATIONS: []\n"
+        "RESULT: None\n"
+        "```\n"
         "===\n"
+        "I will be using a {search_name} guided by a {heuristic_description}\n"
         "We are given initial numbers {nums} and target value {target}. Let's show the search process step by step:\n"
         ),
-        "node_selection": (
-            "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n"
-            "- We selected this node as it has the lowest heuristic score: {heuristic_arithmetic_string}\n" 
+        "current_state": (
+            "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n\n"
         ),
         "operation_selection": (
-            "Generating Node #{node_idx}. Operation: {operation}. Resulting numbers: {nums}.\n"
-            "- We compute the heuristic: {heuristic_arithmetic_string}\n" 
+            "Thought    : Expand Node #{node_idx}’s child {child_number} to build next frontier.\n"
+            "Action     : Exploring operation {operation}. Resulting numbers: {nums}.\n"
+            "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
         ),
-        "node_generation": "",  # Not needed in this mode.
-        "backtracking": "Backtracking to Node #{next_index}\n"
+        "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n", 
+        "move_to_node": (
+            "Thought    : Selecting next node to expand based on heuristic value\n"
+            "Action     : Moving to Node #{next_idx}\n" 
+            "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
+                         )
     },
-        "sos_explained_v2": {
-        "prefix": (
-        "## Countdown Game Explanation\n"
-        "In the Countdown game, we start with a set of four initial numbers (e.g., [4,2,1,1]) and a target value (e.g., 10). Our goal is to use arithmetic operations (+,–,*,/) to produce the target. Each time we apply an operation to two numbers, we remove those two numbers from the set and replace them with the operation’s result. We continue until we:\n"
-        "1. Obtain the target (success) and can provide a valid formula (e.g., 4*2+1+1=10), or\n"
-        "2. Exhaust all possibilities without finding the target (failure).\n"
-        "\n"
-        "## {search_name}\n"
-        "You will be using a {search_name} guided by a {heuristic_description}\n"
-        "The search process:\n"
-        "{search_description}\n"
-        "\n"
-        "Make {target} with the numbers {nums} using standard arithmetic operations, and show your search step by step\n"
-        "==="
-        "We are given initial numbers {nums} and target value {target}. Let's show the search process step by step:\n"
-        ),
-        "node_selection": (
-            "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n"
-        ),
-        "operation_selection": (
-            "Generating Node #{node_idx}. Operation: {operation}. Resulting numbers: {nums}.\n"
-        ),
-        "node_generation": "",  # Not needed in this mode.
-        "backtracking": "Backtracking to Node #{next_index}\n"
-    }
+    #     "sos_explained_v2": {
+    #     "prefix": (
+    #     "## Countdown Game Explanation\n"
+    #     "In the Countdown game, we start with a set of four initial numbers (e.g., [4,2,1,1]) and a target value (e.g., 10). Our goal is to use arithmetic operations (+,–,*,/) to produce the target. Each time we apply an operation to two numbers, we remove those two numbers from the set and replace them with the operation’s result. We continue until we:\n"
+    #     "1. Obtain the target (success) and can provide a valid formula (e.g., 4*2+1+1=10), or\n"
+    #     "2. Exhaust all possibilities without finding the target (failure).\n"
+    #     "\n"
+    #     "## {search_name}\n"
+    #     "You will be using a {search_name} guided by a {heuristic_description}\n"
+    #     "The search process:\n"
+    #     "{search_description}\n"
+    #     "\n"
+    #     "Make {target} with the numbers {nums} using standard arithmetic operations, and show your search step by step\n"
+    #     "==="
+    #     "We are given initial numbers {nums} and target value {target}. Let's show the search process step by step:\n"
+    #     ),
+    #     "node_selection": (
+    #         "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n"
+    #     ),
+    #     "operation_selection": (
+    #         "Generating Node #{node_idx}. Exploring operation: {operation}. Resulting numbers: {nums}.\n"
+    #     ),
+    #     "node_generation": "",  # Not needed in this mode.
+    #     "backtracking": "Backtracking to Node #{next_index}\n"
+    # }
 }
 
 SOS_TRAJECTORY_PROMPT = """
@@ -137,7 +172,7 @@ OPERATIONS: []
 RESULT: None
 ```
 
-Could you provide a detailed reasoning trace for making 100 using the numbers [70, 63, 75, 32]? 
+Could you provide a detailed reasoning trace for making {TARGET} using the numbers {INITIAL_NUMBERS}? 
 When you have reached a solution during the search that arrives at the target, please double check if the operations
 1. use all the initial numbers once, 
 2. used any numbers not in the list at all,
@@ -146,4 +181,29 @@ Otherwise, reflect on all mistakes and repeat the search process.
 Once you've reached the target and the result passes your check, report the final answer in the format given. The evaluation code will specifically look for these exact keywords and format in the final lines to extract the solution details.
 """
 
+COUNTDOWN_PROMPT = """
+Combine these initial numbers {INITIAL_NUMBERS}, using only arithmetic operations (+, -, *, /) to reach the target value {TARGET}. All initial numbers must be used exactly once. The correct combination must exist.
 
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: [list of operations performed]
+RESULT: final_value
+```
+
+For example, a successful solution might end with:
+```
+SOLUTION: YES
+OPERATIONS: ['75-72=3', '3*2=6', '66/6=11']
+RESULT: 11
+```
+Note that each string in the list of OPERATIONS involves only 1 operation each. For example, 'A+B=C' is allowed, 'A+B/C=D' is not allowed because that involves 2 operations in the string.
+
+An unsuccessful attempt might end with:
+```
+SOLUTION: NO
+OPERATIONS: []
+RESULT: None
+```
+The evaluation code will specifically look for these exact format in the final lines to extract the solution details.
+"""
