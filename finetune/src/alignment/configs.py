@@ -258,6 +258,10 @@ class SFTConfig(trl.SFTConfig):
     )
     packing: bool = field(default=True)
     model_init_kwargs: Optional[Dict[str, Any]] = field(default=None)
+    # log_dir: Optional[str] = field(
+    #     default=None,
+    #     metadata={"help": "Directory for saving logs separate from model outputs"}
+    # )
 
 
 @dataclass

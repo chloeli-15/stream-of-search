@@ -57,11 +57,22 @@ def main():
     ###############
     # Setup logging
     ###############
+    # Determine log directory - either user specified or default
+    output_parent_dir = os.path.dirname(os.path.abspath(training_args.output_dir))
+    model_name = os.path.basename(training_args.output_dir)
+    log_dir = training_args.logging_dir if training_args.logging_dir else os.path.join(output_parent_dir, "logs", model_name)
+    print("log_dir:", log_dir)
+
+    # Create log directory if it doesn't exist
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "training.log")
+
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
+        handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler(log_file)],
     )
+
     log_level = training_args.get_process_log_level()
     logger.setLevel(log_level)
     datasets.utils.logging.set_verbosity(log_level)
