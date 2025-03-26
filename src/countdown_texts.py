@@ -1,8 +1,8 @@
 HEURISTIC_DESCRIPTIONS = {
     "sum_heuristic": (
-        "**sum-based** heuristic, which computes the average of the absolute differences between each number and the target number"
-        "For example, for nums=[4,2,1,1] and target=10, the heuristic score is:\n"
-        "(|4-10| + |2-10| + |1-10| + |1-10|)/4 = 8\n"
+        "**sum-based** heuristic, which computes the average of the absolute differences between each number and the target number.\n"
+        # "For example, for nums=[4,2,1,1] and target=10, the heuristic score is:\n"
+        # "(|4-10| + |2-10| + |1-10| + |1-10|)/4 = 8\n"
         "Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.\n"
     ),
     "mult_heuristic": (
@@ -64,11 +64,19 @@ TEXT_TEMPLATES = {
         "current_state": "Current State: {target}:{nums}, Operations: {operations}\n",
         "operation_selection": "Exploring Operation: {operation}, Resulting Numbers: {nums}\n",
         "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n",
-        "move_to_node": "Moving to Node #{next_idx}\n"
+        "move_to_node": "Moving to Node #{next_idx}\n",
+        "no_solution":("{nums},{target} unequal: No Solution\n\n"),
+        "solution_summary": (
+            "```\n"
+            "SOLUTION: {solution_found}\n"
+            "OPERATIONS: {operations_str}\n"
+            "RESULT: {final_value}\n"
+            "```  \n"
+        )
     },
     "sos_react": {
         "prefix": (
-        "Combine these initial numbers {target}, using only arithmetic operations (+, -, *, /) to reach the target value {nums}. All initial numbers must be used exactly once.\n"
+        "Combine these initial numbers {nums}, using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"
         "Conclude with the final result in EXACTLY this format:\n"
         "```\n"
         "SOLUTION: YES/NO\n"
@@ -90,23 +98,33 @@ TEXT_TEMPLATES = {
         "RESULT: None\n"
         "```\n"
         "===\n"
-        "I will be using a {search_name} guided by a {heuristic_description}\n"
-        "We are given initial numbers {nums} and target value {target}. Let's show the search process step by step:\n"
+        "We have these numbers {nums}. Our goal is to produce {target}. Let's show the search process step by step:\n"
+        "One possible strategy is to use a {search_name} guided by a {heuristic_description}\n"
         ),
         "current_state": (
             "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n\n"
         ),
         "operation_selection": (
-            "Thought    : Expand Node #{node_idx}’s child {child_number} to build next frontier.\n"
-            "Action     : Exploring operation {operation}. Resulting numbers: {nums}.\n"
-            "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
+            "Thought    : Expand Node #{node_idx}’s {child_ordinal} child to build next frontier.\n"
+            "Action     : Exploring operation {operation}. \n"
+            "Resulting numbers: {nums}.\n"
+            "{heuristic_arithmetic_line}"
         ),
-        "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n", 
+        "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n\n", 
         "move_to_node": (
             "Thought    : Selecting next node to expand based on heuristic value\n"
             "Action     : Moving to Node #{next_idx}\n" 
-            "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
-                         )
+        ),
+        "no_solution":("{nums},{target} unequal: No Solution ... backtracking \n\n"),
+        "solution_summary": (
+            "```\n"
+            "SOLUTION: {solution_found}\n"
+            "OPERATIONS: {operations_str}\n"
+            "RESULT: {final_value}\n"
+            "```  \n"
+        )
+            # "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
+
     },
     #     "sos_explained_v2": {
     #     "prefix": (

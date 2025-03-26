@@ -1,12 +1,14 @@
 import itertools
 import tiktoken
 
-from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn, generate_sum_heuristic_string, generate_mult_heuristic_string
+from countdown_utils import combine_nums, CountdownNode, sum_heuristic, mult_heuristic, metric_fn, generate_sum_heuristic_string, generate_mult_heuristic_string, extract_solution_summary
 from countdown_texts import TEXT_TEMPLATES, HEURISTIC_DESCRIPTIONS, SEARCH_DESCRIPTIONS
+import inflect
+
 
 
 def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], search_trace="", text_template_name="sos"):
-    
+    p = inflect.engine()
     text_template = TEXT_TEMPLATES.get(text_template_name)
     generate_heuristic_arithmetic_string = generate_mult_heuristic_string if heuristic.__name__ == "mult_heuristic" else generate_sum_heuristic_string
     if search_trace == "":
@@ -64,21 +66,32 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
         for g, (heuristic_val, new_node) in enumerate(generated_nodes):
             new_node.idx = f"{new_node.parent.idx},{node_index}"
             heuristic_arithmetic_string = generate_heuristic_arithmetic_string(new_node.nums, target)
+            child_ordinal = p.ordinal(node_index+1)
             text = text_template["operation_selection"].format(
                 node_idx=new_node.parent.idx,
-                child_number=node_index,
+                child_ordinal=child_ordinal,
                 target=target,
                 nums=new_node.nums,
                 operation=new_node.operations[-1],
-                heuristic_arithmetic_string=heuristic_arithmetic_string
+                heuristic_arithmetic_line=f"\nHeuristic score : {heuristic_arithmetic_string}\n" if len(new_node.nums) > 1 else ""
             )
             search_trace += text 
 
             if len(new_node.nums) == 1 and new_node.nums[0] == target:
-                search_trace += f"{new_node.nums[0]},{target} equal: Goal Reached\n"
+                # text = text_template["current_state"].format(
+                #     target=target,
+                #     nums=new_node.nums,
+                #     operations=new_node.operations,
+                #     node_idx=new_node.idx
+                # )
+                # search_trace += text
+                search_trace += f"{new_node.nums[0]},{target} equal: Goal Reached\n\n"
+                
+                text = text_template["solution_summary"].format(solution_found="YES", operations_str=new_node.operations, final_value=new_node.nums[0])
+                search_trace += text 
                 return search_trace
             elif len(new_node.nums) == 1:
-                search_trace += f"{new_node.nums[0]},{target} unequal: No Solution\n"
+                search_trace += text_template["no_solution"].format(nums=new_node.nums[0], target=target)
                 return search_trace
             else:
                 text = text_template["node_generation"].format(
@@ -92,11 +105,12 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
                 new_set = [(new_heuristic, new_node)]
                 text = text_template["move_to_node"].format(
                     next_idx=new_node.idx,
-                    heuristic_arithmetic_string=heuristic_arithmetic_string
+                    heuristic_arithmetic_line=f"\nHeuristic score : {heuristic_arithmetic_string}\n" 
                 )
                 search_trace += text
                 # search_trace += f"Moving to Node #{new_node.idx}\n"
                 search_trace = dfs(target, nums, heuristic=heuristic, threshold=threshold, search_trace=search_trace, open_set=new_set, text_template_name=text_template_name)
+                
                 if "Goal Reached" in search_trace:
                     return search_trace
             node_index += 1
@@ -106,18 +120,16 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
                 heuristic_arithmetic_string = generate_heuristic_arithmetic_string(new_node.nums, target)
                 text = text_template["move_to_node"].format(
                     next_idx=next_index,
-                    heuristic_arithmetic_string=heuristic_arithmetic_string
+                    heuristic_arithmetic_line=f"Heuristic score : {heuristic_arithmetic_string}\n" 
                 )
                 search_trace += text
-                # op_text = text_template["operation_selection"].format(
-                #     node_idx=next_index,
-                #     child_number=next_index.split(",")[-1],
-                #     target=target,
-                #     nums=new_node.nums,
-                #     operation=new_node.parent.operations,
-                #     heuristic_arithmetic_string=heuristic_arithmetic_string
-                # )
-                # search_trace += op_text 
+                text = text_template["current_state"].format(
+                    target=target,
+                    nums=new_node.nums,
+                    operations=new_node.operations,
+                    node_idx=new_node.idx
+                )
+                search_trace += text
 
                 # search_trace += f"Moving to Node #{next_index}\n"
                 # search_trace += f"Current State: {target}:{new_node.parent.nums}, Operations: {new_node.parent.operations}\n"
@@ -128,7 +140,7 @@ def dfs(target, nums, heuristic=sum_heuristic, threshold=None, open_set=[], sear
             heuristic_arithmetic_string = generate_heuristic_arithmetic_string(next_node.nums, target)
             text = text_template["move_to_node"].format(
                     next_idx=next_idx,
-                    heuristic_arithmetic_string=heuristic_arithmetic_string
+                    heuristic_arithmetic_line=f"\nHeuristic score : {heuristic_arithmetic_string}\n" 
                 )
             search_trace += text
 

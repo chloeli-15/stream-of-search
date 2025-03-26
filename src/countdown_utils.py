@@ -20,6 +20,68 @@ def combine_nums(a, b):
             possible.append([a//b, f"{a}/{b}={round(a//b,0)}"])
     return possible
 
+def extract_solution_summary(trajectory: str) -> str:
+    """
+    Parses a countdown puzzle solver trajectory to determine if a solution was reached,
+    the operations performed, and the final value.
+    
+    The function returns a string formatted as follows:
+      ```
+        SOLUTION: YES/NO
+        OPERATIONS: {operations_str}
+        RESULT: {final_value}
+      ```
+      
+    The function searches for the line containing "Goal Reached" to decide if the solution
+    was found. It then extracts the final value from that line (assuming the format "X,Y equal: Goal Reached")
+    and looks for the most recent "Operations so far" line to retrieve the operations list.
+    
+    Args:
+        trajectory (str): A string containing the full trajectory of the solver run.
+    
+    Returns:
+        str: A formatted solution summary.
+    """
+    solved = False
+    operations_str = "[]"
+    final_value = None
+
+    lines = trajectory.strip().splitlines()
+    goal_line_index = None
+
+    # Find the index of the line containing "Goal Reached"
+    for i, line in enumerate(lines):
+        if "Goal Reached" in line:
+            goal_line_index = i
+            solved = True
+            break
+
+    if solved and goal_line_index is not None:
+        # Extract final value from the "Goal Reached" line.
+        # Expected line format: "16,16 equal: Goal Reached"
+        match = re.search(r'^(\d+),', lines[goal_line_index].strip())
+        if match:
+            final_value = int(match.group(1))
+        
+        # Search backwards for the line containing "Operations so far"
+        for j in range(goal_line_index - 1, -1, -1):
+            if "Operations so far" in lines[j]:
+                # The line is expected to have a part like:
+                # "Current State #X: 16:[...]. Operations so far : <operations>"
+                parts = lines[j].split("Operations so far :")
+                if len(parts) > 1:
+                    operations_str = parts[1].strip()
+                break
+
+    summary = f"""```
+    SOLUTION: {"YES" if solved else "NO"}
+    OPERATIONS: {operations_str}
+    RESULT: {final_value}
+    ```"""
+    
+    return summary
+
+
 class CountdownNode:
     def __init__(self, idx, parent, nums, operations, heuristic):
         self.nums = nums
@@ -226,6 +288,8 @@ def metric_fn(search_path, mode="dt"):
 """
 UTIL FUNCTIONS FOR PARSING TRAJECTORIES AND RETURNING SEARCH TREE OBJECT 
 """
+
+
 
 
 class SearchTreeNode:
