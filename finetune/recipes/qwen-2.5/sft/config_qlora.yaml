@@ -77,17 +77,17 @@ chat_template: |
   {%- endif %}
 
 dataset_mixer:
-#   MelinaLaimon/stream-of-search: 0.1 #10k in total
-  chloeli/stream-of-search-countdown-10k: 0.1
+  MelinaLaimon/stream-of-search: 0.1 #10k in total
+#   chloeli/stream-of-search-countdown-10k: 0.1
 dataset_splits:
-- train_search
-- test_search
+- train
+- validation
 preprocessing_num_workers: 12
 
 # SFT trainer config
 bf16: true
-do_eval: false
-eval_strategy: "no" #[no, epoch, steps]
+do_eval: true
+eval_strategy: "epoch" #[no, epoch, steps]
 gradient_accumulation_steps: 2
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:

@@ -101,7 +101,7 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=["messages_o3", "chosen", "rejected", "prompt", "completion", "label"],
+        columns_to_keep=["messages_sos", "chosen", "rejected", "prompt", "completion", "label"],
     )
     logger.info(
         f"Training on the following datasets and their proportions: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
@@ -109,13 +109,13 @@ def main():
 
     # Rename messages_o3 to messages
     for split in raw_datasets:
-        if "messages_o3" in raw_datasets[split].column_names:
-            raw_datasets[split] = raw_datasets[split].rename_column("messages_o3", "messages")
+        if "messages_sos" in raw_datasets[split].column_names:
+            raw_datasets[split] = raw_datasets[split].rename_column("messages_sos", "messages")
 
     # Filter out examples where messages is None
     for split in raw_datasets:
-        raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None)
-        logger.info(f"After filtering out None messages, {split} has {raw_datasets[split].num_rows} examples")
+        raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None and example["messages"] != "" and example["messages"] != " ")
+        logger.info(f"After filtering out None and empty messages, {split} has {raw_datasets[split].num_rows} examples")
     column_names = list(raw_datasets["train"].features)
 
     ################
