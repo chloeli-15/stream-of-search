@@ -9,7 +9,7 @@ import os, glob
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_model(adapter_path, base_model=None):
+def load_model(adapter_path, base_model=None, quantize=True):
     """Load a QLoRA fine-tuned model from Hugging Face"""
 
     # Get base model name from adapter config if not provided
@@ -22,21 +22,31 @@ def load_model(adapter_path, base_model=None):
     logger.info(f"Using base model: {base_model}")
     
     # Set up 4-bit quantization (required for QLoRA compatibility)
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_use_double_quant=True
-    )
+    if quantize:
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True
+        )
     
-    # Load base model with quantization
-    logger.info("Loading base model...")
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        quantization_config=quantization_config,
-        device_map="auto",
-        trust_remote_code=True
-    )
+        # Load base model with quantization
+        logger.info("Loading base model...")
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            quantization_config=quantization_config,
+            device_map="auto",
+            trust_remote_code=True
+        )
+        
+    else:
+        # Load base model without quantization
+        logger.info("Loading base model without quantization...")
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            device_map="auto",
+            trust_remote_code=True
+        )
     
     # Load and apply adapter weights
     logger.info("Applying QLoRA adapters...")
@@ -131,7 +141,18 @@ def download_models():
     #     del tokenizer
 #%%
 if __name__ == "__main__":
-    download_models()
+    # download_models()
+    
+    adapter_path = "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
+    
+    # Load model
+    merged_peft_model_name = adapter_path.split("/")[-1] + "-merged"
+    model, tokenizer = load_model(adapter_path, quantize=False)
+    model = model.merge_and_unload()
+    model.save_pretrained(merged_peft_model_name)
+    tokenizer.save_pretrained(merged_peft_model_name)
+    model.push_to_hub(merged_peft_model_name)
+
 #     # Example usage
 #     adapter_path = "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
     

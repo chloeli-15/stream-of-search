@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
         {
             "name": "Python Debugger: Current File",
             "type": "debugpy",
@@ -9,102 +10,80 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Run countdown eval",
-            "type": "python",
-            "request": "launch",
-            "python": "~/miniconda3/envs/sos/bin/python",
-            "program": "${workspaceFolder}/src/eval_countdown_trajectories.py",
-            "env": {
-                "CONDA_DEFAULT_ENV": "sos"
-            },
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Run eval_custom barebones",
-            "type": "python",
-            "request": "launch",
-            "python": "~/miniconda3/envs/sos/bin/python",
-            "program": "${workspaceFolder}/src/eval_custom.py",
-            "args": [
-                "--adapter",
-                "~/disk/huggingface/hub/models--chloeli--qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k",
-                "-n",
-                "100",
-                "-o",
-                "0",
-                "-d",
-                "chloeli/stream-of-search-countdown-10k",
-                "--temperature",
-                "0.1",
-                "--batch_size",
-                "128",
-                "--data_dir",
-                "",
-                "--ctx",
-                "500",
-                "--gens",
-                "3",
-                "--split_range",
-                "0:2",
-                "--chat_template",
-                "true"
-            ],
-            "env": {
-                "CONDA_DEFAULT_ENV": "sos"
-            },
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Run eval_custom 0.5b.py",
-            "type": "python",
-            "request": "launch",
-            "python": "/root/miniconda3/envs/sos/bin/python",
-            "program": "${workspaceFolder}/src/eval_custom.py",
-            "args": [
-                "--adapter",
-                "chloeli/qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k",
-                // "~/.cache/huggingface/hub/models--chloeli--qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k",
-                "-n",
-                "1000",
-                "-o",
-                "0",
-                "-d",
-                "chloeli/stream-of-search-countdown-10k",
-                "--temperature",
-                "0.7",
-                "--batch_size",
-                "128",
-                "--data_dir",
-                "",
-                "--ctx",
-                "4096",
-                "--gens",
-                "3",
-                "--split_range",
-                "${input:rangeInput}",
-                "--chat_template",
-                "True"
-            ],
-            "env": {
-                "CONDA_DEFAULT_ENV": "sos"
-            },
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Run eval_custom 0.5b no temp",
+            "name": "Run eval_custom search 0.5b",
             "type": "python",
             "request": "launch",
             "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
             "program": "${workspaceFolder}/src/eval_custom.py",
             "args": [
-                "--adapter", "chloeli/qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k",                
+                "--adapter", "chloeli/qwen-2.5-0.5b-instruct-sft-lora-countdown-search-1k",                
                 "-n", "256",
                 "-o", "0",
                 "-d", "chloeli/stream-of-search-countdown-10k",
-                "--temperature", "0.0",
+                "--temperature", "0.7",
+                "--batch_size", "64",
+                "--data_dir", "",
+                "--ctx", "8192",
+                "--gens", "1",
+                "--chat_template", "True"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Eval search-1k",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [
+                "--adapter", "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k, chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k",                
+                "-n", "256",
+                "-o", "0",
+                "-d", "MelinaLaimon/stream-of-search",
+                "--temperature", "0.7",
+                "--batch_size", "8",
+                "--data_dir", "",
+                "--ctx", "4096",
+                "--gens", "1",
+                "--chat_template", "True"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Eval search-5k",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [
+                "--adapter", "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-5k, chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k",                
+                "-n", "256",
+                "-o", "0",
+                "-d", "MelinaLaimon/stream-of-search",
+                "--temperature", "0.7",
+                "--batch_size", "8",
+                "--data_dir", "",
+                "--ctx", "4096",
+                "--gens", "1",
+                "--chat_template", "True"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Eval search-react-1k",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [
+                "--adapter", "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k, chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k",                
+                "-n", "256",
+                "-o", "0",
+                "-d", "MelinaLaimon/stream-of-search",
+                "--temperature", "0.7",
                 "--batch_size", "64",
                 "--data_dir", "",
                 "--ctx", "4096",
@@ -115,20 +94,20 @@
             "justMyCode": true
         },
         {
-            "name": "Run eval_custom 1.5b no temp",
+            "name": "Run eval_custom optimal 0.5b",
             "type": "python",
             "request": "launch",
             "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
             "program": "${workspaceFolder}/src/eval_custom.py",
             "args": [
-                "--adapter", "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k",                
+                "--adapter", "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",                
                 "-n", "256",
                 "-o", "0",
                 "-d", "chloeli/stream-of-search-countdown-10k",
-                "--temperature", "0.0",
-                "--batch_size", "32",
+                "--temperature", "0.7",
+                "--batch_size", "64",
                 "--data_dir", "",
-                "--ctx", "4096",
+                "--ctx", "8192",
                 "--gens", "1",
                 "--chat_template", "True"
             ],
@@ -156,6 +135,54 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
+        {
+            "name": "Run eval_custom with Wandb Upload",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [
+                "--adapter", "chloeli/qwen-2.5-0.5b-instruct-sft-lora-countdown-search-1k",                
+                "-n", "4",
+                "--temperature", "0.7",
+                "--batch_size", "2",
+                "--ctx", "256",
+                "--gens", "1",
+                "--split_range", "0:1",
+                "--chat_template", "True",
+                "--upload_results", "True",
+                "--wandb_project", "stream-of-search",
+                "--experiment_name", "countdown-search-evaluation",
+                "--split", "0:1",
+                "--wandb_entity", "yeokch"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Run Distributed Eval React Models",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "${workspaceFolder}/src/eval_custom.py",
+            "args": [
+                "--adapter", "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k",                
+                "-n", "4",
+                "--dataset_name", "MelinaLaimon/stream-of-search",
+                "--messages_field", "messages_sos_react",
+                "--temperature", "0.7",
+                "--batch_size", "2",
+                "--ctx", "12288",
+                "--gens", "1",
+                "--chat_template", "True",
+                "--experiment_name", "distributed-eval-20250329145540-qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k",
+                "--upload_results", "True",
+                "--wandb_project", "stream-of-search",
+                "--wandb_entity", "yeokch"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
         ],
     "inputs": [
         {
