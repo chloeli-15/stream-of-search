@@ -7,6 +7,8 @@ import itertools
 import tiktoken
 
 from countdown_utils import combine_nums, sum_heuristic, mult_heuristic, great_prune, mult_prune
+from countdown_texts import TEXT_TEMPLATES
+
 
 class CountDown(object):
     def __init__(self, max_target=24, start_size=4, min_target=10):
@@ -79,12 +81,13 @@ class CountDown(object):
             nums = new_nums
             search_trace += f"Exploring Operation: {operation}, Resulting Numbers: {nums}\n"
             if len(nums) == 1:
-                search_trace += f"{nums[0]},{target} equal: Goal Reached\n"
+                search_trace += f"{nums[0]},{target} equal: Goal Reached\n\n"
             else:
                 node_index += 1
                 search_trace += f"Generated Node #{node_index}: {new_nums} from Operation: {operation}\n"
                 operations_explored.append(operation)
                 search_trace += f"Current State: {target}:{nums}, Operations: {operations_explored}\n"
+        search_trace += TEXT_TEMPLATES["sos"]["solution_summary"].format(solution_found="YES",operations_str=operations,final_value=result)
         return search_trace
     
 

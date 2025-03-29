@@ -39,67 +39,42 @@ SEARCH_DESCRIPTIONS = {
 
 TEXT_TEMPLATES = {
     "sos": {
-        "prefix": ( "Combine these initial numbers {target}, using only arithmetic operations (+, -, *, /) to reach the target value {nums}. All initial numbers must be used exactly once.\n"
+        "prefix": ( "Combine these initial numbers {nums} using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"
                     "Conclude with the final result in EXACTLY this format:\n"
                     "```\n"
                     "SOLUTION: YES/NO\n"
-                    "OPERATIONS: [list of operations performed]\n"
+                    "OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\n"
                     "RESULT: final_value\n"
                     "```\n"
-                    "\n"
-                    "For example, a successful solution for initial numbers [1, 2, 6] and target 5 might end with:\n"
-                    "```\n"
-                    "SOLUTION: YES\n"
-                    "OPERATIONS: ['6-2=4', '4+1=5']\n"
-                    "RESULT: 11\n"
-                    "```\n"
-                    "Note that each string in the list of OPERATIONS involves only 1 operation each. For example, 'A+B=C' is allowed, 'A+B/C=D' is not allowed because that involves 2 operations in the string.\n"
-                    "\n"
-                    "An unsuccessful attempt might end with:\n"
-                    "SOLUTION: NO\n"
-                    "OPERATIONS: []\n"
-                    "RESULT: None\n"
-                    "```\n"
-                    "===\n"),
+                    "==="),
         "current_state": "Current State: {target}:{nums}, Operations: {operations}\n",
         "operation_selection": "Exploring Operation: {operation}, Resulting Numbers: {nums}\n",
         "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n",
         "move_to_node": "Moving to Node #{next_idx}\n",
+        "move_to_node_bfs": "Moving to Node #{next_idx}\n",
         "no_solution":("{nums},{target} unequal: No Solution\n\n"),
+        "no_solution_backtracking":("{nums},{target} unequal: No Solution\n\n"),
+        "no_solution_backtracking_bfs":("{nums},{target} unequal: No Solution\n\n"),
         "solution_summary": (
             "```\n"
             "SOLUTION: {solution_found}\n"
             "OPERATIONS: {operations_str}\n"
             "RESULT: {final_value}\n"
-            "```  \n"
+            "```\n"
         )
     },
     "sos_react": {
         "prefix": (
-        "Combine these initial numbers {nums}, using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"
+        "Combine these initial numbers {nums} using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"
         "Conclude with the final result in EXACTLY this format:\n"
         "```\n"
         "SOLUTION: YES/NO\n"
-        "OPERATIONS: [list of operations performed]\n"
+        "OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\n"
         "RESULT: final_value\n"
         "```\n"
-        "\n"
-        "For example, a successful solution for initial numbers [1, 2, 6] and target 5 might end with:\n"
-        "```\n"
-        "SOLUTION: YES\n"
-        "OPERATIONS: ['6-2=4', '4+1=5']\n"
-        "RESULT: 11\n"
-        "```\n"
-        "Note that each string in the list of OPERATIONS involves only 1 operation each. For example, 'A+B=C' is allowed, 'A+B/C=D' is not allowed because that involves 2 operations in the string.\n"
-        "\n"
-        "An unsuccessful attempt might end with:\n"
-        "SOLUTION: NO\n"
-        "OPERATIONS: []\n"
-        "RESULT: None\n"
-        "```\n"
-        "===\n"
+        "==="
         "We have these numbers {nums}. Our goal is to produce {target}. Let's show the search process step by step:\n"
-        "One possible strategy is to use a {search_name} guided by a {heuristic_description}\n"
+        "One possible strategy is to use a {search_name} guided by a {heuristic_description}\n\n"
         ),
         "current_state": (
             "Current State #{node_idx}: {target}:{nums}. Operations so far : {operations}.\n\n"
@@ -113,15 +88,21 @@ TEXT_TEMPLATES = {
         "node_generation": "Generated Node #{node_idx}: {target}:{nums} Operation: {operation}\n\n", 
         "move_to_node": (
             "Thought    : Selecting next node to expand based on heuristic value\n"
-            "Action     : Moving to Node #{next_idx}\n" 
+            "Action     : Moving to Node #{next_idx} with lowest heuristic value {heuristic_value}\n" 
         ),
-        "no_solution":("{nums},{target} unequal: No Solution ... backtracking \n\n"),
+        "move_to_node_bfs": (
+            "Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value\n"
+            "Action     : Moving to Node #{next_idx} with lowest heuristic value {heuristic_value}\n" 
+        ),
+        "no_solution":("{nums},{target} unequal: No Solution\n\n"),
+        "no_solution_backtracking":("{nums},{target} unequal: No Solution ... backtracking\n\n"),
+        "no_solution_backtracking_bfs":("{nums},{target} unequal: No solution after expanding all children at current level ... backtracking \n\n"),
         "solution_summary": (
             "```\n"
             "SOLUTION: {solution_found}\n"
             "OPERATIONS: {operations_str}\n"
             "RESULT: {final_value}\n"
-            "```  \n"
+            "```\n"
         )
             # "Observation: Heuristic score = {heuristic_arithmetic_string}\n\n" 
 

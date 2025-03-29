@@ -10,8 +10,8 @@ SEARCH_TYPES = {
 o3_batch_prompts_filename = "data/o3/batch_prompts.jsonl"
 o3_results_filepath = "data/o3/results.jsonl"
 
-merged_sos_database_filename = "data/stream_of_search_10k_merged/train1_b3_t100_n10000.json"
-merged_sos_o3_database_filename = "data/stream_of_search_10k_merged/train1_b3_t100_n10000_with_o3.json"
+merged_sos_database_filename = "data/sos_10k_b4_merged/train1_b4_t100_n10000.json"
+merged_sos_o3_database_filename = "data/sos_10k_b4_merged/train1_b4_t100_n10000_with_o3.json"
 
 o3_prompt_template = """
 Hi! You'll be providing material to conduct supervised fine-tuning on a small model to learn how to play the countdown game using search strategies. In the Countdown game, we start with a set of four initial numbers (e.g., [1,2,4,5]) and a target value (e.g., 14). Our goal is to use arithmetic operations (+,-,*,/) to produce the target using all of the numbers. 

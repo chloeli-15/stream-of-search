@@ -28,7 +28,7 @@ parser.add_argument("--max_target", type=int, default=100, help="Maximum target 
 parser.add_argument("--num_samples", type=int, default=1000, help="Number of data samples to generate")
 
 # search args
-parser.add_argument("--search", type=str, default="random", help="Search type")
+parser.add_argument("--search", type=str, default="random_sos_aug", help="Search type")
 
 # split for growth mode on or off 
 parser.add_argument("--grow", action="store_true", help="grow mode on or off, only a new train set is created")
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 max_rating = 3*4*4
             elif start_size == 4:
                 # naive calculation of max nodes: 4c2 x 4 x 3c2 x 4 x 4 = 1152
-                max_rating = 11520
+                max_rating = 1152
             elif start_size == 5:
                 # naive calculation of max nodes: 5c2 x 4 x 4c2 x 4 x 3c2 x 4 x 4 = 46080
                 max_rating = 46080
@@ -104,6 +104,14 @@ if __name__ == "__main__":
                 search_path = dfs(target, nums, heuristic=sum_heuristic, threshold=target, text_template_name=args.text_template)
             elif args.search == "bfs":
                 search_path = bfs(target, nums, 5, heuristic=mult_heuristic, text_template_name=args.text_template)
+            elif args.search == "random_sos_aug":
+                heuristic = random.choice([sum_heuristic])
+                search = random.choice([dfs, bfs])
+                if search == dfs:
+                    search_path = dfs(target, nums, heuristic=heuristic, threshold=target, text_template_name=args.text_template)
+                elif search == bfs:
+                    beam_size = random.choice([5])
+                    search_path = bfs(target, nums, beam_size, heuristic=heuristic, text_template_name=args.text_template)
             elif args.search == "random":
                 heuristic = random.choice([sum_heuristic, mult_heuristic])
                 search = random.choice([dfs, bfs])
