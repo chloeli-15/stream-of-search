@@ -1,0 +1,3 @@
+ssh -t bufflehead "cd ~/projects/sos/stream-of-search && PYTHONPATH=~/projects/sos/stream-of-search /cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python ./src/eval_custom.py --adapter 'chloeli/qwen-2.5-0.5b-instruct-sft-lora-countdown-search-1k' -n 256 -o 0 -d 'chloeli/stream-of-search-countdown-10k' --temperature 0.7 --batch_size 64 --data_dir '' --ctx 8192 --gens 1 --chat_template True"
+
+ssh -t bufflehead "cd ~/projects/sos/stream-of-search && /cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python ./src/eval_custom.py --adapter 'chloeli/qwen-2.5-0.5b-instruct-sft-lora-countdown-search-1k' -n 16 -o 0 -d 'chloeli/stream-of-search-countdown-10k' --temperature 0.7 --batch_size 8 --data_dir '' --ctx 8192 --gens 1 --chat_template True"

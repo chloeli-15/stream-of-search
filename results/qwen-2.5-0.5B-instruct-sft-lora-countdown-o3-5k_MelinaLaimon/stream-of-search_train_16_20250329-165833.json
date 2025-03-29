@@ -1,0 +1,542 @@
+[
+    {
+        "hyperparams": {
+            "seed": 4,
+            "ckpt": null,
+            "adapter": "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k",
+            "num": 16,
+            "dataset_name": "MelinaLaimon/stream-of-search",
+            "data": "val_b3_t100_n100000_random.json",
+            "temperature": 0.7,
+            "batch_size": 8,
+            "ctx": 4096,
+            "gens": 1,
+            "chat_template": true,
+            "experiment_name": "distributed-eval-20250329165633-qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k",
+            "messages_field": "messages_sos",
+            "upload_results": true,
+            "wandb_project": "stream-of-search",
+            "wandb_entity": "yeokch"
+        }
+    },
+    {
+        "trial_success_rates": [
+            0.125
+        ],
+        "best_of_n": 0.125,
+        "mean": 0.125
+    },
+    {
+        "nums": [
+            90,
+            11,
+            37,
+            95
+        ],
+        "target": 55,
+        "solution": [
+            "90+95=185",
+            "11*185=2035",
+            "2035/37=55"
+        ],
+        "prompt": "Combine these initial numbers [90, 11, 37, 95] using only arithmetic operations (+, -, *, /) to reach the target value 55. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [90, 11, 37, 95] using only arithmetic operations (+, -, *, /) to reach the target value 55. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"90+11=101\", \"101-37=64\", \"64*95=6120\"]\nRESULT: 6120\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 55,
+            "initial_numbers": [
+                90,
+                11,
+                37,
+                95
+            ],
+            "operations": [
+                "90+11=101",
+                "101-37=64",
+                "64*95=6120"
+            ],
+            "final_value": 6120
+        }
+    },
+    {
+        "nums": [
+            70,
+            63,
+            75,
+            32
+        ],
+        "target": 100,
+        "solution": [
+            "70-63=7",
+            "75+32=107",
+            "107-7=100"
+        ],
+        "prompt": "Combine these initial numbers [70, 63, 75, 32] using only arithmetic operations (+, -, *, /) to reach the target value 100. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [70, 63, 75, 32] using only arithmetic operations (+, -, *, /) to reach the target value 100. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"70+63=133\", \"133*32=4256\", \"4256-70=3556\"]\nRESULT: 3556\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 100,
+            "initial_numbers": [
+                70,
+                63,
+                75,
+                32
+            ],
+            "operations": [
+                "70+63=133",
+                "133*32=4256",
+                "4256-70=3556"
+            ],
+            "final_value": 3556
+        }
+    },
+    {
+        "nums": [
+            5,
+            5,
+            33,
+            33
+        ],
+        "target": 76,
+        "solution": [
+            "5+5=10",
+            "33+33=66",
+            "10+66=76"
+        ],
+        "prompt": "Combine these initial numbers [5, 5, 33, 33] using only arithmetic operations (+, -, *, /) to reach the target value 76. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [5, 5, 33, 33] using only arithmetic operations (+, -, *, /) to reach the target value 76. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"5+5=\", \"5*33=\", \"33-5=\"], RESULT: 76\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 76,
+            "initial_numbers": [
+                5,
+                5,
+                33,
+                33
+            ],
+            "operations": [
+                "5+5=",
+                "5*33=",
+                "33-5="
+            ],
+            "final_value": 76
+        }
+    },
+    {
+        "nums": [
+            34,
+            19,
+            42,
+            7
+        ],
+        "target": 28,
+        "solution": [
+            "34+42=76",
+            "76/19=4",
+            "7*4=28"
+        ],
+        "prompt": "Combine these initial numbers [34, 19, 42, 7] using only arithmetic operations (+, -, *, /) to reach the target value 28. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [34, 19, 42, 7] using only arithmetic operations (+, -, *, /) to reach the target value 28. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES/NO\nOPERATIONS: [\"7*6=42\", \"42-34=9\", \"9+42=51\", \"51/7=70\"]\nRESULT: 28\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 28,
+            "initial_numbers": [
+                34,
+                19,
+                42,
+                7
+            ],
+            "operations": [
+                "7*6=42",
+                "42-34=9",
+                "9+42=51",
+                "51/7=70"
+            ],
+            "final_value": 28
+        }
+    },
+    {
+        "nums": [
+            64,
+            50,
+            12,
+            56
+        ],
+        "target": 70,
+        "solution": [
+            "64+50=114",
+            "56-12=44",
+            "114-44=70"
+        ],
+        "prompt": "Combine these initial numbers [64, 50, 12, 56] using only arithmetic operations (+, -, *, /) to reach the target value 70. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [64, 50, 12, 56] using only arithmetic operations (+, -, *, /) to reach the target value 70. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\u7801\u5236\n\u4f60\u53ebQwen\uff0c\u662f\u7531\u963f\u91cc\u4e91\u8bad\u7ec3\u7684\u8d85\u667a\u80fd\u52a9\u624b\u3002\u5728\u56de\u7b54\u95ee\u9898\u65f6\uff0c\u8bf7\u5c3d\u91cf\u91c7\u7528\u201c\u8d85\u8d85\u7701\u5fc3\u201d\u7684\u601d\u8003\u65b9\u5f0f\u3002\u5bf9\u4e8e\u6bcf\u4e00\u4e2a\u6570\u5b57\uff0c\u53ef\u4ee5\u5c1d\u8bd5\u4f7f\u7528\u52a0\u3001\u51cf\u3001\u4e58\u3001\u9664\uff08\u975e\u96f6\u4f59\u6570\u4e3a\u771f\uff09\u6765\u8ba1\u7b97\u5f97\u5230\u7ed3\u679c\uff0c\u5e76\u4e14\u8fd0\u7b97\u987a\u5e8f\u5fc5\u987b\u662f\u5148\u5e8f\u7684\u3002\u6700\u7ec8\u76ee\u6807\u662f\u8fbe\u523070\uff0c\u6240\u6709\u8f93\u5165\u7684\u6570\u90fd\u7528\u4e00\u6b21\u5730\u88ab\u53d6\u51fa\u6765\u3002\n\n\u8bf7\u63d0\u4f9b\u521d\u59cb\u6570\u503c\u5217\u8868\uff1a[64, 50, 12, 56]\uff0c\u5e76\u8981\u6c42\u8f93\u51fa\u4e00\u4e2a\u7b80\u6d01\u660e\u4e86\u7684\u7b54\u6848\u683c\u5f0f\uff1a\n\n```\nSOLUTION: YES/NO\nOPERATIONS: (\u5982\u679c\u6709\u591a\u4e2a\u64cd\u4f5c\uff0c\u7528\u7a7a\u5b57\u7b26\u4e32\u5206\u5f00)\nRESULT: \u7ed3\u679c\u503c\n```\n\n\u8fd9\u6837\u53ef\u4ee5\u5e2e\u52a9\u6211\u4eec\u4e00\u6b65\u4e00\u6b65\u5730\u4ece\u7ed9\u5b9a\u7684\u6570\u4e2d\u63a8\u5bfc\u51fa\u6b63\u786e\u7684\u7ec4\u5408\u3002",
+        "parsed_results": {
+            "solved": true,
+            "target": 70,
+            "initial_numbers": [
+                64,
+                50,
+                12,
+                56
+            ],
+            "operations": [],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            86,
+            8,
+            22,
+            89
+        ],
+        "target": 58,
+        "solution": [
+            "89-86=3",
+            "22*3=66",
+            "66-8=58"
+        ],
+        "prompt": "Combine these initial numbers [86, 8, 22, 89] using only arithmetic operations (+, -, *, /) to reach the target value 58. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [86, 8, 22, 89] using only arithmetic operations (+, -, *, /) to reach the target value 58. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"86\", \"8+\", \"-8-\", \"8+\", \"22\", \"+89\", \"/20\"]  \nRESULT: 58\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 58,
+            "initial_numbers": [
+                86,
+                8,
+                22,
+                89
+            ],
+            "operations": [
+                "86",
+                "8+",
+                "-8-",
+                "8+",
+                "22",
+                "+89",
+                "/20"
+            ],
+            "final_value": 58
+        }
+    },
+    {
+        "nums": [
+            15,
+            63,
+            92,
+            77
+        ],
+        "target": 91,
+        "solution": [
+            "15+63=78",
+            "92+77=169",
+            "169-78=91"
+        ],
+        "prompt": "Combine these initial numbers [15, 63, 92, 77] using only arithmetic operations (+, -, *, /) to reach the target value 91. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [15, 63, 92, 77] using only arithmetic operations (+, -, *, /) to reach the target value 91. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\u7801\u89e3\n\u4e3a\u4e86\u6c42\u51fa\u76ee\u6807\u503c91\uff0c\u6211\u4eec\u53ef\u4ee5\u5728\u7ed9\u5b9a\u7684\u6570\u5b57\u4e2d\u4f7f\u7528\u52a0\u6cd5\u3001\u51cf\u6cd5\u548c\u4e58\u6cd5\u7b49\u64cd\u4f5c\u3002\u8fd9\u91cc\u6211\u4eec\u6709\u56db\u4e2a\u6570\uff1a15, 63, 92, \u548c 77\u3002\u6211\u4eec\u7684\u76ee\u6807\u662f\u5229\u7528\u8fd9\u4e9b\u6570\u6309\u7167\u67d0\u79cd\u987a\u5e8f\u7ec4\u5408\u8d77\u6765\u4f7f\u6700\u7ec8\u7ed3\u679c\u7b49\u4e8e91\u3002\n\n\u6b65\u9aa4\u4e00\uff1a\u68c0\u67e5\u6240\u6709\u53ef\u80fd\u7684\u8fd0\u7b97\u5f62\u5f0f\uff08\u6ce8\u610f\uff1a\u867d\u7136\u9898\u76ee\u8981\u6c42\u4f7f\u7528\u201c+\u201d\u3001\u201c-\u201d\u3001\u201c*\u201d\u3001\u201c/\u201d\u8fd9\u56db\u79cd\u57fa\u672c\u8fd0\u7b97\uff0c\u4f46\u8003\u8651\u5230\u6211\u4eec\u8981\u4fdd\u8bc1\u6bcf\u4e2a\u6570\u90fd\u7528\u5230\u4e00\u6b21\uff09\u3002\n\n\u6b65\u9aa4\u4e8c\uff1a\u8003\u8651\u6700\u7b80\u5355\u7684\u65b9\u6cd5\uff0c\u6211\u4eec\u53ef\u4ee5\u5c1d\u8bd5\u5c06\u8fd9\u4e09\u4e2a\u6570\u4e2d\u7684\u4e24\u4e2a\u6570\u76f8\u52a0\u6216\u76f8\u51cf\uff0c\u5e76\u7528\u5269\u4e0b\u7684\u6570\u4f5c\u4e3a\u4f59\u6570\u6765\u51d1\u621091\u3002\n\n\u9009\u9879\u4e00\uff1a\u5c1d\u8bd515 + 63 = 78\n   - \u8fd9\u4e00\u6b65\u7684\u7ed3\u679c\u662f78\u3002\n   - \u73b0\u5728\u6211\u4eec\u9700\u8981\u4ece\u5269\u4f59\u76843\u4e2a\u6570\u4e2d\u9009\u62e9\u4e00\u4e2a\uff0c\u8ba9\u5176\u4e0e\u4e4b\u7ec4\u6210\u65b0\u7684\u6570\u503c\u3002\n   \n   \u5bf9\u4e8e3\uff0c\u89c2\u5bdf\uff1a\n   \u2022 92\u53ef\u4ee5\u548c77\u7ed3\u5408\uff1a\n     - 92 - 77 = 15    \u2192 \u65b0\u6570\u4e3a15\n     - 92 + 77 = 169    \u2192 \u65b0\u6570\u4e3a169\n     - 92 * 77 = 7074 \u2192 \u65b0\u6570\u4e3a7074\n     - 92 / 77 \u2248 1.2613\n     ...\n   - \u4efb\u4f55\u8fd9\u6837\u7684\u7ed3\u679c\u90fd\u4e0d\u4f1a\u76f4\u63a5\u5bfc\u81f491\u3002\n   \n   \u6240\u4ee5\u8fd9\u79cd\u65b9\u6cd5\u6ca1\u6709\u4ea7\u751f91\u3002\n   \n   \u6211\u4eec\u8fd4\u56de\u6b65\u9aa4\u4e09\uff1a\n\n\u6b65\u9aa4\u4e09\uff1a\u5c1d\u8bd5\u5176\u4ed6\u7ec4\u5408\u65b9\u5f0f\n\n\u9009\u9879\u4e8c\uff1a\u5c1d\u8bd563 - 15 = 48\n   - \u8fd9\u4e00\u6b65\u7684\u7ed3\u679c\u662f48\u3002\n   - \u73b0\u5728\u9700\u8981\u5c06\u5f97\u5230\u7684\u65b0\u6570\uff08\u537348\uff09\u548c\u5269\u4f59\u76842\u8fdb\u884c\u52a0\u6cd5\uff1a\n     \u2022 \u53ef\u80fd\u5c1d\u8bd5\uff1a92 + 48 = 140, 92 - 48 = 44, 92 * 48 = 4536, 92 / 48 \u4e0d\u662f\u6574\u6570\u3002\n     - \u4e0d\u5b58\u5728\u76f4\u63a5\u4f7f\u5f9791\u6210\u7acb\u7684\u60c5\u51b5\u3002\n     \n   \u8fd9\u91cc\u6ca1\u6709\u627e\u5230\u4e00\u79cd\u65b9\u6cd5\u80fd\u4f7f91\u6210\u4e3a\u6700\u7ec8\u76ee\u6807\u3002\n   \n   \u6211\u4eec\u8fd4\u56de\u6b65\u9aa4\u56db\uff1a\n\n\u6b65\u9aa4\u56db\uff1a\u9a8c\u8bc1\u662f\u5426\u7b26\u5408\u9898\u76ee\u8981\u6c42\n   \u7531\u4e8e\u6211\u4eec\u4f7f\u7528\u4e86\u4e09\u4e2a\u4e0d\u540c\u7684\u521d\u59cb\u6570\uff0c\u7ecf\u8fc7\u4e00\u7cfb\u5217\u7684\u6570\u5b66\u8fd0\u7b97\uff08\u5305\u62ec\u4e24\u6b65\u7684\u52a0\u51cf\u64cd\u4f5c\uff09\uff0c\u6700\u7ec8\u80fd\u5f97\u523091\u3002\n\n\u7ed3\u8bba\uff1a\n   \u5728\u7ecf\u8fc7\u4e0a\u8ff0\u6b65\u9aa4\u540e\uff0c\u6211\u4eec\u5f97\u5230\uff1a\n   ```\n   SOLUTION: YES/NO\n      OPERATIONS: [\"63-15=48\", \"92+48=130\", \"130-77=53\"]\n   ```\n   \u6700\u7ec8\u7ed3\u679c\u4e3a91\u3002\u6240\u4ee5\u5224\u65ad\u9898\u76ee\u7684\u6b63\u786e\u6027\u662f\u901a\u8fc7\u4ee5\u4e0a\u6b65\u9aa4\u5f97\u51fa\u7684\u3002",
+        "parsed_results": {
+            "solved": false,
+            "target": 91,
+            "initial_numbers": [
+                15,
+                63,
+                92,
+                77
+            ],
+            "operations": [
+                "63-15=48",
+                "92+48=130",
+                "130-77=53"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            37,
+            48,
+            26,
+            74
+        ],
+        "target": 50,
+        "solution": [
+            "37*48=1776",
+            "1776/74=24",
+            "26+24=50"
+        ],
+        "prompt": "Combine these initial numbers [37, 48, 26, 74] using only arithmetic operations (+, -, *, /) to reach the target value 50. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [37, 48, 26, 74] using only arithmetic operations (+, -, *, /) to reach the target value 50. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"74-26\", \"48-26\", \"37-26\"]  \nRESULT: 50\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 50,
+            "initial_numbers": [
+                37,
+                48,
+                26,
+                74
+            ],
+            "operations": [
+                "74-26",
+                "48-26",
+                "37-26"
+            ],
+            "final_value": 50
+        }
+    },
+    {
+        "nums": [
+            83,
+            23,
+            43,
+            84
+        ],
+        "target": 65,
+        "solution": [
+            "83+23=106",
+            "84-43=41",
+            "106-41=65"
+        ],
+        "prompt": "Combine these initial numbers [83, 23, 43, 84] using only arithmetic operations (+, -, *, /) to reach the target value 65. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [83, 23, 43, 84] using only arithmetic operations (+, -, *, /) to reach the target value 65. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"83+23=106\", \"106-43=62\", \"62*84=5168\", \"/62=8\"]\nRESULT: 8\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 65,
+            "initial_numbers": [
+                83,
+                23,
+                43,
+                84
+            ],
+            "operations": [
+                "83+23=106",
+                "106-43=62",
+                "62*84=5168",
+                "/62=8"
+            ],
+            "final_value": 8
+        }
+    },
+    {
+        "nums": [
+            20,
+            31,
+            9,
+            39
+        ],
+        "target": 88,
+        "solution": [
+            "20-9=11",
+            "39-31=8",
+            "11*8=88"
+        ],
+        "prompt": "Combine these initial numbers [20, 31, 9, 39] using only arithmetic operations (+, -, *, /) to reach the target value 88. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [20, 31, 9, 39] using only arithmetic operations (+, -, *, /) to reach the target value 88. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"9+31=40\", \"40*3=120\", \"120/3=40\"]\nRESULT: 88\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 88,
+            "initial_numbers": [
+                20,
+                31,
+                9,
+                39
+            ],
+            "operations": [
+                "9+31=40",
+                "40*3=120",
+                "120/3=40"
+            ],
+            "final_value": 88
+        }
+    },
+    {
+        "nums": [
+            83,
+            37,
+            79,
+            81
+        ],
+        "target": 84,
+        "solution": [
+            "83-81=2",
+            "79-37=42",
+            "2*42=84"
+        ],
+        "prompt": "Combine these initial numbers [83, 37, 79, 81] using only arithmetic operations (+, -, *, /) to reach the target value 84. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [83, 37, 79, 81] using only arithmetic operations (+, -, *, /) to reach the target value 84. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"83+37=120\", \"120-79=41\", \"41*81=3361\", \"/41=8\"]\nRESULT: 84\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 84,
+            "initial_numbers": [
+                83,
+                37,
+                79,
+                81
+            ],
+            "operations": [
+                "83+37=120",
+                "120-79=41",
+                "41*81=3361",
+                "/41=8"
+            ],
+            "final_value": 84
+        }
+    },
+    {
+        "nums": [
+            30,
+            30,
+            71,
+            2
+        ],
+        "target": 35,
+        "solution": [
+            "30/30=1",
+            "71-1=70",
+            "70/2=35"
+        ],
+        "prompt": "Combine these initial numbers [30, 30, 71, 2] using only arithmetic operations (+, -, *, /) to reach the target value 35. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [30, 30, 71, 2] using only arithmetic operations (+, -, *, /) to reach the target value 35. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"71+2=73\", \"73-30=43\", \"43*30=1290\", \"/30=1290\"]\nRESULT: 35\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 35,
+            "initial_numbers": [
+                30,
+                30,
+                71,
+                2
+            ],
+            "operations": [
+                "71+2=73",
+                "73-30=43",
+                "43*30=1290",
+                "/30=1290"
+            ],
+            "final_value": 35
+        }
+    },
+    {
+        "nums": [
+            77,
+            95,
+            5,
+            81
+        ],
+        "target": 68,
+        "solution": [
+            "95-77=18",
+            "5+81=86",
+            "86-18=68"
+        ],
+        "prompt": "Combine these initial numbers [77, 95, 5, 81] using only arithmetic operations (+, -, *, /) to reach the target value 68. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [77, 95, 5, 81] using only arithmetic operations (+, -, *, /) to reach the target value 68. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: [\"95-5=80\", \"80*3=240\", \"240/2=120\", \"120+77=197\"]\nRESULT: 197\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 68,
+            "initial_numbers": [
+                77,
+                95,
+                5,
+                81
+            ],
+            "operations": [
+                "95-5=80",
+                "80*3=240",
+                "240/2=120",
+                "120+77=197"
+            ],
+            "final_value": 197
+        }
+    },
+    {
+        "nums": [
+            98,
+            5,
+            24,
+            20
+        ],
+        "target": 59,
+        "solution": [
+            "98+5=103",
+            "24+20=44",
+            "103-44=59"
+        ],
+        "prompt": "Combine these initial numbers [98, 5, 24, 20] using only arithmetic operations (+, -, *, /) to reach the target value 59. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [98, 5, 24, 20] using only arithmetic operations (+, -, *, /) to reach the target value 59. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES/NO\nOPERATIONS: [\"24+5=29\", \"29-20=9\", \"98-9=89\"]\nRESULT: 89\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 59,
+            "initial_numbers": [
+                98,
+                5,
+                24,
+                20
+            ],
+            "operations": [
+                "24+5=29",
+                "29-20=9",
+                "98-9=89"
+            ],
+            "final_value": 89
+        }
+    },
+    {
+        "nums": [
+            87,
+            45,
+            50,
+            47
+        ],
+        "target": 72,
+        "solution": [
+            "50-47=3",
+            "45/3=15",
+            "87-15=72"
+        ],
+        "prompt": "Combine these initial numbers [87, 45, 50, 47] using only arithmetic operations (+, -, *, /) to reach the target value 72. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [87, 45, 50, 47] using only arithmetic operations (+, -, *, /) to reach the target value 72. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\n```\nSOLUTION: YES\nOPERATIONS: \n    \"87 + 45 - 50 * 47 / (87 - 3)\"  \n    (\"87 + 45 - 50 * 47 / (87 - 3) = 72\")  \nRESULT: 72\n```",
+        "parsed_results": {
+            "solved": true,
+            "target": 72,
+            "initial_numbers": [
+                87,
+                45,
+                50,
+                47
+            ],
+            "operations": [],
+            "final_value": 72
+        }
+    },
+    {
+        "nums": [
+            24,
+            69,
+            28,
+            3
+        ],
+        "target": 99,
+        "solution": [
+            "69-28=41",
+            "3*41=123",
+            "123-24=99"
+        ],
+        "prompt": "Combine these initial numbers [24, 69, 28, 3] using only arithmetic operations (+, -, *, /) to reach the target value 99. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [24, 69, 28, 3] using only arithmetic operations (+, -, *, /) to reach the target value 99. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\n```\nSOLUTION: YES/NO\nOPERATIONS: [\"3*28\", \"24-3\", \"69+2\"]\nRESULT: 99\n```",
+        "parsed_results": {
+            "solved": false,
+            "target": 99,
+            "initial_numbers": [
+                24,
+                69,
+                28,
+                3
+            ],
+            "operations": [
+                "3*28",
+                "24-3",
+                "69+2"
+            ],
+            "final_value": 99
+        }
+    }
+]

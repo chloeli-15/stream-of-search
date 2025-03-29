@@ -1,0 +1,301 @@
+[
+    {
+        "hyperparams": {
+            "seed": 4,
+            "ckpt": null,
+            "adapter": "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k",
+            "num": 8,
+            "dataset_name": "MelinaLaimon/stream-of-search",
+            "data": "val_b3_t100_n100000_random.json",
+            "temperature": 0.7,
+            "batch_size": 2,
+            "ctx": 256,
+            "gens": 1,
+            "chat_template": true,
+            "experiment_name": "distributed-eval-20250329145540-qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k",
+            "messages_field": "messages_sos_react",
+            "upload_results": true,
+            "wandb_project": "stream-of-search",
+            "wandb_entity": "yeokch"
+        }
+    },
+    {
+        "trial_success_rates": [
+            0.0
+        ],
+        "best_of_n": 0.0,
+        "mean": 0.0
+    },
+    {
+        "nums": [
+            90,
+            11,
+            37,
+            95
+        ],
+        "target": 55,
+        "solution": [
+            "90+95=185",
+            "11*185=2035",
+            "2035/37=55"
+        ],
+        "prompt": "Combine these initial numbers [90, 11, 37, 95] using only arithmetic operations (+, -, *, /) to reach the target value 55. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [90, 11, 37, 95] using only arithmetic operations (+, -, *, /) to reach the target value 55. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\nWe have these numbers [90, 11, 37, 95]. Our goal is to produce 55. Let's show the search process step by step:\n\nCurrent State #0: 55. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child to build next frontier.\nOperation 1: 90+11=101. \nPrevious Node #0,0: 55, 101\n\nThought    : Expand Node #0\u2019s 2nd child to build next frontier.\nOperation 2: 37-11=26. \nPrevious Node #0,0: 55, 26\n\nThought    : Expand Node #0\u2019s 3rd child to build next frontier.\nOperation 3: 95-11=84. \nPrevious Node #0,1: 55, 84\n\nThought    : Expand Node #0\u2019s 4th child to build next frontier.\nOperation 4: 90-11=79. \nPrevious Node #0,2: 55, 79\n\nThought    : Completed expansion of previous node",
+        "parsed_results": {
+            "solved": false,
+            "target": 55,
+            "initial_numbers": [
+                90,
+                11,
+                37,
+                95
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            70,
+            63,
+            75,
+            32
+        ],
+        "target": 100,
+        "solution": [
+            "70-63=7",
+            "75+32=107",
+            "107-7=100"
+        ],
+        "prompt": "Combine these initial numbers [70, 63, 75, 32] using only arithmetic operations (+, -, *, /) to reach the target value 100. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [70, 63, 75, 32] using only arithmetic operations (+, -, *, /) to reach the target value 100. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\nWe have these numbers [70, 63, 75, 32]. Our goal is to produce 100. Let's show the search process step by step:\n\nCurrent State #0: 100:[70, 63, 75, 32]. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child into #0_1. \nAction     : Exploring operation 63 + 32 = 95. \nResulting numbers: [70, 75, 95].\nOperations so far : ['63 + 32 = 95'].\n\nThought    : Expand Node #0\u2019s 2nd child into #0_2. \nAction     : Exploring operation 70 + 32 = 102. \nResulting numbers: [63, 75, 102].\nOperations so far : ['63 + 32 = 95', '70 + 32 = 102'].\n\nThought    : Expand Node #0\u2019s 3rd child into #0_3. \nAction     : Exploring operation",
+        "parsed_results": {
+            "solved": false,
+            "target": 100,
+            "initial_numbers": [
+                70,
+                63,
+                75,
+                32
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            5,
+            5,
+            33,
+            33
+        ],
+        "target": 76,
+        "solution": [
+            "5+5=10",
+            "33+33=66",
+            "10+66=76"
+        ],
+        "prompt": "Combine these initial numbers [5, 5, 33, 33] using only arithmetic operations (+, -, *, /) to reach the target value 76. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [5, 5, 33, 33] using only arithmetic operations (+, -, *, /) to reach the target value 76. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\nWe have these numbers [5, 5, 33, 33]. Our goal is to produce 76. Let's show the search process step by step:\n\nCurrent State #0: 76. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child to create more [5, 5, 33]s.\nAction     : Exploring operation 5*5=25. \nResulting number #0,0: 25\n\nThought    : Expand Node #0\u2019s 2nd child to create more [33, 33]s.\nAction     : Exploring operation 33+33=66. \nResulting number #0,0: 66\n\nThought    : Expand Node #0\u2019s 3rd child to create more [5, 5, 33]s.\nAction     : Exploring operation 33-5=28. \nResulting number #0,0: 28\n\nThought    : Expand Node #0\u2019s 4th child to create more [5, 5, 33]s.\nAction     : Exploring operation 5+3",
+        "parsed_results": {
+            "solved": false,
+            "target": 76,
+            "initial_numbers": [
+                5,
+                5,
+                33,
+                33
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            34,
+            19,
+            42,
+            7
+        ],
+        "target": 28,
+        "solution": [
+            "34+42=76",
+            "76/19=4",
+            "7*4=28"
+        ],
+        "prompt": "Combine these initial numbers [34, 19, 42, 7] using only arithmetic operations (+, -, *, /) to reach the target value 28. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [34, 19, 42, 7] using only arithmetic operations (+, -, *, /) to reach the target value 28. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\nWe have these numbers [34, 19, 42, 7]. Our goal is to produce 28. Let's show the search process step by step:\n\nCurrent State #0: 28. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child to create subsequent nodes.\nRecent Operation : A+B=C. Operations so far : ['A+B=C'].\n\nThought    : Expand Node #0\u2019s 2nd child to create subsequent nodes.\nRecent Operation : C+D=E. Operations so far : ['A+B=C', 'C+D=E'].\n\nThought    : Expand Node #0\u2019s 3rd child to create subsequent nodes.\nRecent Operation : B+E=V. Operations so far : ['A+B=C', 'B+E=V'].\n\nThought    : Search for operation to combine A and D to reach 28: 28-A-D=28. \nRecent Operation : 28-A-D=28. Operations so far : ['A+B=C', 'B+E=V'].\n\nThought    : Swap nodes #0 and #0 to switch operators A+B=C and B+E=V\nRecent Operation :",
+        "parsed_results": {
+            "solved": false,
+            "target": 28,
+            "initial_numbers": [
+                34,
+                19,
+                42,
+                7
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            64,
+            50,
+            12,
+            56
+        ],
+        "target": 70,
+        "solution": [
+            "64+50=114",
+            "56-12=44",
+            "114-44=70"
+        ],
+        "prompt": "Combine these initial numbers [64, 50, 12, 56] using only arithmetic operations (+, -, *, /) to reach the target value 70. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [64, 50, 12, 56] using only arithmetic operations (+, -, *, /) to reach the target value 70. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\nWe have these numbers [64, 50, 12, 56]. Our goal is to produce 70. Here's the search process:\n\nCurrent State #0: 70.0\nOperations so far : []\n\nStep 1. Extracting Next Operations:\n\u4e0b\u6765\u7684nextoperations['A+B=39'].0\noperations['A+B=39'].0: ['A+B=39'].0\n\nStep 2. Extracting Next Operations:\n\u4e0b\u6765\u7684nextoperations['A+C=56'].0\noperations['A+C=56'].0: ['A+C=56'].0\n\nStep 3. Extracting Next Operations:\n\u4e0b\u6765\u7684nextoperations['B+D=68'].0\noperations['B+D=68'].0: ['B+D=68'].0\n\nStep 4. Extracting Next Operations:\n\u4e0b\u6765\u7684nextoperations['E+G=70'].0\noperations['E+G=70'].0: ['E+G=70'].0\n\nStep 5. Selecting Next Operation:\n\u63a5\u4e0b\u6765\u7684operation['A+D=60'].0\noperations['A+D=60'].0: ['A+",
+        "parsed_results": {
+            "solved": false,
+            "target": 70,
+            "initial_numbers": [
+                64,
+                50,
+                12,
+                56
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            86,
+            8,
+            22,
+            89
+        ],
+        "target": 58,
+        "solution": [
+            "89-86=3",
+            "22*3=66",
+            "66-8=58"
+        ],
+        "prompt": "Combine these initial numbers [86, 8, 22, 89] using only arithmetic operations (+, -, *, /) to reach the target value 58. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [86, 8, 22, 89] using only arithmetic operations (+, -, *, /) to reach the target value 58. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\n\nassistant\nWe have these numbers [86, 8, 22, 89]. Our goal is to produce 58. Let's show the search process step by step:\n\nCurrent State #0: 58. Operations so far : [].\n\nThought    : Expand Node #0\u2019s last operatin to create [86, 8, 22], ...\nPrevious Operation : A+B=86. \nGoal: 86, 8, 22, 58. \nSaid: [86, 8, 22, 58]\n\nThought    : Expand Node #0\u2019s last operatin to create [86, 22], ...\nPrevious Operation : A+C=86. \nGoal: 86, 22, 86, 58. \nSaid: [86, 22, 86, 58]\n\nThought    : Expand Node #0\u2019s last operatin to create [89, 86], ...\nPrevious Operation : A+B=89, B+C=86. \nGoal: 89, 86, 89, 86. \nS",
+        "parsed_results": {
+            "solved": false,
+            "target": 58,
+            "initial_numbers": [
+                86,
+                8,
+                22,
+                89
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            15,
+            63,
+            92,
+            77
+        ],
+        "target": 91,
+        "solution": [
+            "15+63=78",
+            "92+77=169",
+            "169-78=91"
+        ],
+        "prompt": "Combine these initial numbers [15, 63, 92, 77] using only arithmetic operations (+, -, *, /) to reach the target value 91. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [15, 63, 92, 77] using only arithmetic operations (+, -, *, /) to reach the target value 91. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\nWe have these numbers [15, 63, 92, 77]. Our goal is to produce 91. Let's show the search process step by step:\n\nCurrent State #0: 91. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child to create more 1st children. \nAction     : Exploring operation 63+92=155. \nResulting number #0,0: 155\nGenerated Node #0,0: 155\n\nThought    : Expand Node #0,0\u2019s 1st child to create more 1st children. \nAction     : Exploring operation 155-92=63. \nResulting number #0,0,0: 63\n\nThought    : Expand Node #0,0,0\u2019s 1st child to create more 1st children. \nAction     : Exploring operation 63/63=1. \nResulting number #0,0,0,0: 1\n\nThought    : Completed expansion of previous level. Generate next level nodes to build via additive operations\nAction     : Exploring",
+        "parsed_results": {
+            "solved": false,
+            "target": 91,
+            "initial_numbers": [
+                15,
+                63,
+                92,
+                77
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    },
+    {
+        "nums": [
+            37,
+            48,
+            26,
+            74
+        ],
+        "target": 50,
+        "solution": [
+            "37*48=1776",
+            "1776/74=24",
+            "26+24=50"
+        ],
+        "prompt": "Combine these initial numbers [37, 48, 26, 74] using only arithmetic operations (+, -, *, /) to reach the target value 50. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [37, 48, 26, 74] using only arithmetic operations (+, -, *, /) to reach the target value 50. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nassistant\nWe have these numbers [37, 48, 26, 74]. Our goal is to produce 50. Let's show the search process step by step:\n\nCurrent State #0: 50. Operations so far : [].\n\nThought    : Expand Node #0\u2019s 1st child to build next frontier.\nOperation 1: 48 + 26 = 74. \nGoal #0,0: 74. \nOperations so far : ['48 + 26 = 74'].\n\nThought    : Expand Node #0\u2019s 2nd child to build next frontier.\nOperation 2: 74 - 37 = 37. \nGoal #0,0: 37. \nOperations so far : ['48 + 26 = 74', '74 - 37 = 37'].\n\nThought    : Expand Node #0\u2019s 3rd child to build next frontier.\nOperation 3: 37 * 26 = 932. \nGoal #0,3: 932. \nOperations so far : ['48 + 26 = 74',",
+        "parsed_results": {
+            "solved": false,
+            "target": 50,
+            "initial_numbers": [
+                37,
+                48,
+                26,
+                74
+            ],
+            "operations": [
+                "list of string of operations performed",
+                "each string involving only 1 operation. For example",
+                "['A+B=C",
+                "C+D=E'] is allowed",
+                "['A+B+D=E'] is not allowed"
+            ],
+            "final_value": null
+        }
+    }
+]
