@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # Example usage
     target = 16 #55 #16
     nums = [48, 15, 5] #[90, 11, 37, 95]#[48, 15, 5] #
-    search_path = dfs(target, nums, heuristic=sum_heuristic, threshold=target, text_template_name="sos_react")
+    search_path = dfs(target, nums, heuristic=sum_heuristic, threshold=target, text_template_name="sos")
     print(search_path)
     print(len(search_path))
     print(metric_fn(search_path))

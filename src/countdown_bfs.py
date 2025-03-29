@@ -136,7 +136,7 @@ if __name__ == "__main__":
     random.seed(4)
     target =  16
     nums = [48, 15, 5]
-    search_path = bfs(target, nums, 5, heuristic=sum_heuristic, text_template_name="sos_react")
+    search_path = bfs(target, nums, 5, heuristic=sum_heuristic, text_template_name="sos")
     print(search_path)
     print(len(search_path))
     print(metric_fn(search_path))
