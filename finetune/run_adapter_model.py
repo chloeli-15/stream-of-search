@@ -90,7 +90,7 @@ def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7
             temperature=temperature if temperature>0.0 else None,
             top_p=0.9 if temperature>0.0 else None,
             top_k=20 if temperature>0.0 else None,
-            do_sample=temperature>0.0
+            do_sample=temperature>0.0,
         )
     
     return tokenizer.batch_decode(outputs, skip_special_tokens=True)
