@@ -78,7 +78,7 @@ def log_results_to_wandb(eval_results, model_name, dataset_name, split, results_
     
     # Create a table for example trajectories
     trajectory_data = []
-    num_trajectories = min(3, len(eval_results) - 2)
+    num_trajectories = min(10, len(eval_results) - 2)
     
     if num_trajectories > 0:
         for i in range(num_trajectories):
@@ -197,8 +197,8 @@ if __name__ == "__main__":
             # Save results locally
             model_name = args.adapter.split("/")[-1]
             save_path = os.path.join("results", f'{model_name}_{args.dataset_name}_{split}_{args.num}')
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
+            # if not os.path.exists(save_path):
+            #     os.makedirs(save_path)
                 
             timenow = datetime.now().strftime("%Y%m%d-%H%M%S")
             results_file = f"{save_path}_{timenow}.json"           

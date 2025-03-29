@@ -20,11 +20,9 @@
         }
     },
     {
-        "trial_success_rates": [
-            0.125
-        ],
-        "best_of_n": 0.125,
-        "mean": 0.125
+        "trial_success_rate": [
+            0.0
+        ]
     },
     {
         "nums": [
@@ -49,13 +47,7 @@
                 57,
                 13,
                 48
-            ],
-            "operations": [
-                "53+57=100",
-                "100-13=87",
-                "87*48=4296"
-            ],
-            "final_value": 4296
+            ]
         }
     },
     {
@@ -81,14 +73,7 @@
                 62,
                 67,
                 5
-            ],
-            "operations": [
-                "67+5=62",
-                "62-9=53",
-                "53*62=3276",
-                "/62=5"
-            ],
-            "final_value": 3276
+            ]
         }
     },
     {
@@ -105,18 +90,16 @@
             "167-94=73"
         ],
         "prompt": "Combine these initial numbers [87, 80, 47, 2] using only arithmetic operations (+, -, *, /) to reach the target value 73. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
-        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [87, 80, 47, 2] using only arithmetic operations (+, -, *, /) to reach the target value 73. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nQUICK NOTES:\n\u2022 Only use one operation at a time in an expression.\n\u2022 No letters after the first operation in the list.\n\u2022 The order matters; for example, \"A+B=C\" is considered the same as \"C=E+A\".\n\u2022 We accept divisions even if they do not result in an integer (e.g., 46\u00f72=23 would be allowed as an alternative to 46\u00f72). However, we require exact arithmetic results.\n\u2022 We must eventually get to 73 through all operations.",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [87, 80, 47, 2] using only arithmetic operations (+, -, *, /) to reach the target value 73. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nQUICK NOTES:\n• Only use one operation at a time in an expression.\n• No letters after the first operation in the list.\n• The order matters; for example, \"A+B=C\" is considered the same as \"C=E+A\".\n• We accept divisions even if they do not result in an integer (e.g., 46÷2=23 would be allowed as an alternative to 46÷2). However, we require exact arithmetic results.\n• We must eventually get to 73 through all operations.",
         "parsed_results": {
-            "solved": true,
+            "solved": false,
             "target": 73,
             "initial_numbers": [
                 87,
                 80,
                 47,
                 2
-            ],
-            "operations": [],
-            "final_value": null
+            ]
         }
     },
     {
@@ -142,14 +125,7 @@
                 30,
                 42,
                 5
-            ],
-            "operations": [
-                "42+5=47",
-                "47-30=17",
-                "17*10=170",
-                "170/2=85"
-            ],
-            "final_value": 67
+            ]
         }
     },
     {
@@ -175,14 +151,7 @@
                 71,
                 74,
                 49
-            ],
-            "operations": [
-                "71+49=120",
-                "120*66=8520",
-                "8520-74=8446",
-                "/74 gives integer result"
-            ],
-            "final_value": 8446
+            ]
         }
     },
     {
@@ -208,14 +177,7 @@
                 72,
                 26,
                 44
-            ],
-            "operations": [
-                "72-26=46",
-                "46*3=138",
-                "138/7=19",
-                "19+68=87"
-            ],
-            "final_value": 87
+            ]
         }
     },
     {
@@ -241,14 +203,7 @@
                 82,
                 92,
                 13
-            ],
-            "operations": [
-                "92/20",
-                "58-2",
-                "82*2",
-                "82-(58-2)*2"
-            ],
-            "final_value": 61
+            ]
         }
     },
     {
@@ -274,14 +229,7 @@
                 68,
                 90,
                 47
-            ],
-            "operations": [
-                "98+68=166",
-                "166-47=119",
-                "119*2=238",
-                "/2=119"
-            ],
-            "final_value": 73
+            ]
         }
     },
     {
@@ -307,13 +255,7 @@
                 6,
                 5,
                 60
-            ],
-            "operations": [
-                "6+6=12",
-                "12*6=72",
-                "72-5=67"
-            ],
-            "final_value": 67
+            ]
         }
     },
     {
@@ -339,12 +281,7 @@
                 78,
                 1,
                 42
-            ],
-            "operations": [
-                "78+78-42=96",
-                "96*3=288"
-            ],
-            "final_value": 288
+            ]
         }
     },
     {
@@ -370,12 +307,7 @@
                 35,
                 16,
                 44
-            ],
-            "operations": [
-                "77+35=110",
-                "110*44=4840"
-            ],
-            "final_value": 4840
+            ]
         }
     },
     {
@@ -392,18 +324,16 @@
             "84-49=35"
         ],
         "prompt": "Combine these initial numbers [94, 10, 4, 45] using only arithmetic operations (+, -, *, /) to reach the target value 35. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n",
-        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [94, 10, 4, 45] using only arithmetic operations (+, -, *, /) to reach the target value 35. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nQUICK_REVISION\nNote that in this revised version, we have three integers and two operations (addition, subtraction, multiplication, division). The goal is to use all given numbers exactly once so that we obtain the target value 35. We will combine them in one step without any additional operations.\n\nI propose the following sequence:\n\n1. Use 94 + 10 = 104\n2. Then, divide 104 by 4\n   \u2022 First attempt: 104 \u00f7 4 \u2192 Result: 26  \n      (Explanation: 104 divided by 4 gives 26.)\n   \u2022 Second attempt: 26 \u00d7 4 \u2192 Result: 104  \n      (Explanation: 26 multiplied by 4 also gives 104.)\n\nThe result from the second operation is 104. However, note that our goal is for the final result to be 35. In order to get to 35, we would need to subtract the intermediate result 26 from 104. But notice that 104 \u2013 26 equals 78, which is far from 35. This suggests that we might need to backtrack or check if there was an error before proceeding further.\n\nSince we did not get 35, let's examine if there is any way to \"undo\" one of the operations so that we can eventually get back to 35. One simple idea is to consider what could be done with the remaining number(s).\n\nFor instance, from the final value of 104, we see that if we add 4 to 104, we get 108. Then, if we perform addition again on 108 with the remaining integer (which is then treated as the result), we might get closer to 35. \n\nLet\u2019s try it:\n\nOperation: 104 + 4 \u2192 New value = 108  \nOperation: 108 + 4 \u2192 New value = 112  \nOperation: 112 + 4 \u2192 Final result = 116  \nOperation: 116 + 4 \u2192 Final result = 120  \nOperation: 120 + 4 \u2192 Final result = 124  \nOperation: 124 + 4 \u2192 Final result = 128  \nOperation: 128 + 4 \u2192 Final result = 132  \nOperation: 132 + 4 \u2192 Final result = 136  \nOperation: 136 + 4 \u2192 Final result = 140  \nOperation: 140 + 4 \u2192 Final result = 144  \nOperation: 144 + 4 \u2192 Final result = 148  \n\nNone of these steps directly yield 35. So, we must have made a mistake somewhere.\n\nBacktracking through the original operations, we realize that we had to use the numbers in such a way that when we combine them, we eventually reached 35.\n\nNotice carefully the operations performed:\n\u2003\u2022 Operation: \"94 + 10 = 104\"\n\u2003\u2022 Operation: \"104 \u00f7 4 = 26\"\n\u2003\u2022 Operation: \"26 \u00d7 4 = 104\"\n\nThen, after subtracting the intermediate results (from \"26\") from 104, we get 104 - 26 = 78. Then adding 4 to 78 gives us 82, and finally adding 4 to 82 gives us 86. None of these yields 35; however, upon rechecking, the final step seems correct because combining these numbers in a way that allows the subtraction operation at the end, we do indeed get 35.\n\nThus, I conclude that the solution does not exist as initially stated but rather follows the chain of operations leading to 104, then 26, and finally 4. No valid operation combination exists to directly reach 35. Thus, I report that the search process has been completed, and the answer is:\n\n```\nSOLUTION: NO\nOPERATIONS: []\nRESULT: NOT POSSIBLE\n```",
+        "completion": "system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.\nuser\nCombine these initial numbers [94, 10, 4, 45] using only arithmetic operations (+, -, *, /) to reach the target value 35. All initial numbers must be used exactly once.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\nOPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\nRESULT: final_value\n```\n\nQUICK_REVISION\nNote that in this revised version, we have three integers and two operations (addition, subtraction, multiplication, division). The goal is to use all given numbers exactly once so that we obtain the target value 35. We will combine them in one step without any additional operations.\n\nI propose the following sequence:\n\n1. Use 94 + 10 = 104\n2. Then, divide 104 by 4\n   • First attempt: 104 ÷ 4 → Result: 26  \n      (Explanation: 104 divided by 4 gives 26.)\n   • Second attempt: 26 × 4 → Result: 104  \n      (Explanation: 26 multiplied by 4 also gives 104.)\n\nThe result from the second operation is 104. However, note that our goal is for the final result to be 35. In order to get to 35, we would need to subtract the intermediate result 26 from 104. But notice that 104 – 26 equals 78, which is far from 35. This suggests that we might need to backtrack or check if there was an error before proceeding further.\n\nSince we did not get 35, let's examine if there is any way to \"undo\" one of the operations so that we can eventually get back to 35. One simple idea is to consider what could be done with the remaining number(s).\n\nFor instance, from the final value of 104, we see that if we add 4 to 104, we get 108. Then, if we perform addition again on 108 with the remaining integer (which is then treated as the result), we might get closer to 35. \n\nLet’s try it:\n\nOperation: 104 + 4 → New value = 108  \nOperation: 108 + 4 → New value = 112  \nOperation: 112 + 4 → Final result = 116  \nOperation: 116 + 4 → Final result = 120  \nOperation: 120 + 4 → Final result = 124  \nOperation: 124 + 4 → Final result = 128  \nOperation: 128 + 4 → Final result = 132  \nOperation: 132 + 4 → Final result = 136  \nOperation: 136 + 4 → Final result = 140  \nOperation: 140 + 4 → Final result = 144  \nOperation: 144 + 4 → Final result = 148  \n\nNone of these steps directly yield 35. So, we must have made a mistake somewhere.\n\nBacktracking through the original operations, we realize that we had to use the numbers in such a way that when we combine them, we eventually reached 35.\n\nNotice carefully the operations performed:\n • Operation: \"94 + 10 = 104\"\n • Operation: \"104 ÷ 4 = 26\"\n • Operation: \"26 × 4 = 104\"\n\nThen, after subtracting the intermediate results (from \"26\") from 104, we get 104 - 26 = 78. Then adding 4 to 78 gives us 82, and finally adding 4 to 82 gives us 86. None of these yields 35; however, upon rechecking, the final step seems correct because combining these numbers in a way that allows the subtraction operation at the end, we do indeed get 35.\n\nThus, I conclude that the solution does not exist as initially stated but rather follows the chain of operations leading to 104, then 26, and finally 4. No valid operation combination exists to directly reach 35. Thus, I report that the search process has been completed, and the answer is:\n\n```\nSOLUTION: NO\nOPERATIONS: []\nRESULT: NOT POSSIBLE\n```",
         "parsed_results": {
-            "solved": true,
+            "solved": false,
             "target": 35,
             "initial_numbers": [
                 94,
                 10,
                 4,
                 45
-            ],
-            "operations": [],
-            "final_value": null
+            ]
         }
     },
     {
@@ -429,13 +359,7 @@
                 10,
                 88,
                 17
-            ],
-            "operations": [
-                "88-17=71",
-                "71*2=142",
-                "142/2=71"
-            ],
-            "final_value": 71
+            ]
         }
     },
     {
@@ -461,13 +385,7 @@
                 42,
                 78,
                 45
-            ],
-            "operations": [
-                "78+45=123",
-                "123*6=748",
-                "748-20=728"
-            ],
-            "final_value": 55
+            ]
         }
     },
     {
@@ -493,14 +411,7 @@
                 5,
                 42,
                 21
-            ],
-            "operations": [
-                "42/2=",
-                "21-5+",
-                "16+5=",
-                "/5*42="
-            ],
-            "final_value": 59
+            ]
         }
     },
     {
@@ -526,13 +437,7 @@
                 42,
                 24,
                 16
-            ],
-            "operations": [
-                "49+24=73",
-                "73-16=57",
-                "57*42=2204"
-            ],
-            "final_value": 2204
+            ]
         }
     }
 ]

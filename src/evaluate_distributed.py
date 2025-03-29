@@ -17,7 +17,8 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
     Run evaluation for a specific model on a specific host
     """
     if experiment_name is None:
-        experiment_name = f"{model_name.split('/')[-1]}-eval-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        experiment_name = f"{model_name.split('/')[-1]}-eval"
+        # experiment_name = f"{model_name.split('/')[-1]}-eval-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     # Create logs directory if it doesn't exist
     os.makedirs(log_dir, exist_ok=True)
@@ -78,9 +79,9 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
 def main():
     parser = argparse.ArgumentParser(description="Distributed model evaluation across hosts")
     parser.add_argument("--config", type=str, default="scripts/eval_config.json", help="Path to config JSON file")
-    parser.add_argument("--n", type=int, default=256, help="Number of samples to evaluate")
+    parser.add_argument("--n", type=int, default=32, help="Number of samples to evaluate")
     parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
-    parser.add_argument("--batch-size", type=int, default=32, help="Batch size for evaluation")
+    parser.add_argument("--batch-size", type=int, default=8, help="Batch size for evaluation")
     parser.add_argument("--ctx", type=int, default=4096, help="Context length")
     parser.add_argument("--temp", type=float, default=0.7, help="Temperature")
     parser.add_argument("--gens", type=int, default=1, help="Number of generations")
