@@ -9,7 +9,7 @@ import os, glob
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_model(adapter_path, base_model=None):
+def load_model(adapter_path, base_model=None, use_quantization=False):
     """Load a QLoRA fine-tuned model from Hugging Face"""
 
     # Get base model name from adapter config if not provided
@@ -21,25 +21,33 @@ def load_model(adapter_path, base_model=None):
     base_model = base_model or peft_config.base_model_name_or_path
     logger.info(f"Using base model: {base_model}")
     
-    # Set up 4-bit quantization (required for QLoRA compatibility)
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_compute_dtype=torch.float16,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_use_double_quant=True
-    )
-    
-    # Load base model with quantization
+    # Load base model with or without quantization
     logger.info("Loading base model...")
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        quantization_config=quantization_config,
-        device_map="auto",
-        trust_remote_code=True
-    )
+    if use_quantization:
+        # Set up 4-bit quantization
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_compute_dtype=torch.float16,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True
+        )
+        
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            quantization_config=quantization_config,
+            device_map="auto",
+            trust_remote_code=True
+        )
+    else:
+        # Load without quantization
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            device_map="auto",
+            trust_remote_code=True
+        )
     
     # Load and apply adapter weights
-    logger.info("Applying QLoRA adapters...")
+    logger.info("Applying LoRA adapters...")
     model = PeftModel.from_pretrained(model, adapter_path)
     
     # Load tokenizer
@@ -87,9 +95,9 @@ def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7
 
 def download_models():
     paths = [
-        "chloeli/qwen-2.5-0.5b-instruct-sft-qlora-countdown-search-1k",
-        "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k",
-        "chloeli/qwen-2.5-7b-instruct-sft-qlora-countdown-search-1k",
+        "chloeli/qwen-2.5-0.5b-instruct-sft-lora-countdown-search-1k",
+        "chloeli/qwen-2.5-1.5b-instruct-sft-lora-countdown-search-1k",
+        "chloeli/qwen-2.5-7b-instruct-sft-lora-countdown-search-1k",
     ]
     for path in paths:
         # load_model(path)
@@ -131,24 +139,35 @@ def download_models():
     #     del tokenizer
 #%%
 if __name__ == "__main__":
-    download_models()
-#     # Example usage
-#     adapter_path = "chloeli/qwen-2.5-1.5b-instruct-sft-qlora-countdown-search-1k"  # Directory with adapter_model.safetensors
+    # download_models()
+    # Example usage
+    adapter_path = "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k" #"chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k"  # Directory with adapter_model.safetensors
     
-#     # Load model
-#     model, tokenizer = load_model(adapter_path)
+    # Load model
+    model, tokenizer = load_model(adapter_path)
         
-#     model.eval()
-#     model.bfloat16().cuda()
-#     # print(tokenizer.chat_template)
-# #%%
-#     # Generate text
-#     prompt = "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations."
-    
-    
-#     response = generate(model, tokenizer, prompt)
-    
-#     print(f"\nPrompt: {prompt}")
-#     print(f"\nResponse: {response}")
+    # model.eval()
+    # model.bfloat16().cuda()
+    # print(tokenizer.chat_template)
+#%%
+    # Generate text
+    prompts = [
+            # "Make 10 with the numbers [2,4,1,1] using standard arithmetic operations.",
+               "Make 62 with the numbers [20, 54, 64, 44] using standard arithmetic operations.",
+               "Make 96 with the numbers [50, 2, 48, 87] using standard arithmetic operations.",
+               "Make 62 with the numbers [20, 54, 64, 44] using standard arithmetic operations.",
+               "Make 87 with the numbers [50, 2, 48, 87] using standard arithmetic operations.",
+                ]
+    for prompt in prompts:
+        message = [{"role": "user", "content": prompt}]
+        
+        formatted_prompt = tokenizer.apply_chat_template(message, tokenize=False, add_generation_prompt=True)
+        print(f"\nPrompt: {formatted_prompt}")
+        response = generate(model, tokenizer, formatted_prompt, max_new_tokens=1024)
+        print(f"\nResponse: {response}")
+#%%
+        
 # # %%
 
+
+# %%
