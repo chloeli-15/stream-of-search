@@ -18,41 +18,61 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
     """
     if experiment_name is None:
         experiment_name = f"{model_name.split('/')[-1]}-eval"
-        # experiment_name = f"{model_name.split('/')[-1]}-eval-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     # Create logs directory if it doesn't exist
     os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"{hostname}_{model_name.split('/')[-1]}_{datetime.now().strftime('%Y%m%d%H%M%S')}.log")
-    
-    # Construct the SSH command
-    cmd = [
-        "ssh", "-t", hostname,
-        f"cd ~/projects/sos/stream-of-search && "
-        f"/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python ./src/eval_custom.py "
-        f"--adapter '{model_name}' "
-        f"-n {num_samples} "
-        f"--dataset_name '{dataset}' "
-        f"--messages_field '{messages_field}' "
-        f"--temperature {temp} "
-        f"--batch_size {batch_size} "
-        f"--ctx {ctx} "
-        f"--gens {gens} "
-        f"--chat_template True "
-        f"--experiment_name '{experiment_name}' "
-        f"--upload_results True "
-        f"--wandb_project '{wandb_project}' "
-        f"--wandb_entity '{wandb_entity}'"
-    ]
+    log_file = os.path.join(log_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{model_name.split('/')[-1]}_{hostname}.log")
     
     print(f"Starting evaluation on {hostname}: {model_name}")
-    print("Command:", " ".join(cmd))
     
     try:
-        # Run the command and capture output
+        # Open log file for writing
         with open(log_file, 'w') as f:
-            process = subprocess.Popen(
-                " ".join(cmd), 
+            # First, run nvidia-smi to capture GPU state before evaluation
+            f.write(f"=== GPU INFO BEFORE EVALUATION ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===\n")
+            nvidia_cmd = f"ssh {hostname} nvidia-smi"
+            nvidia_process = subprocess.run(
+                nvidia_cmd,
                 shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True
+            )
+            
+            # Write nvidia-smi output to log
+            f.write(nvidia_process.stdout)
+            f.write("\n\n=== STARTING EVALUATION ===\n\n")
+            f.flush()
+            
+            # Construct the SSH command for evaluation
+            # Use ServerAliveInterval to keep the connection alive and remove -t flag
+            # Also add nohup to ensure the command continues to run even if the SSH session is terminated
+            cmd = [
+                "ssh",
+                "-o", "ServerAliveInterval=60",
+                hostname,
+                f"cd ~/projects/sos/stream-of-search && "
+                f"/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python ./src/eval_custom.py "
+                f"--adapter '{model_name}' "
+                f"-n {num_samples} "
+                f"--dataset_name '{dataset}' "
+                f"--messages_field '{messages_field}' "
+                f"--temperature {temp} "
+                f"--batch_size {batch_size} "
+                f"--ctx {ctx} "
+                f"--gens {gens} "
+                f"--chat_template True "
+                f"--experiment_name '{experiment_name}' "
+                f"--upload_results True "
+                f"--wandb_project '{wandb_project}' "
+                f"--wandb_entity '{wandb_entity}'"
+            ]
+            
+            print("Command:", " ".join(cmd))
+            
+            # Run the evaluation command and capture output
+            process = subprocess.Popen(
+                cmd,  # Use list format instead of shell=True for better control
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 universal_newlines=True
@@ -69,20 +89,20 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
             print(f"✅ Evaluation completed for {model_name} on {hostname}")
             return True, hostname, model_name
         else:
-            print(f"❌ Error during evaluation for {model_name} on {hostname}")
+            print(f"❌ Error during evaluation for {model_name} on {hostname}, return code: {process.returncode}. Logfile: {log_file}")
             return False, hostname, model_name
             
     except Exception as e:
-        print(f"❌ Exception during evaluation for {model_name} on {hostname}: {str(e)}")
+        print(f"❌ Exception during evaluation for {model_name} on {hostname}: {str(e)}. Logfile: {log_file}")
         return False, hostname, model_name
-
+    
 def main():
     parser = argparse.ArgumentParser(description="Distributed model evaluation across hosts")
     parser.add_argument("--config", type=str, default="scripts/eval_config.json", help="Path to config JSON file")
-    parser.add_argument("--n", type=int, default=32, help="Number of samples to evaluate")
+    parser.add_argument("--n", type=int, default=64, help="Number of samples to evaluate")
     parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
-    parser.add_argument("--batch-size", type=int, default=4, help="Batch size for evaluation")
-    parser.add_argument("--ctx", type=int, default=8192, help="Context length")
+    parser.add_argument("--batch-size", type=int, default=16, help="Batch size for evaluation")
+    parser.add_argument("--ctx", type=int, default=10000, help="Context length")
     parser.add_argument("--temp", type=float, default=0.7, help="Temperature")
     parser.add_argument("--gens", type=int, default=1, help="Number of generations")
     parser.add_argument("--project", type=str, default="stream-of-search", help="W&B project name")
@@ -108,13 +128,19 @@ def main():
     
     # Create a timestamp for this evaluation run
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    experiment_name = f"distributed-eval-{timestamp}"
+    experiment_name = f"{timestamp}-distributed-eval"
     
     # Run evaluations concurrently
     results = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(hostnames)) as executor:
         futures = {}
         host_index = 0
+        
+        # print("args.ctx overridden by model_name")
+        # if "react" in model_name:
+        #     max_token_length = 10000
+        # else:
+        #     max_token_length = 5000
         
         # Submit initial batch of tasks
         for i in range(min(len(hostnames), len(evaluation_queue))):
@@ -187,6 +213,7 @@ def main():
     
     print("\nResults will be available in W&B project:")
     print(f"https://wandb.ai/{args.entity}/{args.project}")
+    
 
 if __name__ == "__main__":
     main()

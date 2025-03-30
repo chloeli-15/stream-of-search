@@ -1,0 +1,29 @@
+{
+    "models_messages_field_pairs":{
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k": "messages_sos_react",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k": "messages_sos",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k": "messages_sos",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k": "messages_sos",        
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k": "messages_sos"
+    },
+
+    "not used": {
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k": "messages_sos_react",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k": "messages_sos_react",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-o3-1k": "messages_sos",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k": "messages_sos",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
+
+
+        
+
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
+
+        "Qwen/Qwen2.5-0.5B-Instruct": "messages_sos",
+        "Qwen/Qwen2.5-1.5B-Instruct": "messages_sos"
+    }
+}
