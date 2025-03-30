@@ -37,6 +37,14 @@ SEARCH_DESCRIPTIONS = {
     }
 }
 
+user_prompt = ( "Combine these initial numbers {nums} using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"
+                "Conclude with the final result in EXACTLY this format:\n"
+                "```\n"
+                "SOLUTION: YES/NO\n"
+                "OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed\n"
+                "RESULT: final_value\n"
+                "```\n")
+
 TEXT_TEMPLATES = {
     "sos": {
         "prefix": ( "Combine these initial numbers {nums} using only arithmetic operations (+, -, *, /) to reach the target value {target}. All initial numbers must be used exactly once.\n"

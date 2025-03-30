@@ -13,6 +13,7 @@ from countdown import CountDown
 from countdown_utils import *
 from countdown_bfs import bfs
 from countdown_dfs import dfs
+from countdown_texts import user_prompt
 
 
 parser = argparse.ArgumentParser()
@@ -143,7 +144,8 @@ if __name__ == "__main__":
                 "rating": rating,
                 "search_type": search_type,
                 "optimal_path": no_backtrack_trace,
-                "heuristic": heuristic.__name__
+                "heuristic": heuristic.__name__,
+                "user_prompt": user_prompt.format(nums=nums, target=target)
             })
             enc = tiktoken.get_encoding("cl100k_base")
             tokens = enc.encode(search_path)
