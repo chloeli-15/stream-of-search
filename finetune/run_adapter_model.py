@@ -22,8 +22,8 @@ def load_model(adapter_path, base_model=None, use_quantization=False):
     logger.info(f"Using base model: {base_model}")
     
     # Load base model with or without quantization
-    logger.info("Loading base model...")
     if use_quantization:
+        logger.info("Loading base model with quantization...")
         # Set up 4-bit quantization
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True,
@@ -38,8 +38,10 @@ def load_model(adapter_path, base_model=None, use_quantization=False):
             device_map="auto",
             trust_remote_code=True
         )
+        
     else:
-        # Load without quantization
+        # Load base model without quantization
+        logger.info("Loading base model without quantization...")
         model = AutoModelForCausalLM.from_pretrained(
             base_model,
             device_map="auto",
@@ -88,7 +90,7 @@ def generate_batch(model, tokenizer, prompt, max_new_tokens=512, temperature=0.7
             temperature=temperature if temperature>0.0 else None,
             top_p=0.9 if temperature>0.0 else None,
             top_k=20 if temperature>0.0 else None,
-            do_sample=temperature>0.0
+            do_sample=temperature>0.0,
         )
     
     return tokenizer.batch_decode(outputs, skip_special_tokens=True)
