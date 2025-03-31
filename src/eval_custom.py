@@ -25,6 +25,7 @@ from result_parsers.countdown_trajectories import evaluate_countdown_trajectorie
 
 from typing import List, Tuple
 
+                                                         
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=4)
 parser.add_argument("--ckpt", type=str, help="path to checkpoint")
@@ -129,6 +130,7 @@ def log_results_to_wandb(eval_results, model_name, dataset_name, split, results_
 if __name__ == "__main__":
     args = parser.parse_args()
     # Initialize wandb if upload_results is True
+    
     if args.upload_results:
         run_name = args.experiment_name if args.experiment_name else datetime.now().strftime("%Y%m%d-%H%M%S")
         wandb.init(
@@ -197,8 +199,8 @@ if __name__ == "__main__":
             # Save results locally
             model_name = args.adapter.split("/")[-1]
             save_path = os.path.join("results", f'{model_name}_{args.dataset_name}_{split}_{args.num}')
-            # if not os.path.exists(save_path):
-            #     os.makedirs(save_path)
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
                 
             timenow = datetime.now().strftime("%Y%m%d-%H%M%S")
             results_file = f"{save_path}_{timenow}.json"           
