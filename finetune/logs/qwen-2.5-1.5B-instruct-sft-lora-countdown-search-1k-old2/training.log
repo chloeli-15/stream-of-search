@@ -1,0 +1,1746 @@
+2025-03-27 12:50:08 - WARNING - __main__ - Process rank: 0, device: cuda:0, n_gpu: 1 distributed training: True, 16-bits training: False
+2025-03-27 12:50:08 - INFO - __main__ - Model parameters ModelArguments(base_model_revision=None, model_name_or_path='Qwen/Qwen2.5-1.5B-Instruct', model_revision='main', model_code_revision=None, torch_dtype='bfloat16', tokenizer_name_or_path=None, trust_remote_code=False, attn_implementation='flash_attention_2', use_peft=True, lora_r=16, lora_alpha=16, lora_dropout=0.05, lora_target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'], lora_modules_to_save=None, load_in_8bit=False, load_in_4bit=False, bnb_4bit_quant_type='nf4', use_bnb_nested_quant=False, bnb_4bit_quant_storage='uint8')
+2025-03-27 12:50:08 - INFO - __main__ - Data parameters DataArguments(chat_template='{%- if tools %}\n  {{- \'<|im_start|>system\\n\' }}\n  {%- if messages[0][\'role\'] == \'system\' %}\n      {{- messages[0][\'content\'] }}\n  {%- else %}\n      {{- \'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.\' }}\n  {%- endif %}\n  {{- "\\n\\n# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>" }}\n  {%- for tool in tools %}\n      {{- "\\n" }}\n      {{- tool | tojson }}\n  {%- endfor %}\n  {{- "\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\"name\\": <function-name>, \\"arguments\\": <args-json-object>}\\n</tool_call><|im_end|>\\n" }}\n{%- else %}\n    {%- if messages[0][\'role\'] == \'system\' %}\n        {{- \'<|im_start|>system\\n\' + messages[0][\'content\'] + \'<|im_end|>\\n\' }}\n    {%- else %}\n        {{- \'<|im_start|>system\\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\\n\' }}\n    {%- endif %}\n{%- endif %}\n{%- for message in messages %}\n    {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}\n        {{- \'<|im_start|>\' + message.role + \'\\n\' + message.content + \'<|im_end|>\' + \'\\n\' }}\n    {%- elif message.role == "assistant" %}\n        {{- \'<|im_start|>\' + message.role }}\n        {%- if message.content %}\n            {{- \'\\n\' + message.content }}\n        {%- endif %}\n        {%- for tool_call in message.tool_calls %}\n            {%- if tool_call.function is defined %}\n                {%- set tool_call = tool_call.function %}\n            {%- endif %}\n            {{- \'\\n<tool_call>\\n{"name": "\' }}\n            {{- tool_call.name }}\n            {{- \'", "arguments": \' }}\n            {{- tool_call.arguments | tojson }}\n            {{- \'}\\n</tool_call>\' }}\n        {%- endfor %}\n        {{- \'<|im_end|>\\n\' }}\n    {%- elif message.role == "tool" %}\n        {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}\n            {{- \'<|im_start|>user\' }}\n        {%- endif %}\n        {{- \'\\n<tool_response>\\n\' }}\n        {{- message.content }}\n        {{- \'\\n</tool_response>\' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}\n            {{- \'<|im_end|>\\n\' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- \'<|im_start|>assistant\\n\' }}\n{%- endif %}\n', dataset_mixer={'MelinaLaimon/stream-of-search': 0.1}, text_column='text', dataset_splits=['train', 'validation'], dataset_configs=None, preprocessing_num_workers=12, truncation_side=None, auto_insert_empty_system_msg=True)
+2025-03-27 12:50:08 - INFO - __main__ - Training/evaluation parameters SFTConfig(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+average_tokens_across_devices=False,
+batch_eval_metrics=False,
+bf16=True,
+bf16_full_eval=False,
+chars_per_token=<CHARS_PER_TOKEN>,
+data_seed=None,
+dataloader_drop_last=False,
+dataloader_num_workers=0,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+dataset_batch_size=None,
+dataset_kwargs=None,
+dataset_num_proc=None,
+dataset_text_field=text,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=None,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=True,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_on_start=False,
+eval_packing=None,
+eval_steps=None,
+eval_strategy=epoch,
+eval_use_gather_object=False,
+evaluation_strategy=None,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=2,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k,
+hub_model_revision=main,
+hub_private_repo=None,
+hub_strategy=every_save,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_for_metrics=[],
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=0.0002,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=info,
+log_level_replica=warning,
+log_on_each_node=True,
+logging_dir=./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=5,
+logging_strategy=steps,
+lr_scheduler_kwargs={},
+lr_scheduler_type=cosine,
+max_grad_norm=1.0,
+max_seq_length=2048,
+max_steps=-1,
+metric_for_best_model=None,
+model_init_kwargs=None,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_of_sequences=None,
+num_train_epochs=1,
+optim=adamw_torch,
+optim_args=None,
+optim_target_modules=None,
+output_dir=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k,
+overwrite_output_dir=True,
+packing=False,
+past_index=-1,
+per_device_eval_batch_size=8,
+per_device_train_batch_size=4,
+prediction_loss_only=False,
+push_to_hub=True,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=['wandb'],
+restore_callback_states_from_checkpoint=False,
+resume_from_checkpoint=None,
+run_name=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k,
+save_on_each_node=False,
+save_only_model=False,
+save_safetensors=True,
+save_steps=100,
+save_strategy=steps,
+save_total_limit=1,
+seed=42,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torch_empty_cache_steps=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_liger=False,
+use_liger_kernel=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_steps=0,
+weight_decay=0.0,
+)
+2025-03-27 12:50:09 - INFO - datasets.builder - Overwrite dataset info from restored data version if exists.
+2025-03-27 12:50:09 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf
+2025-03-27 12:50:09 - INFO - datasets.builder - Found cached dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf)
+2025-03-27 12:50:09 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf
+2025-03-27 12:50:10 - INFO - datasets.builder - Overwrite dataset info from restored data version if exists.
+2025-03-27 12:50:10 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf
+2025-03-27 12:50:10 - INFO - datasets.builder - Found cached dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf)
+2025-03-27 12:50:10 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Loading cached shuffled indices for dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-ca08890690ef5a6a.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Loading cached shuffled indices for dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-990b53168a6eec87.arrow
+2025-03-27 12:50:10 - INFO - __main__ - Training on the following datasets and their proportions: ['train : 1000', 'test : 1000']
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-2beaa3c2daa8feb1.arrow
+2025-03-27 12:50:10 - INFO - __main__ - After filtering out None and empty messages, train has 1000 examples
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-5ae6b647ccfe5036.arrow
+2025-03-27 12:50:10 - INFO - __main__ - After filtering out None and empty messages, test has 1000 examples
+2025-03-27 12:50:10 - INFO - __main__ - *** Load pretrained model ***
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00000_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00001_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00002_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00003_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00004_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00005_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00006_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00007_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00008_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00009_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00010_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_00011_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-94432f14f4c15f0c_*_of_00012.arrow
+2025-03-27 12:50:10 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00000_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00001_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00002_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00003_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00004_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00005_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00006_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00007_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00008_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00009_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00010_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_00011_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-80d75ef485b78fd3_*_of_00012.arrow
+2025-03-27 12:50:11 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-03-27 12:50:11 - INFO - __main__ - Example prompt: <|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers 50, using only arithmetic operations (+, -, *, /) to reach the target value [32, 62, 4, 14]. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```<|im_end|>
+<|im_start|>assistant
+Current State: 50:[32, 62, 4, 14], Operations: []
+Exploring Operation: 32+14=46, Resulting Numbers: [62, 4, 46]
+Generated Node #0,0: 50:[62, 4, 46] Operation: 32+14=46
+Exploring Operation: 62-4=58, Resulting Numbers: [32, 14, 58]
+Generated Node #0,1: 50:[32, 14, 58] Operation: 62-4=58
+Exploring Operation: 32+4=36, Resulting Numbers: [62, 14, 36]
+Generated Node #0,2: 50:[62, 14, 36] Operation: 32+4=36
+Exploring Operation: 4*14=56, Resulting Numbers: [32, 62, 56]
+Generated Node #0,3: 50:[32, 62, 56] Operation: 4*14=56
+Exploring Operation: 4+14=18, Resulting Numbers: [32, 62, 18]
+Generated Node #0,4: 50:[32, 62, 18] Operation: 4+14=18
+Moving to Node #0,3
+Current State: 50:[32, 62, 56], Operations: ['4*14=56']
+Exploring Operation: 32+62=94, Resulting Numbers: [56, 94]
+Generated Node #0,3,0: 50:[56, 94] Operation: 32+62=94
+Exploring Operation: 62-32=30, Resulting Numbers: [56, 30]
+Generated Node #0,3,1: 50:[56, 30] Operation: 62-32=30
+Exploring Operation: 62-56=6, Resulting Numbers: [32, 6]
+Generated Node #0,3,2: 50:[32, 6] Operation: 62-56=6
+Exploring Operation: 32+56=88, Resulting Numbers: [62, 88]
+Generated Node #0,3,3: 50:[62, 88] Operation: 32+56=88
+Exploring Operation: 56-32=24, Resulting Numbers: [62, 24]
+Generated Node #0,3,4: 50:[62, 24] Operation: 56-32=24
+Moving to Node #0,1
+Current State: 50:[32, 14, 58], Operations: ['62-4=58']
+Exploring Operation: 58-32=26, Resulting Numbers: [14, 26]
+Generated Node #0,1,0: 50:[14, 26] Operation: 58-32=26
+Exploring Operation: 58-14=44, Resulting Numbers: [32, 44]
+Generated Node #0,1,1: 50:[32, 44] Operation: 58-14=44
+Exploring Operation: 14+58=72, Resulting Numbers: [32, 72]
+Generated Node #0,1,2: 50:[32, 72] Operation: 14+58=72
+Exploring Operation: 32-14=18, Resulting Numbers: [58, 18]
+Generated Node #0,1,3: 50:[58, 18] Operation: 32-14=18
+Exploring Operation: 32+14=46, Resulting Numbers: [58, 46]
+Generated Node #0,1,4: 50:[58, 46] Operation: 32+14=46
+Moving to Node #0,4
+Current State: 50:[32, 62, 18], Operations: ['4+14=18']
+Exploring Operation: 62-18=44, Resulting Numbers: [32, 44]
+Generated Node #0,4,0: 50:[32, 44] Operation: 62-18=44
+Exploring Operation: 62-32=30, Resulting Numbers: [18, 30]
+Generated Node #0,4,1: 50:[18, 30] Operation: 62-32=30
+Exploring Operation: 32+18=50, Resulting Numbers: [62, 50]
+Generated Node #0,4,2: 50:[62, 50] Operation: 32+18=50
+Exploring Operation: 62+18=80, Resulting Numbers: [32, 80]
+Generated Node #0,4,3: 50:[32, 80] Operation: 62+18=80
+Exploring Operation: 32-18=14, Resulting Numbers: [62, 14]
+Generated Node #0,4,4: 50:[62, 14] Operation: 32-18=14
+Moving to Node #0,0
+Current State: 50:[62, 4, 46], Operations: ['32+14=46']
+Exploring Operation: 62+4=66, Resulting Numbers: [46, 66]
+Generated Node #0,0,0: 50:[46, 66] Operation: 62+4=66
+Exploring Operation: 62-46=16, Resulting Numbers: [4, 16]
+Generated Node #0,0,1: 50:[4, 16] Operation: 62-46=16
+Exploring Operation: 62-4=58, Resulting Numbers: [46, 58]
+Generated Node #0,0,2: 50:[46, 58] Operation: 62-4=58
+Exploring Operation: 46-4=42, Resulting Numbers: [62, 42]
+Generated Node #0,0,3: 50:[62, 42] Operation: 46-4=42
+Exploring Operation: 4+46=50, Resulting Numbers: [62, 50]
+Generated Node #0,0,4: 50:[62, 50] Operation: 4+46=50
+Moving to Node #0,2
+Current State: 50:[62, 14, 36], Operations: ['32+4=36']
+Exploring Operation: 62-14=48, Resulting Numbers: [36, 48]
+Generated Node #0,2,0: 50:[36, 48] Operation: 62-14=48
+Exploring Operation: 36-14=22, Resulting Numbers: [62, 22]
+Generated Node #0,2,1: 50:[62, 22] Operation: 36-14=22
+Exploring Operation: 62+14=76, Resulting Numbers: [36, 76]
+Generated Node #0,2,2: 50:[36, 76] Operation: 62+14=76
+Exploring Operation: 62-36=26, Resulting Numbers: [14, 26]
+Generated Node #0,2,3: 50:[14, 26] Operation: 62-36=26
+Exploring Operation: 14+36=50, Resulting Numbers: [62, 50]
+Generated Node #0,2,4: 50:[62, 50] Operation: 14+36=50
+Moving to Node #0,1,4
+Current State: 50:[58, 46], Operations: ['62-4=58', '32+14=46']
+Exploring Operation: 58-46=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 58*46=2668, Resulting Numbers: [2668]
+2668,50 unequal: No Solution
+
+Exploring Operation: 58+46=104, Resulting Numbers: [104]
+104,50 unequal: No Solution
+
+Moving to Node #0,4,2
+Current State: 50:[62, 50], Operations: ['4+14=18', '32+18=50']
+Exploring Operation: 62*50=3100, Resulting Numbers: [3100]
+3100,50 unequal: No Solution
+
+Exploring Operation: 62+50=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Exploring Operation: 62-50=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Moving to Node #0,2,4
+Current State: 50:[62, 50], Operations: ['32+4=36', '14+36=50']
+Exploring Operation: 62+50=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Exploring Operation: 62-50=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 62*50=3100, Resulting Numbers: [3100]
+3100,50 unequal: No Solution
+
+Moving to Node #0,0,2
+Current State: 50:[46, 58], Operations: ['32+14=46', '62-4=58']
+Exploring Operation: 46+58=104, Resulting Numbers: [104]
+104,50 unequal: No Solution
+
+Exploring Operation: 58-46=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 46*58=2668, Resulting Numbers: [2668]
+2668,50 unequal: No Solution
+
+Moving to Node #0,0,4
+Current State: 50:[62, 50], Operations: ['32+14=46', '4+46=50']
+Exploring Operation: 62*50=3100, Resulting Numbers: [3100]
+3100,50 unequal: No Solution
+
+Exploring Operation: 62-50=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 62+50=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Moving to Node #0,2,0
+Current State: 50:[36, 48], Operations: ['32+4=36', '62-14=48']
+Exploring Operation: 36*48=1728, Resulting Numbers: [1728]
+1728,50 unequal: No Solution
+
+Exploring Operation: 48-36=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 36+48=84, Resulting Numbers: [84]
+84,50 unequal: No Solution
+
+Moving to Node #0,0,0
+Current State: 50:[46, 66], Operations: ['32+14=46', '62+4=66']
+Exploring Operation: 46+66=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Exploring Operation: 66-46=20, Resulting Numbers: [20]
+20,50 unequal: No Solution
+
+Exploring Operation: 46*66=3036, Resulting Numbers: [3036]
+3036,50 unequal: No Solution
+
+Moving to Node #0,0,3
+Current State: 50:[62, 42], Operations: ['32+14=46', '46-4=42']
+Exploring Operation: 62+42=104, Resulting Numbers: [104]
+104,50 unequal: No Solution
+
+Exploring Operation: 62-42=20, Resulting Numbers: [20]
+20,50 unequal: No Solution
+
+Exploring Operation: 62*42=2604, Resulting Numbers: [2604]
+2604,50 unequal: No Solution
+
+Moving to Node #0,1,1
+Current State: 50:[32, 44], Operations: ['62-4=58', '58-14=44']
+Exploring Operation: 32+44=76, Resulting Numbers: [76]
+76,50 unequal: No Solution
+
+Exploring Operation: 32*44=1408, Resulting Numbers: [1408]
+1408,50 unequal: No Solution
+
+Exploring Operation: 44-32=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Moving to Node #0,4,0
+Current State: 50:[32, 44], Operations: ['4+14=18', '62-18=44']
+Exploring Operation: 44-32=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 32+44=76, Resulting Numbers: [76]
+76,50 unequal: No Solution
+
+Exploring Operation: 32*44=1408, Resulting Numbers: [1408]
+1408,50 unequal: No Solution
+
+Moving to Node #0,3,1
+Current State: 50:[56, 30], Operations: ['4*14=56', '62-32=30']
+Exploring Operation: 56-30=26, Resulting Numbers: [26]
+26,50 unequal: No Solution
+
+Exploring Operation: 56+30=86, Resulting Numbers: [86]
+86,50 unequal: No Solution
+
+Exploring Operation: 56*30=1680, Resulting Numbers: [1680]
+1680,50 unequal: No Solution
+
+Moving to Node #0,3,4
+Current State: 50:[62, 24], Operations: ['4*14=56', '56-32=24']
+Exploring Operation: 62*24=1488, Resulting Numbers: [1488]
+1488,50 unequal: No Solution
+
+Exploring Operation: 62+24=86, Resulting Numbers: [86]
+86,50 unequal: No Solution
+
+Exploring Operation: 62-24=38, Resulting Numbers: [38]
+38,50 unequal: No Solution
+
+Moving to Node #0,2,2
+Current State: 50:[36, 76], Operations: ['32+4=36', '62+14=76']
+Exploring Operation: 76-36=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Exploring Operation: 36+76=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Exploring Operation: 36*76=2736, Resulting Numbers: [2736]
+2736,50 unequal: No Solution
+
+Moving to Node #0,2,1
+Current State: 50:[62, 22], Operations: ['32+4=36', '36-14=22']
+Exploring Operation: 62-22=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Exploring Operation: 62*22=1364, Resulting Numbers: [1364]
+1364,50 unequal: No Solution
+
+Exploring Operation: 62+22=84, Resulting Numbers: [84]
+84,50 unequal: No Solution
+
+Moving to Node #0,1,3
+Current State: 50:[58, 18], Operations: ['62-4=58', '32-14=18']
+Exploring Operation: 58-18=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Exploring Operation: 58*18=1044, Resulting Numbers: [1044]
+1044,50 unequal: No Solution
+
+Exploring Operation: 58+18=76, Resulting Numbers: [76]
+76,50 unequal: No Solution
+
+Moving to Node #0,2,2,0
+Current State: 50:[40], Operations: ['32+4=36', '62+14=76', '76-36=40']
+Moving to Node #0,2,1,0
+Current State: 50:[40], Operations: ['32+4=36', '36-14=22', '62-22=40']
+Moving to Node #0,1,3,0
+Current State: 50:[40], Operations: ['62-4=58', '32-14=18', '58-18=40']
+Moving to Node #0,3,4,2
+Current State: 50:[38], Operations: ['4*14=56', '56-32=24', '62-24=38']
+Moving to Node #0,1,2
+Current State: 50:[32, 72], Operations: ['62-4=58', '14+58=72']
+Exploring Operation: 32*72=2304, Resulting Numbers: [2304]
+2304,50 unequal: No Solution
+
+Exploring Operation: 72-32=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Exploring Operation: 32+72=104, Resulting Numbers: [104]
+104,50 unequal: No Solution
+
+Moving to Node #0,1,2,1
+Current State: 50:[40], Operations: ['62-4=58', '14+58=72', '72-32=40']
+Moving to Node #0,4,4
+Current State: 50:[62, 14], Operations: ['4+14=18', '32-18=14']
+Exploring Operation: 62-14=48, Resulting Numbers: [48]
+48,50 unequal: No Solution
+
+Exploring Operation: 62+14=76, Resulting Numbers: [76]
+76,50 unequal: No Solution
+
+Exploring Operation: 62*14=868, Resulting Numbers: [868]
+868,50 unequal: No Solution
+
+Moving to Node #0,4,3
+Current State: 50:[32, 80], Operations: ['4+14=18', '62+18=80']
+Exploring Operation: 80-32=48, Resulting Numbers: [48]
+48,50 unequal: No Solution
+
+Exploring Operation: 32+80=112, Resulting Numbers: [112]
+112,50 unequal: No Solution
+
+Exploring Operation: 32*80=2560, Resulting Numbers: [2560]
+2560,50 unequal: No Solution
+
+Moving to Node #0,3,1,0
+Current State: 50:[26], Operations: ['4*14=56', '62-32=30', '56-30=26']
+Moving to Node #0,3,0
+Current State: 50:[56, 94], Operations: ['4*14=56', '32+62=94']
+Exploring Operation: 56*94=5264, Resulting Numbers: [5264]
+5264,50 unequal: No Solution
+
+Exploring Operation: 94-56=38, Resulting Numbers: [38]
+38,50 unequal: No Solution
+
+Exploring Operation: 56+94=150, Resulting Numbers: [150]
+150,50 unequal: No Solution
+
+Moving to Node #0,4,4,0
+Current State: 50:[48], Operations: ['4+14=18', '32-18=14', '62-14=48']
+Moving to Node #0,4,3,0
+Current State: 50:[48], Operations: ['4+14=18', '62+18=80', '80-32=48']
+Moving to Node #0,3,0,1
+Current State: 50:[38], Operations: ['4*14=56', '32+62=94', '94-56=38']
+Moving to Node #0,3,3
+Current State: 50:[62, 88], Operations: ['4*14=56', '32+56=88']
+Exploring Operation: 62*88=5456, Resulting Numbers: [5456]
+5456,50 unequal: No Solution
+
+Exploring Operation: 88-62=26, Resulting Numbers: [26]
+26,50 unequal: No Solution
+
+Exploring Operation: 62+88=150, Resulting Numbers: [150]
+150,50 unequal: No Solution
+
+Moving to Node #0,4,1
+Current State: 50:[18, 30], Operations: ['4+14=18', '62-32=30']
+Exploring Operation: 30-18=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 18+30=48, Resulting Numbers: [48]
+48,50 unequal: No Solution
+
+Exploring Operation: 18*30=540, Resulting Numbers: [540]
+540,50 unequal: No Solution
+
+Moving to Node #0,4,1,1
+Current State: 50:[48], Operations: ['4+14=18', '62-32=30', '18+30=48']
+Moving to Node #0,3,3,1
+Current State: 50:[26], Operations: ['4*14=56', '32+56=88', '88-62=26']
+Moving to Node #0,1,3,2
+Current State: 50:[76], Operations: ['62-4=58', '32-14=18', '58+18=76']
+Moving to Node #0,4,4,1
+Current State: 50:[76], Operations: ['4+14=18', '32-18=14', '62+14=76']
+Moving to Node #0,1,1,0
+Current State: 50:[76], Operations: ['62-4=58', '58-14=44', '32+44=76']
+Moving to Node #0,4,0,1
+Current State: 50:[76], Operations: ['4+14=18', '62-18=44', '32+44=76']
+Moving to Node #0,1,0
+Current State: 50:[14, 26], Operations: ['62-4=58', '58-32=26']
+Exploring Operation: 26-14=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 14*26=364, Resulting Numbers: [364]
+364,50 unequal: No Solution
+
+Exploring Operation: 14+26=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Moving to Node #0,2,3
+Current State: 50:[14, 26], Operations: ['32+4=36', '62-36=26']
+Exploring Operation: 14+26=40, Resulting Numbers: [40]
+40,50 unequal: No Solution
+
+Exploring Operation: 14*26=364, Resulting Numbers: [364]
+364,50 unequal: No Solution
+
+Exploring Operation: 26-14=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Moving to Node #0,0,3,1
+Current State: 50:[20], Operations: ['32+14=46', '46-4=42', '62-42=20']
+Moving to Node #0,0,0,1
+Current State: 50:[20], Operations: ['32+14=46', '62+4=66', '66-46=20']
+Moving to Node #0,1,0,2
+Current State: 50:[40], Operations: ['62-4=58', '58-32=26', '14+26=40']
+Moving to Node #0,2,3,0
+Current State: 50:[40], Operations: ['32+4=36', '62-36=26', '14+26=40']
+Moving to Node #0,3,2
+Current State: 50:[32, 6], Operations: ['4*14=56', '62-56=6']
+Exploring Operation: 32*6=192, Resulting Numbers: [192]
+192,50 unequal: No Solution
+
+Exploring Operation: 32+6=38, Resulting Numbers: [38]
+38,50 unequal: No Solution
+
+Exploring Operation: 32-6=26, Resulting Numbers: [26]
+26,50 unequal: No Solution
+
+Moving to Node #0,2,0,2
+Current State: 50:[84], Operations: ['32+4=36', '62-14=48', '36+48=84']
+Moving to Node #0,2,1,2
+Current State: 50:[84], Operations: ['32+4=36', '36-14=22', '62+22=84']
+Moving to Node #0,3,2,1
+Current State: 50:[38], Operations: ['4*14=56', '62-56=6', '32+6=38']
+Moving to Node #0,3,2,2
+Current State: 50:[26], Operations: ['4*14=56', '62-56=6', '32-6=26']
+Moving to Node #0,3,4,1
+Current State: 50:[86], Operations: ['4*14=56', '56-32=24', '62+24=86']
+Moving to Node #0,3,1,1
+Current State: 50:[86], Operations: ['4*14=56', '62-32=30', '56+30=86']
+Moving to Node #0,4,1,0
+Current State: 50:[12], Operations: ['4+14=18', '62-32=30', '30-18=12']
+Moving to Node #0,1,0,0
+Current State: 50:[12], Operations: ['62-4=58', '58-32=26', '26-14=12']
+Moving to Node #0,0,4,1
+Current State: 50:[12], Operations: ['32+14=46', '4+46=50', '62-50=12']
+Moving to Node #0,2,3,2
+Current State: 50:[12], Operations: ['32+4=36', '62-36=26', '26-14=12']
+Moving to Node #0,0,2,1
+Current State: 50:[12], Operations: ['32+14=46', '62-4=58', '58-46=12']
+Moving to Node #0,2,4,1
+Current State: 50:[12], Operations: ['32+4=36', '14+36=50', '62-50=12']
+Moving to Node #0,4,2,2
+Current State: 50:[12], Operations: ['4+14=18', '32+18=50', '62-50=12']
+Moving to Node #0,4,0,0
+Current State: 50:[12], Operations: ['4+14=18', '62-18=44', '44-32=12']
+Moving to Node #0,1,4,0
+Current State: 50:[12], Operations: ['62-4=58', '32+14=46', '58-46=12']
+Moving to Node #0,1,1,2
+Current State: 50:[12], Operations: ['62-4=58', '58-14=44', '44-32=12']
+Moving to Node #0,2,0,1
+Current State: 50:[12], Operations: ['32+4=36', '62-14=48', '48-36=12']
+Moving to Node #0,0,1
+Current State: 50:[4, 16], Operations: ['32+14=46', '62-46=16']
+Exploring Operation: 16-4=12, Resulting Numbers: [12]
+12,50 unequal: No Solution
+
+Exploring Operation: 16/4=4, Resulting Numbers: [4]
+4,50 unequal: No Solution
+
+Exploring Operation: 4+16=20, Resulting Numbers: [20]
+20,50 unequal: No Solution
+
+Exploring Operation: 4*16=64, Resulting Numbers: [64]
+64,50 unequal: No Solution
+
+Moving to Node #0,0,2,0
+Current State: 50:[104], Operations: ['32+14=46', '62-4=58', '46+58=104']
+Moving to Node #0,1,2,2
+Current State: 50:[104], Operations: ['62-4=58', '14+58=72', '32+72=104']
+Moving to Node #0,1,4,2
+Current State: 50:[104], Operations: ['62-4=58', '32+14=46', '58+46=104']
+Moving to Node #0,0,3,0
+Current State: 50:[104], Operations: ['32+14=46', '46-4=42', '62+42=104']
+Moving to Node #0,0,1,3
+Current State: 50:[64], Operations: ['32+14=46', '62-46=16', '4*16=64']
+Moving to Node #0,0,1,2
+Current State: 50:[20], Operations: ['32+14=46', '62-46=16', '4+16=20']
+Moving to Node #0,0,1,0
+Current State: 50:[12], Operations: ['32+14=46', '62-46=16', '16-4=12']
+Moving to Node #0,0,1,1
+Current State: 50:[4], Operations: ['32+14=46', '62-46=16', '16/4=4']
+Moving to Node #0,2,2,1
+Current State: 50:[112], Operations: ['32+4=36', '62+14=76', '36+76=112']
+Moving to Node #0,2,4,0
+Current State: 50:[112], Operations: ['32+4=36', '14+36=50', '62+50=112']
+Moving to Node #0,0,4,2
+Current State: 50:[112], Operations: ['32+14=46', '4+46=50', '62+50=112']
+Moving to Node #0,4,3,1
+Current State: 50:[112], Operations: ['4+14=18', '62+18=80', '32+80=112']
+Moving to Node #0,4,2,1
+Current State: 50:[112], Operations: ['4+14=18', '32+18=50', '62+50=112']
+Moving to Node #0,0,0,0
+Current State: 50:[112], Operations: ['32+14=46', '62+4=66', '46+66=112']
+Moving to Node #0,3,0,2
+Current State: 50:[150], Operations: ['4*14=56', '32+62=94', '56+94=150']
+Moving to Node #0,3,3,2
+Current State: 50:[150], Operations: ['4*14=56', '32+56=88', '62+88=150']
+Moving to Node #0,3,2,0
+Current State: 50:[192], Operations: ['4*14=56', '62-56=6', '32*6=192']
+Moving to Node #0,1,0,1
+Current State: 50:[364], Operations: ['62-4=58', '58-32=26', '14*26=364']
+Moving to Node #0,2,3,1
+Current State: 50:[364], Operations: ['32+4=36', '62-36=26', '14*26=364']
+Moving to Node #0,4,1,2
+Current State: 50:[540], Operations: ['4+14=18', '62-32=30', '18*30=540']
+Moving to Node #0,4,4,2
+Current State: 50:[868], Operations: ['4+14=18', '32-18=14', '62*14=868']
+Moving to Node #0,1,3,1
+Current State: 50:[1044], Operations: ['62-4=58', '32-14=18', '58*18=1044']
+Moving to Node #0,2,1,1
+Current State: 50:[1364], Operations: ['32+4=36', '36-14=22', '62*22=1364']
+Moving to Node #0,4,0,2
+Current State: 50:[1408], Operations: ['4+14=18', '62-18=44', '32*44=1408']
+Moving to Node #0,1,1,1
+Current State: 50:[1408], Operations: ['62-4=58', '58-14=44', '32*44=1408']
+Moving to Node #0,3,4,0
+Current State: 50:[1488], Operations: ['4*14=56', '56-32=24', '62*24=1488']
+Moving to Node #0,3,1,2
+Current State: 50:[1680], Operations: ['4*14=56', '62-32=30', '56*30=1680']
+Moving to Node #0,2,0,0
+Current State: 50:[1728], Operations: ['32+4=36', '62-14=48', '36*48=1728']
+Moving to Node #0,1,2,0
+Current State: 50:[2304], Operations: ['62-4=58', '14+58=72', '32*72=2304']
+Moving to Node #0,4,3,2
+Current State: 50:[2560], Operations: ['4+14=18', '62+18=80', '32*80=2560']
+Moving to Node #0,0,3,2
+Current State: 50:[2604], Operations: ['32+14=46', '46-4=42', '62*42=2604']
+Moving to Node #0,1,4,1
+Current State: 50:[2668], Operations: ['62-4=58', '32+14=46', '58*46=2668']
+Moving to Node #0,0,2,2
+Current State: 50:[2668], Operations: ['32+14=46', '62-4=58', '46*58=2668']
+Moving to Node #0,2,2,2
+Current State: 50:[2736], Operations: ['32+4=36', '62+14=76', '36*76=2736']
+Moving to Node #0,0,0,2
+Current State: 50:[3036], Operations: ['32+14=46', '62+4=66', '46*66=3036']
+Moving to Node #0,4,2,0
+Current State: 50:[3100], Operations: ['4+14=18', '32+18=50', '62*50=3100']
+Moving to Node #0,2,4,2
+Current State: 50:[3100], Operations: ['32+4=36', '14+36=50', '62*50=3100']
+Moving to Node #0,0,4,0
+Current State: 50:[3100], Operations: ['32+14=46', '4+46=50', '62*50=3100']
+Moving to Node #0,3,0,0
+Current State: 50:[5264], Operations: ['4*14=56', '32+62=94', '56*94=5264']
+Moving to Node #0,3,3,0
+Current State: 50:[5456], Operations: ['4*14=56', '32+56=88', '62*88=5456']
+```
+SOLUTION: NO
+OPERATIONS: []
+RESULT: None
+```
+<|im_end|>
+
+2025-03-27 12:50:11 - INFO - __main__ - Sample 654 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers 26, using only arithmetic operations (+, -, *, /) to reach the target value [96, 29, 13, 45]. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```<|im_end|>
+<|im_start|>assistant
+Current State: 26:[96, 29, 13, 45], Operations: []
+Exploring Operation: 96-45=51, Resulting Numbers: [29, 13, 51]
+Generated Node #0,0: 26:[29, 13, 51] Operation: 96-45=51
+Exploring Operation: 51-13=38, Resulting Numbers: [29, 38]
+Generated Node #0,0,0: 26:[29, 38] Operation: 51-13=38
+Exploring Operation: 38-29=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[29, 38], Operations: ['96-45=51', '51-13=38']
+Exploring Operation: 51-29=22, Resulting Numbers: [13, 22]
+Generated Node #0,0,1: 26:[13, 22] Operation: 51-29=22
+Exploring Operation: 13+22=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[13, 22], Operations: ['96-45=51', '51-29=22']
+Exploring Operation: 29-13=16, Resulting Numbers: [51, 16]
+Generated Node #0,0,2: 26:[51, 16] Operation: 29-13=16
+Exploring Operation: 51-16=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[51, 16], Operations: ['96-45=51', '29-13=16']
+Exploring Operation: 29+13=42, Resulting Numbers: [51, 42]
+Generated Node #0,0,3: 26:[51, 42] Operation: 29+13=42
+Exploring Operation: 51-42=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[51, 42], Operations: ['96-45=51', '29+13=42']
+Exploring Operation: 13+51=64, Resulting Numbers: [29, 64]
+Generated Node #0,0,4: 26:[29, 64] Operation: 13+51=64
+Exploring Operation: 64-29=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[29, 64], Operations: ['96-45=51', '13+51=64']
+Exploring Operation: 29+51=80, Resulting Numbers: [13, 80]
+Generated Node #0,0,5: 26:[13, 80] Operation: 29+51=80
+Exploring Operation: 80-13=67, Resulting Numbers: [67]
+67,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[13, 80], Operations: ['96-45=51', '29+51=80']
+Exploring Operation: 29*13=377, Resulting Numbers: [51, 377]
+Generated Node #0,0,6: 26:[51, 377] Operation: 29*13=377
+Exploring Operation: 377-51=326, Resulting Numbers: [326]
+326,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[51, 377], Operations: ['96-45=51', '29*13=377']
+Exploring Operation: 13*51=663, Resulting Numbers: [29, 663]
+Generated Node #0,0,7: 26:[29, 663] Operation: 13*51=663
+Exploring Operation: 663-29=634, Resulting Numbers: [634]
+634,26 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 26:[29, 663], Operations: ['96-45=51', '13*51=663']
+Exploring Operation: 29*51=1479, Resulting Numbers: [13, 1479]
+Generated Node #0,0,8: 26:[13, 1479] Operation: 29*51=1479
+Exploring Operation: 1479-13=1466, Resulting Numbers: [1466]
+1466,26 unequal: No Solution
+
+Moving to Node #0
+Current State: 26:[29, 13, 51], Operations: ['96-45=51']
+Exploring Operation: 96-29=67, Resulting Numbers: [13, 45, 67]
+Generated Node #0,1: 26:[13, 45, 67] Operation: 96-29=67
+Exploring Operation: 67-45=22, Resulting Numbers: [13, 22]
+Generated Node #0,1,0: 26:[13, 22] Operation: 67-45=22
+Exploring Operation: 13+22=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[13, 22], Operations: ['96-29=67', '67-45=22']
+Exploring Operation: 45-13=32, Resulting Numbers: [67, 32]
+Generated Node #0,1,1: 26:[67, 32] Operation: 45-13=32
+Exploring Operation: 67-32=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[67, 32], Operations: ['96-29=67', '45-13=32']
+Exploring Operation: 67-13=54, Resulting Numbers: [45, 54]
+Generated Node #0,1,2: 26:[45, 54] Operation: 67-13=54
+Exploring Operation: 54-45=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[45, 54], Operations: ['96-29=67', '67-13=54']
+Exploring Operation: 13+45=58, Resulting Numbers: [67, 58]
+Generated Node #0,1,3: 26:[67, 58] Operation: 13+45=58
+Exploring Operation: 67-58=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[67, 58], Operations: ['96-29=67', '13+45=58']
+Exploring Operation: 13+67=80, Resulting Numbers: [45, 80]
+Generated Node #0,1,4: 26:[45, 80] Operation: 13+67=80
+Exploring Operation: 80-45=35, Resulting Numbers: [35]
+35,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[45, 80], Operations: ['96-29=67', '13+67=80']
+Exploring Operation: 45+67=112, Resulting Numbers: [13, 112]
+Generated Node #0,1,5: 26:[13, 112] Operation: 45+67=112
+Exploring Operation: 112-13=99, Resulting Numbers: [99]
+99,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[13, 112], Operations: ['96-29=67', '45+67=112']
+Exploring Operation: 13*45=585, Resulting Numbers: [67, 585]
+Generated Node #0,1,6: 26:[67, 585] Operation: 13*45=585
+Exploring Operation: 585-67=518, Resulting Numbers: [518]
+518,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[67, 585], Operations: ['96-29=67', '13*45=585']
+Exploring Operation: 13*67=871, Resulting Numbers: [45, 871]
+Generated Node #0,1,7: 26:[45, 871] Operation: 13*67=871
+Exploring Operation: 871-45=826, Resulting Numbers: [826]
+826,26 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 26:[45, 871], Operations: ['96-29=67', '13*67=871']
+Exploring Operation: 45*67=3015, Resulting Numbers: [13, 3015]
+Generated Node #0,1,8: 26:[13, 3015] Operation: 45*67=3015
+Exploring Operation: 3015-13=3002, Resulting Numbers: [3002]
+3002,26 unequal: No Solution
+
+Moving to Node #0
+Current State: 26:[13, 45, 67], Operations: ['96-29=67']
+Exploring Operation: 96-13=83, Resulting Numbers: [29, 45, 83]
+Generated Node #0,2: 26:[29, 45, 83] Operation: 96-13=83
+Exploring Operation: 83-45=38, Resulting Numbers: [29, 38]
+Generated Node #0,2,0: 26:[29, 38] Operation: 83-45=38
+Exploring Operation: 38-29=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[29, 38], Operations: ['96-13=83', '83-45=38']
+Exploring Operation: 83-29=54, Resulting Numbers: [45, 54]
+Generated Node #0,2,1: 26:[45, 54] Operation: 83-29=54
+Exploring Operation: 54-45=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[45, 54], Operations: ['96-13=83', '83-29=54']
+Exploring Operation: 45-29=16, Resulting Numbers: [83, 16]
+Generated Node #0,2,2: 26:[83, 16] Operation: 45-29=16
+Exploring Operation: 83-16=67, Resulting Numbers: [67]
+67,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[83, 16], Operations: ['96-13=83', '45-29=16']
+Exploring Operation: 29+45=74, Resulting Numbers: [83, 74]
+Generated Node #0,2,3: 26:[83, 74] Operation: 29+45=74
+Exploring Operation: 83-74=9, Resulting Numbers: [9]
+9,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[83, 74], Operations: ['96-13=83', '29+45=74']
+Exploring Operation: 29+83=112, Resulting Numbers: [45, 112]
+Generated Node #0,2,4: 26:[45, 112] Operation: 29+83=112
+Exploring Operation: 112-45=67, Resulting Numbers: [67]
+67,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[45, 112], Operations: ['96-13=83', '29+83=112']
+Exploring Operation: 45+83=128, Resulting Numbers: [29, 128]
+Generated Node #0,2,5: 26:[29, 128] Operation: 45+83=128
+Exploring Operation: 128-29=99, Resulting Numbers: [99]
+99,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[29, 128], Operations: ['96-13=83', '45+83=128']
+Exploring Operation: 29*45=1305, Resulting Numbers: [83, 1305]
+Generated Node #0,2,6: 26:[83, 1305] Operation: 29*45=1305
+Exploring Operation: 1305-83=1222, Resulting Numbers: [1222]
+1222,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[83, 1305], Operations: ['96-13=83', '29*45=1305']
+Exploring Operation: 29*83=2407, Resulting Numbers: [45, 2407]
+Generated Node #0,2,7: 26:[45, 2407] Operation: 29*83=2407
+Exploring Operation: 2407-45=2362, Resulting Numbers: [2362]
+2362,26 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 26:[45, 2407], Operations: ['96-13=83', '29*83=2407']
+Exploring Operation: 45*83=3735, Resulting Numbers: [29, 3735]
+Generated Node #0,2,8: 26:[29, 3735] Operation: 45*83=3735
+Exploring Operation: 3735-29=3706, Resulting Numbers: [3706]
+3706,26 unequal: No Solution
+
+Moving to Node #0
+Current State: 26:[29, 45, 83], Operations: ['96-13=83']
+Exploring Operation: 45-13=32, Resulting Numbers: [96, 29, 32]
+Generated Node #0,3: 26:[96, 29, 32] Operation: 45-13=32
+Exploring Operation: 96/32=3, Resulting Numbers: [29, 3]
+Generated Node #0,3,0: 26:[29, 3] Operation: 96/32=3
+Exploring Operation: 29-3=26, Resulting Numbers: [26]
+26,26 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['45-13=32', '96/32=3', '29-3=26']
+RESULT: 26
+```
+<|im_end|>
+
+2025-03-27 12:50:11 - INFO - __main__ - Sample 114 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers 99, using only arithmetic operations (+, -, *, /) to reach the target value [91, 4, 77, 75]. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```<|im_end|>
+<|im_start|>assistant
+Current State: 99:[91, 4, 77, 75], Operations: []
+Exploring Operation: 91+4=95, Resulting Numbers: [77, 75, 95]
+Generated Node #0,0: 99:[77, 75, 95] Operation: 91+4=95
+Exploring Operation: 77+75=152, Resulting Numbers: [95, 152]
+Generated Node #0,0,0: 99:[95, 152] Operation: 77+75=152
+Exploring Operation: 152-95=57, Resulting Numbers: [57]
+57,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[95, 152], Operations: ['91+4=95', '77+75=152']
+Exploring Operation: 75+95=170, Resulting Numbers: [77, 170]
+Generated Node #0,0,1: 99:[77, 170] Operation: 75+95=170
+Exploring Operation: 170-77=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[77, 170], Operations: ['91+4=95', '75+95=170']
+Exploring Operation: 77+95=172, Resulting Numbers: [75, 172]
+Generated Node #0,0,2: 99:[75, 172] Operation: 77+95=172
+Exploring Operation: 172-75=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[75, 172], Operations: ['91+4=95', '77+95=172']
+Exploring Operation: 77-75=2, Resulting Numbers: [95, 2]
+Generated Node #0,0,3: 99:[95, 2] Operation: 77-75=2
+Exploring Operation: 95+2=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[95, 2], Operations: ['91+4=95', '77-75=2']
+Exploring Operation: 95-75=20, Resulting Numbers: [77, 20]
+Generated Node #0,0,4: 99:[77, 20] Operation: 95-75=20
+Exploring Operation: 77+20=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[77, 20], Operations: ['91+4=95', '95-75=20']
+Exploring Operation: 95-77=18, Resulting Numbers: [75, 18]
+Generated Node #0,0,5: 99:[75, 18] Operation: 95-77=18
+Exploring Operation: 75+18=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[75, 18], Operations: ['91+4=95', '95-77=18']
+Exploring Operation: 77*75=5775, Resulting Numbers: [95, 5775]
+Generated Node #0,0,6: 99:[95, 5775] Operation: 77*75=5775
+Exploring Operation: 5775-95=5680, Resulting Numbers: [5680]
+5680,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[95, 5775], Operations: ['91+4=95', '77*75=5775']
+Exploring Operation: 75*95=7125, Resulting Numbers: [77, 7125]
+Generated Node #0,0,7: 99:[77, 7125] Operation: 75*95=7125
+Exploring Operation: 7125-77=7048, Resulting Numbers: [7048]
+7048,99 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 99:[77, 7125], Operations: ['91+4=95', '75*95=7125']
+Exploring Operation: 77*95=7315, Resulting Numbers: [75, 7315]
+Generated Node #0,0,8: 99:[75, 7315] Operation: 77*95=7315
+Exploring Operation: 7315-75=7240, Resulting Numbers: [7240]
+7240,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[77, 75, 95], Operations: ['91+4=95']
+Exploring Operation: 4+77=81, Resulting Numbers: [91, 75, 81]
+Generated Node #0,1: 99:[91, 75, 81] Operation: 4+77=81
+Exploring Operation: 75+81=156, Resulting Numbers: [91, 156]
+Generated Node #0,1,0: 99:[91, 156] Operation: 75+81=156
+Exploring Operation: 156-91=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[91, 156], Operations: ['4+77=81', '75+81=156']
+Exploring Operation: 91+75=166, Resulting Numbers: [81, 166]
+Generated Node #0,1,1: 99:[81, 166] Operation: 91+75=166
+Exploring Operation: 166-81=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[81, 166], Operations: ['4+77=81', '91+75=166']
+Exploring Operation: 91+81=172, Resulting Numbers: [75, 172]
+Generated Node #0,1,2: 99:[75, 172] Operation: 91+81=172
+Exploring Operation: 172-75=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[75, 172], Operations: ['4+77=81', '91+81=172']
+Exploring Operation: 91-75=16, Resulting Numbers: [81, 16]
+Generated Node #0,1,3: 99:[81, 16] Operation: 91-75=16
+Exploring Operation: 81+16=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[81, 16], Operations: ['4+77=81', '91-75=16']
+Exploring Operation: 81-75=6, Resulting Numbers: [91, 6]
+Generated Node #0,1,4: 99:[91, 6] Operation: 81-75=6
+Exploring Operation: 91+6=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[91, 6], Operations: ['4+77=81', '81-75=6']
+Exploring Operation: 91-81=10, Resulting Numbers: [75, 10]
+Generated Node #0,1,5: 99:[75, 10] Operation: 91-81=10
+Exploring Operation: 75+10=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[75, 10], Operations: ['4+77=81', '91-81=10']
+Exploring Operation: 75*81=6075, Resulting Numbers: [91, 6075]
+Generated Node #0,1,6: 99:[91, 6075] Operation: 75*81=6075
+Exploring Operation: 6075-91=5984, Resulting Numbers: [5984]
+5984,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[91, 6075], Operations: ['4+77=81', '75*81=6075']
+Exploring Operation: 91*75=6825, Resulting Numbers: [81, 6825]
+Generated Node #0,1,7: 99:[81, 6825] Operation: 91*75=6825
+Exploring Operation: 6825-81=6744, Resulting Numbers: [6744]
+6744,99 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 99:[81, 6825], Operations: ['4+77=81', '91*75=6825']
+Exploring Operation: 91*81=7371, Resulting Numbers: [75, 7371]
+Generated Node #0,1,8: 99:[75, 7371] Operation: 91*81=7371
+Exploring Operation: 7371-75=7296, Resulting Numbers: [7296]
+7296,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[91, 75, 81], Operations: ['4+77=81']
+Exploring Operation: 4+75=79, Resulting Numbers: [91, 77, 79]
+Generated Node #0,2: 99:[91, 77, 79] Operation: 4+75=79
+Exploring Operation: 77+79=156, Resulting Numbers: [91, 156]
+Generated Node #0,2,0: 99:[91, 156] Operation: 77+79=156
+Exploring Operation: 156-91=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[91, 156], Operations: ['4+75=79', '77+79=156']
+Exploring Operation: 91+77=168, Resulting Numbers: [79, 168]
+Generated Node #0,2,1: 99:[79, 168] Operation: 91+77=168
+Exploring Operation: 168-79=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[79, 168], Operations: ['4+75=79', '91+77=168']
+Exploring Operation: 91+79=170, Resulting Numbers: [77, 170]
+Generated Node #0,2,2: 99:[77, 170] Operation: 91+79=170
+Exploring Operation: 170-77=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[77, 170], Operations: ['4+75=79', '91+79=170']
+Exploring Operation: 91-77=14, Resulting Numbers: [79, 14]
+Generated Node #0,2,3: 99:[79, 14] Operation: 91-77=14
+Exploring Operation: 79+14=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[79, 14], Operations: ['4+75=79', '91-77=14']
+Exploring Operation: 79-77=2, Resulting Numbers: [91, 2]
+Generated Node #0,2,4: 99:[91, 2] Operation: 79-77=2
+Exploring Operation: 91+2=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[91, 2], Operations: ['4+75=79', '79-77=2']
+Exploring Operation: 91-79=12, Resulting Numbers: [77, 12]
+Generated Node #0,2,5: 99:[77, 12] Operation: 91-79=12
+Exploring Operation: 77+12=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[77, 12], Operations: ['4+75=79', '91-79=12']
+Exploring Operation: 77*79=6083, Resulting Numbers: [91, 6083]
+Generated Node #0,2,6: 99:[91, 6083] Operation: 77*79=6083
+Exploring Operation: 6083-91=5992, Resulting Numbers: [5992]
+5992,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[91, 6083], Operations: ['4+75=79', '77*79=6083']
+Exploring Operation: 91*77=7007, Resulting Numbers: [79, 7007]
+Generated Node #0,2,7: 99:[79, 7007] Operation: 91*77=7007
+Exploring Operation: 7007-79=6928, Resulting Numbers: [6928]
+6928,99 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 99:[79, 7007], Operations: ['4+75=79', '91*77=7007']
+Exploring Operation: 91*79=7189, Resulting Numbers: [77, 7189]
+Generated Node #0,2,8: 99:[77, 7189] Operation: 91*79=7189
+Exploring Operation: 7189-77=7112, Resulting Numbers: [7112]
+7112,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[91, 77, 79], Operations: ['4+75=79']
+Exploring Operation: 91-4=87, Resulting Numbers: [77, 75, 87]
+Generated Node #0,3: 99:[77, 75, 87] Operation: 91-4=87
+Exploring Operation: 77+75=152, Resulting Numbers: [87, 152]
+Generated Node #0,3,0: 99:[87, 152] Operation: 77+75=152
+Exploring Operation: 152-87=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[87, 152], Operations: ['91-4=87', '77+75=152']
+Exploring Operation: 75+87=162, Resulting Numbers: [77, 162]
+Generated Node #0,3,1: 99:[77, 162] Operation: 75+87=162
+Exploring Operation: 162-77=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[77, 162], Operations: ['91-4=87', '75+87=162']
+Exploring Operation: 77+87=164, Resulting Numbers: [75, 164]
+Generated Node #0,3,2: 99:[75, 164] Operation: 77+87=164
+Exploring Operation: 164-75=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[75, 164], Operations: ['91-4=87', '77+87=164']
+Exploring Operation: 77-75=2, Resulting Numbers: [87, 2]
+Generated Node #0,3,3: 99:[87, 2] Operation: 77-75=2
+Exploring Operation: 87+2=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[87, 2], Operations: ['91-4=87', '77-75=2']
+Exploring Operation: 87-75=12, Resulting Numbers: [77, 12]
+Generated Node #0,3,4: 99:[77, 12] Operation: 87-75=12
+Exploring Operation: 77+12=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[77, 12], Operations: ['91-4=87', '87-75=12']
+Exploring Operation: 87-77=10, Resulting Numbers: [75, 10]
+Generated Node #0,3,5: 99:[75, 10] Operation: 87-77=10
+Exploring Operation: 75+10=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[75, 10], Operations: ['91-4=87', '87-77=10']
+Exploring Operation: 77*75=5775, Resulting Numbers: [87, 5775]
+Generated Node #0,3,6: 99:[87, 5775] Operation: 77*75=5775
+Exploring Operation: 5775-87=5688, Resulting Numbers: [5688]
+5688,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[87, 5775], Operations: ['91-4=87', '77*75=5775']
+Exploring Operation: 75*87=6525, Resulting Numbers: [77, 6525]
+Generated Node #0,3,7: 99:[77, 6525] Operation: 75*87=6525
+Exploring Operation: 6525-77=6448, Resulting Numbers: [6448]
+6448,99 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 99:[77, 6525], Operations: ['91-4=87', '75*87=6525']
+Exploring Operation: 77*87=6699, Resulting Numbers: [75, 6699]
+Generated Node #0,3,8: 99:[75, 6699] Operation: 77*87=6699
+Exploring Operation: 6699-75=6624, Resulting Numbers: [6624]
+6624,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[77, 75, 87], Operations: ['91-4=87']
+Exploring Operation: 77-4=73, Resulting Numbers: [91, 75, 73]
+Generated Node #0,4: 99:[91, 75, 73] Operation: 77-4=73
+Exploring Operation: 75+73=148, Resulting Numbers: [91, 148]
+Generated Node #0,4,0: 99:[91, 148] Operation: 75+73=148
+Exploring Operation: 148-91=57, Resulting Numbers: [57]
+57,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[91, 148], Operations: ['77-4=73', '75+73=148']
+Exploring Operation: 91+73=164, Resulting Numbers: [75, 164]
+Generated Node #0,4,1: 99:[75, 164] Operation: 91+73=164
+Exploring Operation: 164-75=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[75, 164], Operations: ['77-4=73', '91+73=164']
+Exploring Operation: 91+75=166, Resulting Numbers: [73, 166]
+Generated Node #0,4,2: 99:[73, 166] Operation: 91+75=166
+Exploring Operation: 166-73=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[73, 166], Operations: ['77-4=73', '91+75=166']
+Exploring Operation: 91-73=18, Resulting Numbers: [75, 18]
+Generated Node #0,4,3: 99:[75, 18] Operation: 91-73=18
+Exploring Operation: 75+18=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[75, 18], Operations: ['77-4=73', '91-73=18']
+Exploring Operation: 75-73=2, Resulting Numbers: [91, 2]
+Generated Node #0,4,4: 99:[91, 2] Operation: 75-73=2
+Exploring Operation: 91+2=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[91, 2], Operations: ['77-4=73', '75-73=2']
+Exploring Operation: 91-75=16, Resulting Numbers: [73, 16]
+Generated Node #0,4,5: 99:[73, 16] Operation: 91-75=16
+Exploring Operation: 73+16=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[73, 16], Operations: ['77-4=73', '91-75=16']
+Exploring Operation: 75*73=5475, Resulting Numbers: [91, 5475]
+Generated Node #0,4,6: 99:[91, 5475] Operation: 75*73=5475
+Exploring Operation: 5475-91=5384, Resulting Numbers: [5384]
+5384,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[91, 5475], Operations: ['77-4=73', '75*73=5475']
+Exploring Operation: 91*73=6643, Resulting Numbers: [75, 6643]
+Generated Node #0,4,7: 99:[75, 6643] Operation: 91*73=6643
+Exploring Operation: 6643-75=6568, Resulting Numbers: [6568]
+6568,99 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 99:[75, 6643], Operations: ['77-4=73', '91*73=6643']
+Exploring Operation: 91*75=6825, Resulting Numbers: [73, 6825]
+Generated Node #0,4,8: 99:[73, 6825] Operation: 91*75=6825
+Exploring Operation: 6825-73=6752, Resulting Numbers: [6752]
+6752,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[91, 75, 73], Operations: ['77-4=73']
+Exploring Operation: 75-4=71, Resulting Numbers: [91, 77, 71]
+Generated Node #0,5: 99:[91, 77, 71] Operation: 75-4=71
+Exploring Operation: 77+71=148, Resulting Numbers: [91, 148]
+Generated Node #0,5,0: 99:[91, 148] Operation: 77+71=148
+Exploring Operation: 148-91=57, Resulting Numbers: [57]
+57,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[91, 148], Operations: ['75-4=71', '77+71=148']
+Exploring Operation: 91+71=162, Resulting Numbers: [77, 162]
+Generated Node #0,5,1: 99:[77, 162] Operation: 91+71=162
+Exploring Operation: 162-77=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[77, 162], Operations: ['75-4=71', '91+71=162']
+Exploring Operation: 91+77=168, Resulting Numbers: [71, 168]
+Generated Node #0,5,2: 99:[71, 168] Operation: 91+77=168
+Exploring Operation: 168-71=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[71, 168], Operations: ['75-4=71', '91+77=168']
+Exploring Operation: 91-71=20, Resulting Numbers: [77, 20]
+Generated Node #0,5,3: 99:[77, 20] Operation: 91-71=20
+Exploring Operation: 77+20=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[77, 20], Operations: ['75-4=71', '91-71=20']
+Exploring Operation: 77-71=6, Resulting Numbers: [91, 6]
+Generated Node #0,5,4: 99:[91, 6] Operation: 77-71=6
+Exploring Operation: 91+6=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[91, 6], Operations: ['75-4=71', '77-71=6']
+Exploring Operation: 91-77=14, Resulting Numbers: [71, 14]
+Generated Node #0,5,5: 99:[71, 14] Operation: 91-77=14
+Exploring Operation: 71+14=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[71, 14], Operations: ['75-4=71', '91-77=14']
+Exploring Operation: 77*71=5467, Resulting Numbers: [91, 5467]
+Generated Node #0,5,6: 99:[91, 5467] Operation: 77*71=5467
+Exploring Operation: 5467-91=5376, Resulting Numbers: [5376]
+5376,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[91, 5467], Operations: ['75-4=71', '77*71=5467']
+Exploring Operation: 91*71=6461, Resulting Numbers: [77, 6461]
+Generated Node #0,5,7: 99:[77, 6461] Operation: 91*71=6461
+Exploring Operation: 6461-77=6384, Resulting Numbers: [6384]
+6384,99 unequal: No Solution
+
+Moving to Node #0,5
+Current State: 99:[77, 6461], Operations: ['75-4=71', '91*71=6461']
+Exploring Operation: 91*77=7007, Resulting Numbers: [71, 7007]
+Generated Node #0,5,8: 99:[71, 7007] Operation: 91*77=7007
+Exploring Operation: 7007-71=6936, Resulting Numbers: [6936]
+6936,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[91, 77, 71], Operations: ['75-4=71']
+Exploring Operation: 77+75=152, Resulting Numbers: [91, 4, 152]
+Generated Node #0,6: 99:[91, 4, 152] Operation: 77+75=152
+Exploring Operation: 91+4=95, Resulting Numbers: [152, 95]
+Generated Node #0,6,0: 99:[152, 95] Operation: 91+4=95
+Exploring Operation: 152-95=57, Resulting Numbers: [57]
+57,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[152, 95], Operations: ['77+75=152', '91+4=95']
+Exploring Operation: 152-4=148, Resulting Numbers: [91, 148]
+Generated Node #0,6,1: 99:[91, 148] Operation: 152-4=148
+Exploring Operation: 148-91=57, Resulting Numbers: [57]
+57,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[91, 148], Operations: ['77+75=152', '152-4=148']
+Exploring Operation: 91-4=87, Resulting Numbers: [152, 87]
+Generated Node #0,6,2: 99:[152, 87] Operation: 91-4=87
+Exploring Operation: 152-87=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[152, 87], Operations: ['77+75=152', '91-4=87']
+Exploring Operation: 4+152=156, Resulting Numbers: [91, 156]
+Generated Node #0,6,3: 99:[91, 156] Operation: 4+152=156
+Exploring Operation: 156-91=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[91, 156], Operations: ['77+75=152', '4+152=156']
+Exploring Operation: 152/4=38, Resulting Numbers: [91, 38]
+Generated Node #0,6,4: 99:[91, 38] Operation: 152/4=38
+Exploring Operation: 91+38=129, Resulting Numbers: [129]
+129,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[91, 38], Operations: ['77+75=152', '152/4=38']
+Exploring Operation: 152-91=61, Resulting Numbers: [4, 61]
+Generated Node #0,6,5: 99:[4, 61] Operation: 152-91=61
+Exploring Operation: 4+61=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[4, 61], Operations: ['77+75=152', '152-91=61']
+Exploring Operation: 91+152=243, Resulting Numbers: [4, 243]
+Generated Node #0,6,6: 99:[4, 243] Operation: 91+152=243
+Exploring Operation: 243-4=239, Resulting Numbers: [239]
+239,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[4, 243], Operations: ['77+75=152', '91+152=243']
+Exploring Operation: 91*4=364, Resulting Numbers: [152, 364]
+Generated Node #0,6,7: 99:[152, 364] Operation: 91*4=364
+Exploring Operation: 364-152=212, Resulting Numbers: [212]
+212,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[152, 364], Operations: ['77+75=152', '91*4=364']
+Exploring Operation: 4*152=608, Resulting Numbers: [91, 608]
+Generated Node #0,6,8: 99:[91, 608] Operation: 4*152=608
+Exploring Operation: 608-91=517, Resulting Numbers: [517]
+517,99 unequal: No Solution
+
+Moving to Node #0,6
+Current State: 99:[91, 608], Operations: ['77+75=152', '4*152=608']
+Exploring Operation: 91*152=13832, Resulting Numbers: [4, 13832]
+Generated Node #0,6,9: 99:[4, 13832] Operation: 91*152=13832
+Exploring Operation: 13832/4=3458, Resulting Numbers: [3458]
+3458,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[91, 4, 152], Operations: ['77+75=152']
+Exploring Operation: 91+75=166, Resulting Numbers: [4, 77, 166]
+Generated Node #0,7: 99:[4, 77, 166] Operation: 91+75=166
+Exploring Operation: 4+77=81, Resulting Numbers: [166, 81]
+Generated Node #0,7,0: 99:[166, 81] Operation: 4+77=81
+Exploring Operation: 166-81=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[166, 81], Operations: ['91+75=166', '4+77=81']
+Exploring Operation: 166-4=162, Resulting Numbers: [77, 162]
+Generated Node #0,7,1: 99:[77, 162] Operation: 166-4=162
+Exploring Operation: 162-77=85, Resulting Numbers: [85]
+85,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[77, 162], Operations: ['91+75=166', '166-4=162']
+Exploring Operation: 77-4=73, Resulting Numbers: [166, 73]
+Generated Node #0,7,2: 99:[166, 73] Operation: 77-4=73
+Exploring Operation: 166-73=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[166, 73], Operations: ['91+75=166', '77-4=73']
+Exploring Operation: 4+166=170, Resulting Numbers: [77, 170]
+Generated Node #0,7,3: 99:[77, 170] Operation: 4+166=170
+Exploring Operation: 170-77=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[77, 170], Operations: ['91+75=166', '4+166=170']
+Exploring Operation: 166-77=89, Resulting Numbers: [4, 89]
+Generated Node #0,7,4: 99:[4, 89] Operation: 166-77=89
+Exploring Operation: 4+89=93, Resulting Numbers: [93]
+93,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[4, 89], Operations: ['91+75=166', '166-77=89']
+Exploring Operation: 77+166=243, Resulting Numbers: [4, 243]
+Generated Node #0,7,5: 99:[4, 243] Operation: 77+166=243
+Exploring Operation: 243-4=239, Resulting Numbers: [239]
+239,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[4, 243], Operations: ['91+75=166', '77+166=243']
+Exploring Operation: 4*77=308, Resulting Numbers: [166, 308]
+Generated Node #0,7,6: 99:[166, 308] Operation: 4*77=308
+Exploring Operation: 308-166=142, Resulting Numbers: [142]
+142,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[166, 308], Operations: ['91+75=166', '4*77=308']
+Exploring Operation: 4*166=664, Resulting Numbers: [77, 664]
+Generated Node #0,7,7: 99:[77, 664] Operation: 4*166=664
+Exploring Operation: 664-77=587, Resulting Numbers: [587]
+587,99 unequal: No Solution
+
+Moving to Node #0,7
+Current State: 99:[77, 664], Operations: ['91+75=166', '4*166=664']
+Exploring Operation: 77*166=12782, Resulting Numbers: [4, 12782]
+Generated Node #0,7,8: 99:[4, 12782] Operation: 77*166=12782
+Exploring Operation: 12782-4=12778, Resulting Numbers: [12778]
+12778,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[4, 77, 166], Operations: ['91+75=166']
+Exploring Operation: 91+77=168, Resulting Numbers: [4, 75, 168]
+Generated Node #0,8: 99:[4, 75, 168] Operation: 91+77=168
+Exploring Operation: 168/4=42, Resulting Numbers: [75, 42]
+Generated Node #0,8,0: 99:[75, 42] Operation: 168/4=42
+Exploring Operation: 75+42=117, Resulting Numbers: [117]
+117,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[75, 42], Operations: ['91+77=168', '168/4=42']
+Exploring Operation: 4+75=79, Resulting Numbers: [168, 79]
+Generated Node #0,8,1: 99:[168, 79] Operation: 4+75=79
+Exploring Operation: 168-79=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[168, 79], Operations: ['91+77=168', '4+75=79']
+Exploring Operation: 168-4=164, Resulting Numbers: [75, 164]
+Generated Node #0,8,2: 99:[75, 164] Operation: 168-4=164
+Exploring Operation: 164-75=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[75, 164], Operations: ['91+77=168', '168-4=164']
+Exploring Operation: 75-4=71, Resulting Numbers: [168, 71]
+Generated Node #0,8,3: 99:[168, 71] Operation: 75-4=71
+Exploring Operation: 168-71=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[168, 71], Operations: ['91+77=168', '75-4=71']
+Exploring Operation: 4+168=172, Resulting Numbers: [75, 172]
+Generated Node #0,8,4: 99:[75, 172] Operation: 4+168=172
+Exploring Operation: 172-75=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[75, 172], Operations: ['91+77=168', '4+168=172']
+Exploring Operation: 168-75=93, Resulting Numbers: [4, 93]
+Generated Node #0,8,5: 99:[4, 93] Operation: 168-75=93
+Exploring Operation: 4+93=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[4, 93], Operations: ['91+77=168', '168-75=93']
+Exploring Operation: 75+168=243, Resulting Numbers: [4, 243]
+Generated Node #0,8,6: 99:[4, 243] Operation: 75+168=243
+Exploring Operation: 243-4=239, Resulting Numbers: [239]
+239,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[4, 243], Operations: ['91+77=168', '75+168=243']
+Exploring Operation: 4*75=300, Resulting Numbers: [168, 300]
+Generated Node #0,8,7: 99:[168, 300] Operation: 4*75=300
+Exploring Operation: 300-168=132, Resulting Numbers: [132]
+132,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[168, 300], Operations: ['91+77=168', '4*75=300']
+Exploring Operation: 4*168=672, Resulting Numbers: [75, 672]
+Generated Node #0,8,8: 99:[75, 672] Operation: 4*168=672
+Exploring Operation: 672-75=597, Resulting Numbers: [597]
+597,99 unequal: No Solution
+
+Moving to Node #0,8
+Current State: 99:[75, 672], Operations: ['91+77=168', '4*168=672']
+Exploring Operation: 75*168=12600, Resulting Numbers: [4, 12600]
+Generated Node #0,8,9: 99:[4, 12600] Operation: 75*168=12600
+Exploring Operation: 12600/4=3150, Resulting Numbers: [3150]
+3150,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[4, 75, 168], Operations: ['91+77=168']
+Exploring Operation: 91-75=16, Resulting Numbers: [4, 77, 16]
+Generated Node #0,9: 99:[4, 77, 16] Operation: 91-75=16
+Exploring Operation: 4*16=64, Resulting Numbers: [77, 64]
+Generated Node #0,9,0: 99:[77, 64] Operation: 4*16=64
+Exploring Operation: 77+64=141, Resulting Numbers: [141]
+141,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[77, 64], Operations: ['91-75=16', '4*16=64']
+Exploring Operation: 4+77=81, Resulting Numbers: [16, 81]
+Generated Node #0,9,1: 99:[16, 81] Operation: 4+77=81
+Exploring Operation: 16+81=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[16, 81], Operations: ['91-75=16', '4+77=81']
+Exploring Operation: 4+16=20, Resulting Numbers: [77, 20]
+Generated Node #0,9,2: 99:[77, 20] Operation: 4+16=20
+Exploring Operation: 77+20=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[77, 20], Operations: ['91-75=16', '4+16=20']
+Exploring Operation: 77+16=93, Resulting Numbers: [4, 93]
+Generated Node #0,9,3: 99:[4, 93] Operation: 77+16=93
+Exploring Operation: 4+93=97, Resulting Numbers: [97]
+97,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[4, 93], Operations: ['91-75=16', '77+16=93']
+Exploring Operation: 77-4=73, Resulting Numbers: [16, 73]
+Generated Node #0,9,4: 99:[16, 73] Operation: 77-4=73
+Exploring Operation: 16+73=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[16, 73], Operations: ['91-75=16', '77-4=73']
+Exploring Operation: 16-4=12, Resulting Numbers: [77, 12]
+Generated Node #0,9,5: 99:[77, 12] Operation: 16-4=12
+Exploring Operation: 77+12=89, Resulting Numbers: [89]
+89,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[77, 12], Operations: ['91-75=16', '16-4=12']
+Exploring Operation: 16/4=4, Resulting Numbers: [77, 4]
+Generated Node #0,9,6: 99:[77, 4] Operation: 16/4=4
+Exploring Operation: 77+4=81, Resulting Numbers: [81]
+81,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[77, 4], Operations: ['91-75=16', '16/4=4']
+Exploring Operation: 77-16=61, Resulting Numbers: [4, 61]
+Generated Node #0,9,7: 99:[4, 61] Operation: 77-16=61
+Exploring Operation: 4+61=65, Resulting Numbers: [65]
+65,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[4, 61], Operations: ['91-75=16', '77-16=61']
+Exploring Operation: 4*77=308, Resulting Numbers: [16, 308]
+Generated Node #0,9,8: 99:[16, 308] Operation: 4*77=308
+Exploring Operation: 308-16=292, Resulting Numbers: [292]
+292,99 unequal: No Solution
+
+Moving to Node #0,9
+Current State: 99:[16, 308], Operations: ['91-75=16', '4*77=308']
+Exploring Operation: 77*16=1232, Resulting Numbers: [4, 1232]
+Generated Node #0,9,9: 99:[4, 1232] Operation: 77*16=1232
+Exploring Operation: 1232/4=308, Resulting Numbers: [308]
+308,99 unequal: No Solution
+
+Moving to Node #0
+Current State: 99:[4, 77, 16], Operations: ['91-75=16']
+Exploring Operation: 77-75=2, Resulting Numbers: [91, 4, 2]
+Generated Node #0,10: 99:[91, 4, 2] Operation: 77-75=2
+Exploring Operation: 4*2=8, Resulting Numbers: [91, 8]
+Generated Node #0,10,0: 99:[91, 8] Operation: 4*2=8
+Exploring Operation: 91+8=99, Resulting Numbers: [99]
+99,99 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['77-75=2', '4*2=8', '91+8=99']
+RESULT: 99
+```
+<|im_end|>
+
+2025-03-27 12:50:11 - INFO - __main__ - Sample 25 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers 76, using only arithmetic operations (+, -, *, /) to reach the target value [5, 5, 33, 33]. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```<|im_end|>
+<|im_start|>assistant
+Current State: 76:[5, 5, 33, 33], Operations: []
+Exploring Operation: 5*5=25, Resulting Numbers: [33, 33, 25]
+Generated Node #0,0: 76:[33, 33, 25] Operation: 5*5=25
+Exploring Operation: 33+33=66, Resulting Numbers: [25, 66]
+Generated Node #0,0,0: 76:[25, 66] Operation: 33+33=66
+Exploring Operation: 25+66=91, Resulting Numbers: [91]
+91,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[25, 66], Operations: ['5*5=25', '33+33=66']
+Exploring Operation: 33+25=58, Resulting Numbers: [33, 58]
+Generated Node #0,0,1: 76:[33, 58] Operation: 33+25=58
+Exploring Operation: 33+58=91, Resulting Numbers: [91]
+91,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 58], Operations: ['5*5=25', '33+25=58']
+Exploring Operation: 33+25=58, Resulting Numbers: [33, 58]
+Generated Node #0,0,2: 76:[33, 58] Operation: 33+25=58
+Exploring Operation: 33+58=91, Resulting Numbers: [91]
+91,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 58], Operations: ['5*5=25', '33+25=58']
+Exploring Operation: 33-25=8, Resulting Numbers: [33, 8]
+Generated Node #0,0,3: 76:[33, 8] Operation: 33-25=8
+Exploring Operation: 33+8=41, Resulting Numbers: [41]
+41,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 8], Operations: ['5*5=25', '33-25=8']
+Exploring Operation: 33-25=8, Resulting Numbers: [33, 8]
+Generated Node #0,0,4: 76:[33, 8] Operation: 33-25=8
+Exploring Operation: 33+8=41, Resulting Numbers: [41]
+41,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 8], Operations: ['5*5=25', '33-25=8']
+Exploring Operation: 33/33=1, Resulting Numbers: [25, 1]
+Generated Node #0,0,5: 76:[25, 1] Operation: 33/33=1
+Exploring Operation: 25+1=26, Resulting Numbers: [26]
+26,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[25, 1], Operations: ['5*5=25', '33/33=1']
+Exploring Operation: 33-33=0, Resulting Numbers: [25, 0]
+Generated Node #0,0,6: 76:[25, 0] Operation: 33-33=0
+Exploring Operation: 25+0=25, Resulting Numbers: [25]
+25,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[25, 0], Operations: ['5*5=25', '33-33=0']
+Exploring Operation: 33*25=825, Resulting Numbers: [33, 825]
+Generated Node #0,0,7: 76:[33, 825] Operation: 33*25=825
+Exploring Operation: 825/33=25, Resulting Numbers: [25]
+25,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 825], Operations: ['5*5=25', '33*25=825']
+Exploring Operation: 33*25=825, Resulting Numbers: [33, 825]
+Generated Node #0,0,8: 76:[33, 825] Operation: 33*25=825
+Exploring Operation: 825/33=25, Resulting Numbers: [25]
+25,76 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 76:[33, 825], Operations: ['5*5=25', '33*25=825']
+Exploring Operation: 33*33=1089, Resulting Numbers: [25, 1089]
+Generated Node #0,0,9: 76:[25, 1089] Operation: 33*33=1089
+Exploring Operation: 1089-25=1064, Resulting Numbers: [1064]
+1064,76 unequal: No Solution
+
+Moving to Node #0
+Current State: 76:[33, 33, 25], Operations: ['5*5=25']
+Exploring Operation: 5+5=10, Resulting Numbers: [33, 33, 10]
+Generated Node #0,1: 76:[33, 33, 10] Operation: 5+5=10
+Exploring Operation: 33+33=66, Resulting Numbers: [10, 66]
+Generated Node #0,1,0: 76:[10, 66] Operation: 33+33=66
+Exploring Operation: 10+66=76, Resulting Numbers: [76]
+76,76 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['5+5=10', '33+33=66', '10+66=76']
+RESULT: 76
+```
+<|im_end|>
+
+2025-03-27 12:50:12 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-0da3b19ce15594fd.arrow
+2025-03-27 12:50:12 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-1277a4c0b29fbae2.arrow
+2025-03-27 12:50:12 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-1b84d0f7becc7885.arrow
+2025-03-27 12:50:12 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-7a6585d6ada14c6e.arrow
+2025-03-27 12:50:13 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-1042410f80d99a90.arrow
+2025-03-27 12:50:13 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-daaa1d5b7ba4adf3.arrow
+2025-03-27 12:50:13 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-a9d20c940d3ad027.arrow
+2025-03-27 12:50:13 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/95be12eee5971a370f11fba45b94c2f71a3858cf/cache-e8dd7374350e9d54.arrow
+2025-03-27 12:50:14 - INFO - __main__ - *** Train ***
+2025-03-27 13:02:19 - INFO - __main__ - *** Save model ***
+2025-03-27 13:02:23 - INFO - __main__ - Model saved to ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k
+2025-03-27 13:02:23 - INFO - __main__ - *** Evaluate ***
+2025-03-27 13:05:05 - INFO - __main__ - Pushing to hub...
+2025-03-27 13:05:08 - INFO - __main__ - *** Training complete ***
