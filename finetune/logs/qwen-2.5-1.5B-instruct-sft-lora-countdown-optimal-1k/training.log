@@ -1,0 +1,351 @@
+2025-03-29 20:24:17 - WARNING - __main__ - Process rank: 0, device: cuda:0, n_gpu: 1 distributed training: True, 16-bits training: False
+2025-03-29 20:24:17 - INFO - __main__ - Model parameters ModelArguments(base_model_revision=None, model_name_or_path='Qwen/Qwen2.5-1.5B-Instruct', model_revision='main', model_code_revision=None, torch_dtype='bfloat16', tokenizer_name_or_path=None, trust_remote_code=False, attn_implementation='flash_attention_2', use_peft=True, lora_r=16, lora_alpha=16, lora_dropout=0.05, lora_target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'], lora_modules_to_save=None, load_in_8bit=False, load_in_4bit=False, bnb_4bit_quant_type='nf4', use_bnb_nested_quant=False, bnb_4bit_quant_storage='uint8')
+2025-03-29 20:24:17 - INFO - __main__ - Data parameters DataArguments(chat_template='{%- if tools %}\n  {{- \'<|im_start|>system\\n\' }}\n  {%- if messages[0][\'role\'] == \'system\' %}\n      {{- messages[0][\'content\'] }}\n  {%- else %}\n      {{- \'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.\' }}\n  {%- endif %}\n  {{- "\\n\\n# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>" }}\n  {%- for tool in tools %}\n      {{- "\\n" }}\n      {{- tool | tojson }}\n  {%- endfor %}\n  {{- "\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\"name\\": <function-name>, \\"arguments\\": <args-json-object>}\\n</tool_call><|im_end|>\\n" }}\n{%- else %}\n    {%- if messages[0][\'role\'] == \'system\' %}\n        {{- \'<|im_start|>system\\n\' + messages[0][\'content\'] + \'<|im_end|>\\n\' }}\n    {%- else %}\n        {{- \'<|im_start|>system\\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\\n\' }}\n    {%- endif %}\n{%- endif %}\n{%- for message in messages %}\n    {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}\n        {{- \'<|im_start|>\' + message.role + \'\\n\' + message.content + \'<|im_end|>\' + \'\\n\' }}\n    {%- elif message.role == "assistant" %}\n        {{- \'<|im_start|>\' + message.role }}\n        {%- if message.content %}\n            {{- \'\\n\' + message.content }}\n        {%- endif %}\n        {%- for tool_call in message.tool_calls %}\n            {%- if tool_call.function is defined %}\n                {%- set tool_call = tool_call.function %}\n            {%- endif %}\n            {{- \'\\n<tool_call>\\n{"name": "\' }}\n            {{- tool_call.name }}\n            {{- \'", "arguments": \' }}\n            {{- tool_call.arguments | tojson }}\n            {{- \'}\\n</tool_call>\' }}\n        {%- endfor %}\n        {{- \'<|im_end|>\\n\' }}\n    {%- elif message.role == "tool" %}\n        {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}\n            {{- \'<|im_start|>user\' }}\n        {%- endif %}\n        {{- \'\\n<tool_response>\\n\' }}\n        {{- message.content }}\n        {{- \'\\n</tool_response>\' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}\n            {{- \'<|im_end|>\\n\' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- \'<|im_start|>assistant\\n\' }}\n{%- endif %}\n', dataset_mixer={'MelinaLaimon/stream-of-search': 0.1}, text_column='text', dataset_splits=['train', 'test'], dataset_configs=None, preprocessing_num_workers=12, truncation_side=None, auto_insert_empty_system_msg=True)
+2025-03-29 20:24:17 - INFO - __main__ - Training/evaluation parameters SFTConfig(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+average_tokens_across_devices=False,
+batch_eval_metrics=False,
+bf16=True,
+bf16_full_eval=False,
+chars_per_token=<CHARS_PER_TOKEN>,
+data_seed=None,
+dataloader_drop_last=False,
+dataloader_num_workers=0,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+dataset_batch_size=None,
+dataset_kwargs=None,
+dataset_num_proc=None,
+dataset_text_field=text,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=None,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=True,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_on_start=False,
+eval_packing=None,
+eval_steps=None,
+eval_strategy=epoch,
+eval_use_gather_object=False,
+evaluation_strategy=None,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=2,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k,
+hub_model_revision=main,
+hub_private_repo=None,
+hub_strategy=every_save,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_for_metrics=[],
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=0.0002,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=info,
+log_level_replica=warning,
+log_on_each_node=True,
+logging_dir=./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=5,
+logging_strategy=steps,
+lr_scheduler_kwargs={},
+lr_scheduler_type=cosine,
+max_grad_norm=1.0,
+max_seq_length=2048,
+max_steps=-1,
+metric_for_best_model=None,
+model_init_kwargs=None,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_of_sequences=None,
+num_train_epochs=1,
+optim=adamw_torch,
+optim_args=None,
+optim_target_modules=None,
+output_dir=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k,
+overwrite_output_dir=True,
+packing=False,
+past_index=-1,
+per_device_eval_batch_size=8,
+per_device_train_batch_size=4,
+prediction_loss_only=False,
+push_to_hub=True,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=['wandb'],
+restore_callback_states_from_checkpoint=False,
+resume_from_checkpoint=None,
+run_name=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k,
+save_on_each_node=False,
+save_only_model=False,
+save_safetensors=True,
+save_steps=100,
+save_strategy=steps,
+save_total_limit=1,
+seed=42,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torch_empty_cache_steps=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_liger=False,
+use_liger_kernel=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_steps=0,
+weight_decay=0.0,
+)
+2025-03-29 20:24:18 - INFO - datasets.builder - Overwrite dataset info from restored data version if exists.
+2025-03-29 20:24:18 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07
+2025-03-29 20:24:18 - INFO - datasets.builder - Found cached dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07)
+2025-03-29 20:24:18 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07
+2025-03-29 20:24:19 - INFO - datasets.builder - Overwrite dataset info from restored data version if exists.
+2025-03-29 20:24:19 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07
+2025-03-29 20:24:19 - INFO - datasets.builder - Found cached dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07)
+2025-03-29 20:24:19 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Loading cached shuffled indices for dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-171cffa3b29a0688.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Loading cached shuffled indices for dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-4e5af2141b74c5e5.arrow
+2025-03-29 20:24:19 - INFO - __main__ - Training on the following datasets and their proportions: ['train : 1000', 'test : 2000']
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-0360c453aa91571d.arrow
+2025-03-29 20:24:19 - INFO - __main__ - After filtering out None and empty messages, train has 1000 examples
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Loading cached processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-546fa2a0954fee23.arrow
+2025-03-29 20:24:19 - INFO - __main__ - After filtering out None and empty messages, test has 2000 examples
+2025-03-29 20:24:19 - INFO - __main__ - *** Load pretrained model ***
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00000_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00001_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00002_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00003_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00004_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00005_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00006_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00007_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00008_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00009_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00010_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00011_of_00012.arrow
+2025-03-29 20:24:19 - INFO - datasets.arrow_dataset - Spawning 12 processes
+2025-03-29 20:24:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00000_of_00012.arrow
+2025-03-29 20:24:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00001_of_00012.arrow
+2025-03-29 20:24:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00002_of_00012.arrow
+2025-03-29 20:24:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00003_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00004_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00005_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00006_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00007_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00008_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00009_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00010_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-1626666dbd0d0194_00011_of_00012.arrow
+2025-03-29 20:24:21 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00000_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00001_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00002_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00003_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00004_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00005_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00006_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00007_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00008_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00009_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00010_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00011_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Spawning 12 processes
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00000_of_00012.arrow
+2025-03-29 20:24:22 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00001_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00002_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00003_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00004_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00005_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00006_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00007_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00008_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00009_of_00012.arrow
+2025-03-29 20:24:23 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00010_of_00012.arrow
+2025-03-29 20:24:24 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-913b1e92b2d6b0f5_00011_of_00012.arrow
+2025-03-29 20:24:24 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-03-29 20:24:24 - INFO - __main__ - Example prompt: <|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [32, 62, 4, 14] using only arithmetic operations (+, -, *, /) to reach the target value 50. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 50:[32, 62, 4, 14], Operations: []
+Exploring Operation: 32/4=8, Resulting Numbers: [62, 14, 8]
+Generated Node #2: [62, 14, 8] from Operation: 32/4=8
+Current State: 50:[62, 14, 8], Operations: ['32/4=8']
+Exploring Operation: 14*8=112, Resulting Numbers: [62, 112]
+Generated Node #3: [62, 112] from Operation: 14*8=112
+Current State: 50:[62, 112], Operations: ['32/4=8', '14*8=112']
+Exploring Operation: 112-62=50, Resulting Numbers: [50]
+50,50 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['32/4=8', '14*8=112', '112-62=50']
+RESULT: 50
+```
+<|im_end|>
+
+2025-03-29 20:24:24 - INFO - __main__ - Sample 654 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [96, 29, 13, 45] using only arithmetic operations (+, -, *, /) to reach the target value 26. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 26:[96, 29, 13, 45], Operations: []
+Exploring Operation: 45-13=32, Resulting Numbers: [96, 29, 32]
+Generated Node #2: [96, 29, 32] from Operation: 45-13=32
+Current State: 26:[96, 29, 32], Operations: ['45-13=32']
+Exploring Operation: 96/32=3, Resulting Numbers: [29, 3]
+Generated Node #3: [29, 3] from Operation: 96/32=3
+Current State: 26:[29, 3], Operations: ['45-13=32', '96/32=3']
+Exploring Operation: 29-3=26, Resulting Numbers: [26]
+26,26 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['45-13=32', '96/32=3', '29-3=26']
+RESULT: 26
+```
+<|im_end|>
+
+2025-03-29 20:24:24 - INFO - __main__ - Sample 114 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [91, 4, 77, 75] using only arithmetic operations (+, -, *, /) to reach the target value 99. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 99:[91, 4, 77, 75], Operations: []
+Exploring Operation: 77-75=2, Resulting Numbers: [91, 4, 2]
+Generated Node #2: [91, 4, 2] from Operation: 77-75=2
+Current State: 99:[91, 4, 2], Operations: ['77-75=2']
+Exploring Operation: 4*2=8, Resulting Numbers: [91, 8]
+Generated Node #3: [91, 8] from Operation: 4*2=8
+Current State: 99:[91, 8], Operations: ['77-75=2', '4*2=8']
+Exploring Operation: 91+8=99, Resulting Numbers: [99]
+99,99 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['77-75=2', '4*2=8', '91+8=99']
+RESULT: 99
+```
+<|im_end|>
+
+2025-03-29 20:24:24 - INFO - __main__ - Sample 25 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [5, 5, 33, 33] using only arithmetic operations (+, -, *, /) to reach the target value 76. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 76:[5, 5, 33, 33], Operations: []
+Exploring Operation: 5+5=10, Resulting Numbers: [33, 33, 10]
+Generated Node #2: [33, 33, 10] from Operation: 5+5=10
+Current State: 76:[33, 33, 10], Operations: ['5+5=10']
+Exploring Operation: 33+33=66, Resulting Numbers: [10, 66]
+Generated Node #3: [10, 66] from Operation: 33+33=66
+Current State: 76:[10, 66], Operations: ['5+5=10', '33+33=66']
+Exploring Operation: 10+66=76, Resulting Numbers: [76]
+76,76 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['5+5=10', '33+33=66', '10+66=76']
+RESULT: 76
+```
+<|im_end|>
+
+2025-03-29 20:24:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-fe4e2aa6db39ce15.arrow
+2025-03-29 20:24:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-d8e7a1c2aac41f87.arrow
+2025-03-29 20:24:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-18804b465fcdce12.arrow
+2025-03-29 20:24:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-a4b3ba817d89a787.arrow
+2025-03-29 20:24:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-0d2fb1addc92c6d6.arrow
+2025-03-29 20:24:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-6bc52042a81da5ca.arrow
+2025-03-29 20:24:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-86ca7d3ceff0b1d4.arrow
+2025-03-29 20:24:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/e8f6c0281bf8be84e36e986f0f7e228424ec3c07/cache-adef5c04389b017a.arrow
+2025-03-29 20:24:31 - INFO - __main__ - *** Train ***
+2025-03-29 20:28:13 - INFO - __main__ - *** Save model ***
+2025-03-29 20:28:17 - INFO - __main__ - Model saved to ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k
+2025-03-29 20:28:18 - INFO - __main__ - *** Evaluate ***
+2025-03-29 20:29:31 - INFO - __main__ - Pushing to hub...
+2025-03-29 20:29:48 - INFO - __main__ - *** Training complete ***
