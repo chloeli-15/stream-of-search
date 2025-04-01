@@ -380,3 +380,190 @@ def evaluate_countdown_trajectories(results_all_trials):
             final_results.append(best_result)
     
     return final_results
+
+
+def evaluate_and_characterize_failures(ds_entry) -> dict:
+    """
+    Evaluates a countdown task trajectory and returns detailed diagnosis information
+    for all error types.
+    
+    Args:
+        ds_entry (dict): Dictionary containing 'completion', 'target', and 'nums' keys
+    
+    Returns:
+        dict: Results containing:
+            - is_valid (bool): Whether the trajectory is correct
+            - arithmetic_error (bool): True if there are arithmetic errors
+            - invalid_number_usage (bool): True if using numbers not in initial set
+            - incomplete_trajectory (bool): True if trajectory appears cut short
+            - formatting_issues (bool): True if there are formatting problems
+    """
+    import re
+    import ast
+    import math
+    from typing import List
+
+    # Initialize error flags
+    is_valid = True
+    arithmetic_error = False
+    invalid_number_usage = False
+    incomplete_trajectory = False
+    formatting_issues = False
+    
+    trajectory = ds_entry['completion']
+    target = ds_entry['target']
+    nums = ds_entry['nums']
+    
+    # Check for incomplete trajectory
+    if not re.search(r"RESULT:", trajectory):
+        incomplete_trajectory = True
+        is_valid = False
+    
+    # Check for formatting: SOLUTION field
+    sol_match = re.search(r"SOLUTION:\s*(YES|NO)", trajectory, re.IGNORECASE)
+    if not sol_match:
+        formatting_issues = True
+        is_valid = False
+    else:
+        sol_decl = sol_match.group(1).upper()
+        if sol_decl != "YES":
+            is_valid = False
+    
+    # Extract OPERATIONS list
+    operations = []
+    ops_match = re.search(r"OPERATIONS:\s*(\[[^\]]*\])", trajectory, re.DOTALL)
+    if not ops_match:
+        formatting_issues = True
+        is_valid = False
+    else:
+        try:
+            operations = ast.literal_eval(ops_match.group(1))
+            if not isinstance(operations, list):
+                formatting_issues = True
+                is_valid = False
+        except Exception:
+            formatting_issues = True
+            is_valid = False
+    
+    # Extract final RESULT
+    expected_final = None
+    res_match = re.search(r"RESULT:\s*([-+.\d]+)", trajectory)
+    if not res_match:
+        formatting_issues = True
+        is_valid = False
+    else:
+        try:
+            expected_final = float(res_match.group(1))
+        except Exception:
+            formatting_issues = True
+            is_valid = False
+    
+    # If we have severe formatting issues, we can't proceed with arithmetic and usage checks
+    if formatting_issues or not operations:
+        return {
+            "is_valid": is_valid,
+            "arithmetic_error": arithmetic_error,
+            "invalid_number_usage": invalid_number_usage,
+            "incomplete_trajectory": incomplete_trajectory,
+            "formatting_issues": formatting_issues
+        }
+    
+    # Simulation: available numbers (as floats)
+    available = [float(n) for n in nums]
+    
+    # Operation pattern for validation
+    op_pattern = re.compile(r"^\s*([\d.]+)\s*([\+\-\*/])\s*([\d.]+)\s*=\s*([\d.]+)\s*$")
+    
+    operation_results = []  # Store results to check if all numbers were used
+    
+    for op_str in operations:
+        m = op_pattern.match(op_str)
+        if not m:
+            formatting_issues = True
+            is_valid = False
+            continue
+        
+        op1_str, operator, op2_str, given_result_str = m.groups()
+        try:
+            op1 = float(op1_str)
+            op2 = float(op2_str)
+            op_result = float(given_result_str)
+        except Exception:
+            formatting_issues = True
+            is_valid = False
+            continue
+        
+        # Check arithmetic correctness
+        try:
+            if operator == '+':
+                computed = op1 + op2
+            elif operator == '-':
+                computed = op1 - op2
+            elif operator == '*':
+                computed = op1 * op2
+            elif operator == '/':
+                if math.isclose(op2, 0.0):
+                    arithmetic_error = True
+                    is_valid = False
+                    continue
+                computed = op1 / op2
+            else:
+                formatting_issues = True
+                is_valid = False
+                continue
+                
+            if not math.isclose(computed, op_result, rel_tol=1e-5):
+                arithmetic_error = True
+                is_valid = False
+        except Exception:
+            arithmetic_error = True
+            is_valid = False
+            continue
+        
+        operation_results.append((op1, op2, op_result))
+    
+    # Check for invalid number usage by simulating all operations
+    if operation_results:
+        try:
+            # Reset available numbers for a fresh check
+            available = [float(n) for n in nums]
+            
+            def consume(value, pool):
+                for i, num in enumerate(pool):
+                    if math.isclose(num, value, rel_tol=1e-5):
+                        del pool[i]
+                        return True
+                return False
+            
+            for op1, op2, result in operation_results:
+                if not consume(op1, available):
+                    invalid_number_usage = True
+                    is_valid = False
+                    break
+                
+                if not consume(op2, available):
+                    invalid_number_usage = True
+                    is_valid = False
+                    break
+                
+                available.append(result)
+            
+            # After all operations, should have exactly one number equal to target
+            if len(available) != 1:
+                invalid_number_usage = True
+                is_valid = False
+            elif expected_final is not None and not math.isclose(available[0], float(target), rel_tol=1e-5):
+                arithmetic_error = True
+                is_valid = False
+                
+        except Exception:
+            invalid_number_usage = True
+            is_valid = False
+    
+    return {
+        "is_valid": is_valid,
+        "arithmetic_error": arithmetic_error,
+        "invalid_number_usage": invalid_number_usage, 
+        "incomplete_trajectory": incomplete_trajectory,
+        "formatting_issues": formatting_issues
+    }
