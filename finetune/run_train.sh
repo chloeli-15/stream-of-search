@@ -1,1 +1,1 @@
-./train_distributed.py --task sft --model-name qwen-2.5 --num-processes 1
+./train_distributed.py

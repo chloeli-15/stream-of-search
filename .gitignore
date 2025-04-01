@@ -171,11 +171,7 @@ data_converted/
 .idea/modules.xml
 .idea/vcs.xml
 .idea/misc.xml
-<<<<<<< Updated upstream
 
-archive
+# archive
 data
 models
-=======
-archive
->>>>>>> Stashed changes
