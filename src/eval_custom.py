@@ -171,6 +171,10 @@ def custom_eval(args=None):
         # keys = [key for key in data_all.keys() if 'search' in key]
         keys = data_all.keys()
         
+        # if it is the regular split, reverse the order so we get test results first
+        if keys == ['train', 'test']:
+            keys = ['test', 'train']
+            
         for split in keys:
             results_all_trials = []
             for trial in range(args.gens):
@@ -210,7 +214,8 @@ def custom_eval(args=None):
                 
             timenow = datetime.now().strftime("%Y%m%d-%H%M%S")
             results_file = f"{save_path}/{split}_{args.num}_{timenow}.json"           
-
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
             with open(results_file, "w") as f:
                 json.dump(eval_results, f, indent=4)
             
