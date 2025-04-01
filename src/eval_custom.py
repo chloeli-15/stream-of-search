@@ -31,7 +31,7 @@ parser.add_argument("--seed", type=int, default=4)
 parser.add_argument("--ckpt", type=str, help="path to checkpoint")
 parser.add_argument("--adapter", type=str, help="path to adapter")
 parser.add_argument("-n", "--num",type=int, default=10)
-parser.add_argument("--dataset_name", type=str, default="chloeli/stream-of-search-countdown-10k")
+parser.add_argument("--dataset_name", type=str, default="MelinaLaimon/stream-of-search")
 parser.add_argument("-d", "--data",type=str, default="val_b3_t100_n100000_random.json")
 parser.add_argument("--temperature", type=float, default=0.0)
 parser.add_argument("--batch_size", type=int, default=64)
@@ -55,10 +55,10 @@ def eval_ll(model, tokenizer, data, batch_size=128, context_len=4096, temperatur
 
     for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
         # tokenize and generate data_batch['test_prompt']. Input is a list of dicts with role
-        if args.chat_template:
-            chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
-        else:
-            chat_inputs = data_batch["test_prompt"]["content"] # if no chat template 
+        # if args.chat_template:
+        chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
+        # else:
+        #     chat_inputs = data_batch["test_prompt"]["content"] # if no chat template 
         outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
         output_texts_concat.extend(outputs)
             
@@ -127,10 +127,16 @@ def log_results_to_wandb(eval_results, model_name, dataset_name, split, results_
     #         wandb.log({f"example_{i+1}": wandb.Html(html_content)})
 
 
-if __name__ == "__main__":
-    args = parser.parse_args()
-    # Initialize wandb if upload_results is True
+def custom_eval(args=None):
+    """Entry point that can be called programmatically or via command line"""
+    if args is None:
+        args = parser.parse_args()
     
+    timenow = datetime.now().strftime('%Y%m%d-%H%M%S')
+    # Initialize wandb if upload_results is True
+    if args.experiment_name is None:
+        args.experiment_name = f"{timenow}-custom_eval-{args.adapter.split('/')[-1]}"
+        
     if args.upload_results:
         run_name = args.experiment_name if args.experiment_name else datetime.now().strftime("%Y%m%d-%H%M%S")
         wandb.init(
@@ -141,6 +147,8 @@ if __name__ == "__main__":
         )
         
     torch.manual_seed(args.seed)
+    
+    
     if "," in args.adapter: # if many
         adapters = args.adapter.split(",")
         adapters = [adapter.strip() for adapter in adapters] 
@@ -198,17 +206,14 @@ if __name__ == "__main__":
             
             # Save results locally
             model_name = args.adapter.split("/")[-1]
-            save_path = os.path.join("results", f'{model_name}_{args.dataset_name}_{split}_{args.num}')
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
+            save_path = os.path.join("results/", f'{model_name}')
                 
             timenow = datetime.now().strftime("%Y%m%d-%H%M%S")
-            results_file = f"{save_path}_{timenow}.json"           
+            results_file = f"{save_path}/{split}_{args.num}_{timenow}.json"           
 
             with open(results_file, "w") as f:
                 json.dump(eval_results, f, indent=4)
             
-
             # Then in your main code, replace the wandb logging section with:
             if args.upload_results:
                 log_results_to_wandb(
@@ -222,3 +227,10 @@ if __name__ == "__main__":
     # Finish the wandb run
     if args.upload_results:
         wandb.finish()
+        
+    # run visualization script
+    from results.visualize import visualize_results
+    visualize_results()
+    
+if __name__ == "__main__":
+    custom_eval()

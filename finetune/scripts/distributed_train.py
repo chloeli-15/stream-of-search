@@ -29,7 +29,12 @@ def run_training(hostname, config_file, task="sft", model_name="qwen-2.5",
         with open(log_file, 'w') as f:
             # First, run nvidia-smi to capture GPU state before training
             f.write(f"=== GPU INFO BEFORE TRAINING ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ===\n")
-            nvidia_cmd = f"ssh {hostname} nvidia-smi"
+            nvidia_cmd = f"nvidia-smi"
+            if hostname != "local":
+                nvidia_cmd = f"ssh {hostname} nvidia-smi"
+            else:
+                nvidia_cmd = f"nvidia-smi"
+            
             nvidia_process = subprocess.run(
                 nvidia_cmd,
                 shell=True,
@@ -61,15 +66,28 @@ def run_training(hostname, config_file, task="sft", model_name="qwen-2.5",
                 "'"
             ]
             
-            print("Command:", " ".join(cmd))
-            
-            # Run the training command and capture output
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                universal_newlines=True
-            )
+            if hostname == "local":
+                # For local execution, use shell=True with a properly formatted command
+                cmd = " ".join(cmd[4:])
+                
+                # Run the training command and capture output
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
+                    shell=True  # This is key for interpreting the bash command
+                )
+            else:
+                print("Command:", " ".join(cmd))
+                
+                # Run the training command and capture output
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True
+                )
             
             # Stream and log output in real-time
             for line in process.stdout:
@@ -95,14 +113,19 @@ def main():
     parser.add_argument("--task", type=str, default="sft", help="Training task (sft, dpo, etc.)")
     parser.add_argument("--model-name", type=str, default="qwen-2.5", help="Base model name")
     parser.add_argument("--num-processes", type=int, default=1, help="Number of processes for accelerate")
-    parser.add_argument("--project", type=str, default="stream-of-search", help="W&B project name")
+    parser.add_argument("--project", type=str, default="stream-of-search-train", help="W&B project name")
     parser.add_argument("--entity", type=str, default="yeokch", help="W&B entity name")
+    parser.add_argument("--train_locally", type=str, default=False, help="Run training locally instead of on remote hosts")
     
     args = parser.parse_args()
     
-    # Get available hosts with GPUs
-    hostnames = look_for_gpu()
-    print(f"Found {len(hostnames)} hosts with GPUs: {', '.join(hostnames)}")
+    if args.train_locally:
+        print("Running training locally...")
+        hostnames = ["local"]
+    else:
+        # Get available hosts with GPUs
+        hostnames = look_for_gpu()
+        print(f"Found {len(hostnames)} hosts with GPUs: {', '.join(hostnames)}")
     
     config_files = glob.glob(os.path.join(args.config_folder, "*.yaml"))
     # rearrange the config_files so all the ones containing "1k" are first, then the rest

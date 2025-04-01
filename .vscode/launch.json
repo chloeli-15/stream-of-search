@@ -7,6 +7,20 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
+        },    
+        {
+            "name": "Run train",
+            "type": "python",
+            "request": "launch",
+            "python": "/cs/student/msc/ml/2024/ycheah/disk/miniconda3/envs/sos1/bin/python",
+            "program": "/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search/finetune/scripts/distributed_train.py",
+            "args": [
+                "--task", "sft", 
+                "--model-name", "qwen-2.5",
+                "--num-processes", "1"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
         },
         {
             "name": "Run countdown eval",

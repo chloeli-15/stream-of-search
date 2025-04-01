@@ -99,9 +99,9 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
 def main():
     parser = argparse.ArgumentParser(description="Distributed model evaluation across hosts")
     parser.add_argument("--config", type=str, default="scripts/eval_config.json", help="Path to config JSON file")
-    parser.add_argument("--n", type=int, default=32, help="Number of samples to evaluate")
+    parser.add_argument("--n", type=int, default=128, help="Number of samples to evaluate")
     parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
-    parser.add_argument("--batch-size", type=int, default=16, help="Batch size for evaluation")
+    parser.add_argument("--batch-size", type=int, default=8, help="Batch size for evaluation")
     parser.add_argument("--ctx", type=int, default=10000    , help="Context length")
     parser.add_argument("--temp", type=float, default=0.7, help="Temperature")
     parser.add_argument("--gens", type=int, default=1, help="Number of generations")
@@ -135,12 +135,6 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=len(hostnames)) as executor:
         futures = {}
         host_index = 0
-        
-        # print("args.ctx overridden by model_name")
-        # if "react" in model_name:
-        #     max_token_length = 10000
-        # else:
-        #     max_token_length = 5000
         
         # Submit initial batch of tasks
         for i in range(min(len(hostnames), len(evaluation_queue))):

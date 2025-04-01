@@ -16,6 +16,7 @@
 """
 Supervised fine-tuning script for decoder language models.
 """
+import subprocess
 import logging
 import random
 import sys
@@ -244,20 +245,49 @@ def main():
     ##########
     # Evaluate
     ##########
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        tokenizer.padding_side = 'left'
-        metrics = trainer.evaluate()
-        metrics["eval_samples"] = len(eval_dataset)
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
-
-    if training_args.push_to_hub is True:
-        logger.info("Pushing to hub...")
-        trainer.push_to_hub(**kwargs)
-
-    logger.info("*** Training complete ***")
-
+    if training_args.evaluate_and_plot:
+        logger.info("*** Evaluating on task ***")
+        trainer.model.eval()
+        
+        # Add path to src directory
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
+        from src.eval_custom import custom_eval
+        # "--adapter", eval_args.adapter,
+        # "-n", str(eval_args.num),
+        # "--messages_field", eval_args.messages_field,
+        # "--batch_size", str(eval_args.batch_size),
+        # "--ctx", str(eval_args.ctx),
+        # "--gens", str(eval_args.gens),
+        # "--chat_template", str(eval_args.chat_template),
+        # "--upload_results", str(eval_args.upload_results)
+        args = {
+            "experiment_name": None,
+            "adapter": training_args.output_dir,
+            "num": 128,
+            "messages_field": data_args.dataset_message_key,
+            "batch_size": 8,
+            "ctx": training_args.max_seq_length,
+            "gens": 1,
+            "chat_template": True,
+            "upload_results": True,
+            
+            # Additional parameters with defaults from eval_custom.py
+            "seed": 4,
+            "ckpt": None,  # No default in parser, but should be None if not specified
+            "dataset_name": "MelinaLaimon/stream-of-search",
+            "data": "val_b3_t100_n100000_random.json",
+            "temperature": 0.0,
+            "wandb_project": "stream-of-search",
+            "wandb_entity": None
+        }
+        # turn args into namespace
+        from types import SimpleNamespace
+        args = SimpleNamespace(**args)
+        # Call the custom_eval function
+        custom_eval(args)
+        
+            
+        
 
 if __name__ == "__main__":
     main()
