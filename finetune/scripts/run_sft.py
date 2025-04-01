@@ -269,7 +269,7 @@ def main():
             "ctx": training_args.max_seq_length,
             "gens": 1,
             "chat_template": True,
-            "upload_results": True,
+            "upload_results": False,
             
             # Additional parameters with defaults from eval_custom.py
             "seed": 4,
@@ -278,7 +278,7 @@ def main():
             "data": "val_b3_t100_n100000_random.json",
             "temperature": 0.7,
             "wandb_project": "stream-of-search",
-            "wandb_entity": "yeok-c"
+            "wandb_entity": "None"
         }
         # turn args into namespace
         from types import SimpleNamespace
