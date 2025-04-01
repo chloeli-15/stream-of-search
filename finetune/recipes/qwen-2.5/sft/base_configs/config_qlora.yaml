@@ -88,7 +88,7 @@ chat_template: |
   {%- endif %}
 
 dataset_mixer:
-  MelinaLaimon/stream-of-search: 0.5 #10k in total
+  MelinaLaimon/stream-of-search: 1.0 #10k in total
 #   chloeli/stream-of-search-countdown-10k: 0.1
 dataset_splits:
 - train
@@ -98,24 +98,24 @@ dataset_message_key: messages_sos
 
 # SFT trainer config
 bf16: true
-do_eval: true
-eval_strategy: "epoch" #[no, epoch, steps]
+do_eval: false
+eval_strategy: "no" #[no, epoch, steps]
 gradient_accumulation_steps: 2
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k # modify this
+hub_model_id: qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k # modify this
 hub_strategy: every_save
 learning_rate: 2.0e-04
 log_level: info
 logging_steps: 5  
 logging_strategy: steps
 lr_scheduler_type: cosine
-max_seq_length: 4096
+max_seq_length: 8192
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k # modify this
-logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k # modify this
+output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k # modify this
+logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k # modify this
 overwrite_output_dir: true
 per_device_eval_batch_size: 2
 per_device_train_batch_size: 2

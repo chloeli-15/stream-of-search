@@ -1,0 +1,826 @@
+2025-04-01 11:41:08 - WARNING - __main__ - Process rank: 0, device: cuda:0, n_gpu: 1 distributed training: True, 16-bits training: False
+2025-04-01 11:41:08 - INFO - __main__ - Model parameters ModelArguments(base_model_revision=None, model_name_or_path='Qwen/Qwen2.5-1.5B-Instruct', model_revision='main', model_code_revision=None, torch_dtype='bfloat16', tokenizer_name_or_path=None, trust_remote_code=False, attn_implementation='flash_attention_2', use_peft=True, lora_r=16, lora_alpha=16, lora_dropout=0.05, lora_target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'], lora_modules_to_save=None, load_in_8bit=False, load_in_4bit=False, bnb_4bit_quant_type='nf4', use_bnb_nested_quant=False, bnb_4bit_quant_storage='uint8')
+2025-04-01 11:41:08 - INFO - __main__ - Data parameters DataArguments(chat_template='{%- if tools %}\n  {{- \'<|im_start|>system\\n\' }}\n  {%- if messages[0][\'role\'] == \'system\' %}\n      {{- messages[0][\'content\'] }}\n  {%- else %}\n      {{- \'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.\' }}\n  {%- endif %}\n  {{- "\\n\\n# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>" }}\n  {%- for tool in tools %}\n      {{- "\\n" }}\n      {{- tool | tojson }}\n  {%- endfor %}\n  {{- "\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\"name\\": <function-name>, \\"arguments\\": <args-json-object>}\\n</tool_call><|im_end|>\\n" }}\n{%- else %}\n    {%- if messages[0][\'role\'] == \'system\' %}\n        {{- \'<|im_start|>system\\n\' + messages[0][\'content\'] + \'<|im_end|>\\n\' }}\n    {%- else %}\n        {{- \'<|im_start|>system\\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\\n\' }}\n    {%- endif %}\n{%- endif %}\n{%- for message in messages %}\n    {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}\n        {{- \'<|im_start|>\' + message.role + \'\\n\' + message.content + \'<|im_end|>\' + \'\\n\' }}\n    {%- elif message.role == "assistant" %}\n        {{- \'<|im_start|>\' + message.role }}\n        {%- if message.content %}\n            {{- \'\\n\' + message.content }}\n        {%- endif %}\n        {%- for tool_call in message.tool_calls %}\n            {%- if tool_call.function is defined %}\n                {%- set tool_call = tool_call.function %}\n            {%- endif %}\n            {{- \'\\n<tool_call>\\n{"name": "\' }}\n            {{- tool_call.name }}\n            {{- \'", "arguments": \' }}\n            {{- tool_call.arguments | tojson }}\n            {{- \'}\\n</tool_call>\' }}\n        {%- endfor %}\n        {{- \'<|im_end|>\\n\' }}\n    {%- elif message.role == "tool" %}\n        {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}\n            {{- \'<|im_start|>user\' }}\n        {%- endif %}\n        {{- \'\\n<tool_response>\\n\' }}\n        {{- message.content }}\n        {{- \'\\n</tool_response>\' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}\n            {{- \'<|im_end|>\\n\' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- \'<|im_start|>assistant\\n\' }}\n{%- endif %}\n', dataset_mixer={'MelinaLaimon/stream-of-search': 1.0}, text_column='text', dataset_splits=['train', 'test'], dataset_configs=None, preprocessing_num_workers=12, truncation_side=None, auto_insert_empty_system_msg=True)
+2025-04-01 11:41:08 - INFO - __main__ - Training/evaluation parameters SFTConfig(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+average_tokens_across_devices=False,
+batch_eval_metrics=False,
+bf16=True,
+bf16_full_eval=False,
+chars_per_token=<CHARS_PER_TOKEN>,
+data_seed=None,
+dataloader_drop_last=False,
+dataloader_num_workers=0,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+dataset_batch_size=None,
+dataset_kwargs=None,
+dataset_num_proc=None,
+dataset_text_field=text,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=None,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_on_start=False,
+eval_packing=None,
+eval_steps=None,
+eval_strategy=no,
+eval_use_gather_object=False,
+evaluation_strategy=None,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=2,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k,
+hub_model_revision=main,
+hub_private_repo=None,
+hub_strategy=every_save,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_for_metrics=[],
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=0.0002,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=info,
+log_level_replica=warning,
+log_on_each_node=True,
+logging_dir=./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=5,
+logging_strategy=steps,
+lr_scheduler_kwargs={},
+lr_scheduler_type=cosine,
+max_grad_norm=1.0,
+max_seq_length=8192,
+max_steps=-1,
+metric_for_best_model=None,
+model_init_kwargs=None,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_of_sequences=None,
+num_train_epochs=1,
+optim=adamw_torch,
+optim_args=None,
+optim_target_modules=None,
+output_dir=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k,
+overwrite_output_dir=True,
+packing=False,
+past_index=-1,
+per_device_eval_batch_size=8,
+per_device_train_batch_size=4,
+prediction_loss_only=False,
+push_to_hub=True,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=['wandb'],
+restore_callback_states_from_checkpoint=False,
+resume_from_checkpoint=None,
+run_name=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-10k,
+save_on_each_node=False,
+save_only_model=False,
+save_safetensors=True,
+save_steps=100,
+save_strategy=steps,
+save_total_limit=1,
+seed=42,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torch_empty_cache_steps=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_liger=False,
+use_liger_kernel=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_steps=0,
+weight_decay=0.0,
+)
+2025-04-01 11:41:09 - INFO - datasets.builder - Generating dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf)
+2025-04-01 11:41:09 - INFO - datasets.builder - Downloading and preparing dataset stream-of-search/default (download: 560.90 MiB, generated: 536.19 MiB, post-processed: Unknown size, total: 1.07 GiB) to /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf...
+2025-04-01 11:41:18 - INFO - datasets.download.download_manager - Downloading took 0.0 min
+2025-04-01 11:41:18 - INFO - datasets.download.download_manager - Checksum Computation took 0.0 min
+2025-04-01 11:41:18 - INFO - datasets.builder - Generating train split
+2025-04-01 11:41:21 - INFO - datasets.builder - Generating test split
+2025-04-01 11:41:22 - INFO - datasets.utils.info_utils - All the splits matched successfully.
+2025-04-01 11:41:22 - INFO - datasets.builder - Dataset stream-of-search downloaded and prepared to /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf. Subsequent calls will reuse this data.
+2025-04-01 11:41:22 - INFO - datasets.builder - Overwrite dataset info from restored data version if exists.
+2025-04-01 11:41:22 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf
+2025-04-01 11:41:22 - INFO - datasets.builder - Found cached dataset stream-of-search (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf)
+2025-04-01 11:41:22 - INFO - datasets.info - Loading Dataset info from /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf
+2025-04-01 11:41:22 - INFO - datasets.arrow_dataset - Caching indices mapping at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-642034009fdae515.arrow
+2025-04-01 11:41:22 - INFO - datasets.arrow_dataset - Caching indices mapping at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-47cb8bfd6d412717.arrow
+2025-04-01 11:41:22 - INFO - __main__ - Training on the following datasets and their proportions: ['train : 10000', 'test : 2000']
+2025-04-01 11:41:22 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-7262598cf287d6f6.arrow
+2025-04-01 11:41:22 - INFO - __main__ - After filtering out None and empty messages, train has 10000 examples
+2025-04-01 11:41:22 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-32b2b162b6ed0cb2.arrow
+2025-04-01 11:41:23 - INFO - __main__ - After filtering out None and empty messages, test has 2000 examples
+2025-04-01 11:41:24 - INFO - __main__ - *** Load pretrained model ***
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00000_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00001_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00002_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00003_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00004_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00005_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00006_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00007_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00008_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00009_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00010_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00011_of_00012.arrow
+2025-04-01 11:41:24 - INFO - datasets.arrow_dataset - Spawning 12 processes
+2025-04-01 11:41:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00000_of_00012.arrow
+2025-04-01 11:41:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00001_of_00012.arrow
+2025-04-01 11:41:25 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00002_of_00012.arrow
+2025-04-01 11:41:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00003_of_00012.arrow
+2025-04-01 11:41:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00004_of_00012.arrow
+2025-04-01 11:41:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00005_of_00012.arrow
+2025-04-01 11:41:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00006_of_00012.arrow
+2025-04-01 11:41:26 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00007_of_00012.arrow
+2025-04-01 11:41:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00008_of_00012.arrow
+2025-04-01 11:41:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00009_of_00012.arrow
+2025-04-01 11:41:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00010_of_00012.arrow
+2025-04-01 11:41:27 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-8fcfbb918c81c85e_00011_of_00012.arrow
+2025-04-01 11:41:27 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00000_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00001_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00002_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00003_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00004_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00005_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00006_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00007_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00008_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00009_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00010_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00011_of_00012.arrow
+2025-04-01 11:41:28 - INFO - datasets.arrow_dataset - Spawning 12 processes
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00000_of_00012.arrow
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00001_of_00012.arrow
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00002_of_00012.arrow
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00003_of_00012.arrow
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00004_of_00012.arrow
+2025-04-01 11:41:29 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00005_of_00012.arrow
+2025-04-01 11:41:30 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00006_of_00012.arrow
+2025-04-01 11:41:30 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00007_of_00012.arrow
+2025-04-01 11:41:30 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00008_of_00012.arrow
+2025-04-01 11:41:30 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00009_of_00012.arrow
+2025-04-01 11:41:30 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00010_of_00012.arrow
+2025-04-01 11:41:31 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-481ec0d01270a3ae_00011_of_00012.arrow
+2025-04-01 11:41:31 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-04-01 11:41:31 - INFO - __main__ - Example prompt: <|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [95, 99, 54, 76] using only arithmetic operations (+, -, *, /) to reach the target value 26. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 26:[95, 99, 54, 76], Operations: []
+Exploring Operation: 99-95=4, Resulting Numbers: [54, 76, 4]
+Generated Node #0,0: 26:[54, 76, 4] Operation: 99-95=4
+Exploring Operation: 76-54=22, Resulting Numbers: [4, 22]
+Generated Node #0,0,0: 26:[4, 22] Operation: 76-54=22
+Exploring Operation: 4+22=26, Resulting Numbers: [26]
+26,26 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['99-95=4', '76-54=22', '4+22=26']
+RESULT: 26
+```
+<|im_end|>
+
+2025-04-01 11:41:31 - INFO - __main__ - Sample 1824 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [12, 24, 12, 72] using only arithmetic operations (+, -, *, /) to reach the target value 58. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 58:[12, 24, 12, 72], Operations: []
+Exploring Operation: 12+24=36, Resulting Numbers: [12, 72, 36]
+Generated Node #0,0: 58:[12, 72, 36] Operation: 12+24=36
+Exploring Operation: 72-12=60, Resulting Numbers: [36, 60]
+Generated Node #0,0,0: 58:[36, 60] Operation: 72-12=60
+Exploring Operation: 60-36=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 12+36=48, Resulting Numbers: [72, 48]
+Generated Node #0,0,1: 58:[72, 48] Operation: 12+36=48
+Exploring Operation: 72-48=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 12+72=84, Resulting Numbers: [36, 84]
+Generated Node #0,0,2: 58:[36, 84] Operation: 12+72=84
+Exploring Operation: 84-36=48, Resulting Numbers: [48]
+48,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 36-12=24, Resulting Numbers: [72, 24]
+Generated Node #0,0,3: 58:[72, 24] Operation: 36-12=24
+Exploring Operation: 72-24=48, Resulting Numbers: [48]
+48,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 72-36=36, Resulting Numbers: [12, 36]
+Generated Node #0,0,4: 58:[12, 36] Operation: 72-36=36
+Exploring Operation: 12+36=48, Resulting Numbers: [48]
+48,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 36/12=3, Resulting Numbers: [72, 3]
+Generated Node #0,0,5: 58:[72, 3] Operation: 36/12=3
+Exploring Operation: 72-3=69, Resulting Numbers: [69]
+69,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 72/12=6, Resulting Numbers: [36, 6]
+Generated Node #0,0,6: 58:[36, 6] Operation: 72/12=6
+Exploring Operation: 36+6=42, Resulting Numbers: [42]
+42,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 72+36=108, Resulting Numbers: [12, 108]
+Generated Node #0,0,7: 58:[12, 108] Operation: 72+36=108
+Exploring Operation: 108-12=96, Resulting Numbers: [96]
+96,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 72/36=2, Resulting Numbers: [12, 2]
+Generated Node #0,0,8: 58:[12, 2] Operation: 72/36=2
+Exploring Operation: 12*2=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 12*36=432, Resulting Numbers: [72, 432]
+Generated Node #0,0,9: 58:[72, 432] Operation: 12*36=432
+Exploring Operation: 432/72=6, Resulting Numbers: [6]
+6,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 12*72=864, Resulting Numbers: [36, 864]
+Generated Node #0,0,10: 58:[36, 864] Operation: 12*72=864
+Exploring Operation: 864/36=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 58:[12, 72, 36], Operations: ['12+24=36']
+Exploring Operation: 72*36=2592, Resulting Numbers: [12, 2592]
+Generated Node #0,0,11: 58:[12, 2592] Operation: 72*36=2592
+Exploring Operation: 2592/12=216, Resulting Numbers: [216]
+216,58 unequal: No Solution
+
+Moving to Node #0
+Current State: 58:[12, 24, 12, 72], Operations: []
+Exploring Operation: 12+12=24, Resulting Numbers: [24, 72, 24]
+Generated Node #0,1: 58:[24, 72, 24] Operation: 12+12=24
+Exploring Operation: 24+24=48, Resulting Numbers: [72, 48]
+Generated Node #0,1,0: 58:[72, 48] Operation: 24+24=48
+Exploring Operation: 72-48=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72-24=48, Resulting Numbers: [24, 48]
+Generated Node #0,1,1: 58:[24, 48] Operation: 72-24=48
+Exploring Operation: 24+48=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72-24=48, Resulting Numbers: [24, 48]
+Generated Node #0,1,2: 58:[24, 48] Operation: 72-24=48
+Exploring Operation: 24+48=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 24/24=1, Resulting Numbers: [72, 1]
+Generated Node #0,1,3: 58:[72, 1] Operation: 24/24=1
+Exploring Operation: 72-1=71, Resulting Numbers: [71]
+71,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 24+72=96, Resulting Numbers: [24, 96]
+Generated Node #0,1,4: 58:[24, 96] Operation: 24+72=96
+Exploring Operation: 96-24=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 24-24=0, Resulting Numbers: [72, 0]
+Generated Node #0,1,5: 58:[72, 0] Operation: 24-24=0
+Exploring Operation: 72+0=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72+24=96, Resulting Numbers: [24, 96]
+Generated Node #0,1,6: 58:[24, 96] Operation: 72+24=96
+Exploring Operation: 96-24=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72/24=3, Resulting Numbers: [24, 3]
+Generated Node #0,1,7: 58:[24, 3] Operation: 72/24=3
+Exploring Operation: 24*3=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72/24=3, Resulting Numbers: [24, 3]
+Generated Node #0,1,8: 58:[24, 3] Operation: 72/24=3
+Exploring Operation: 24*3=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 24*24=576, Resulting Numbers: [72, 576]
+Generated Node #0,1,9: 58:[72, 576] Operation: 24*24=576
+Exploring Operation: 576/72=8, Resulting Numbers: [8]
+8,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 24*72=1728, Resulting Numbers: [24, 1728]
+Generated Node #0,1,10: 58:[24, 1728] Operation: 24*72=1728
+Exploring Operation: 1728/24=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 58:[24, 72, 24], Operations: ['12+12=24']
+Exploring Operation: 72*24=1728, Resulting Numbers: [24, 1728]
+Generated Node #0,1,11: 58:[24, 1728] Operation: 72*24=1728
+Exploring Operation: 1728/24=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0
+Current State: 58:[12, 24, 12, 72], Operations: []
+Exploring Operation: 72-12=60, Resulting Numbers: [24, 12, 60]
+Generated Node #0,2: 58:[24, 12, 60] Operation: 72-12=60
+Exploring Operation: 24+12=36, Resulting Numbers: [60, 36]
+Generated Node #0,2,0: 58:[60, 36] Operation: 24+12=36
+Exploring Operation: 60-36=24, Resulting Numbers: [24]
+24,58 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 58:[24, 12, 60], Operations: ['72-12=60']
+Exploring Operation: 60-12=48, Resulting Numbers: [24, 48]
+Generated Node #0,2,1: 58:[24, 48] Operation: 60-12=48
+Exploring Operation: 24+48=72, Resulting Numbers: [72]
+72,58 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 58:[24, 12, 60], Operations: ['72-12=60']
+Exploring Operation: 24-12=12, Resulting Numbers: [60, 12]
+Generated Node #0,2,2: 58:[60, 12] Operation: 24-12=12
+Exploring Operation: 60-12=48, Resulting Numbers: [48]
+48,58 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 58:[24, 12, 60], Operations: ['72-12=60']
+Exploring Operation: 12+60=72, Resulting Numbers: [24, 72]
+Generated Node #0,2,3: 58:[24, 72] Operation: 12+60=72
+Exploring Operation: 72-24=48, Resulting Numbers: [48]
+48,58 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 58:[24, 12, 60], Operations: ['72-12=60']
+Exploring Operation: 24/12=2, Resulting Numbers: [60, 2]
+Generated Node #0,2,4: 58:[60, 2] Operation: 24/12=2
+Exploring Operation: 60-2=58, Resulting Numbers: [58]
+58,58 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['72-12=60', '24/12=2', '60-2=58']
+RESULT: 58
+```
+<|im_end|>
+
+2025-04-01 11:41:31 - INFO - __main__ - Sample 409 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [13, 10, 3, 36] using only arithmetic operations (+, -, *, /) to reach the target value 37. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 37:[13, 10, 3, 36], Operations: []
+Exploring Operation: 13*3=39, Resulting Numbers: [10, 36, 39]
+Generated Node #0,0: 37:[10, 36, 39] Operation: 13*3=39
+Exploring Operation: 39-10=29, Resulting Numbers: [36, 29]
+Generated Node #0,0,0: 37:[36, 29] Operation: 39-10=29
+Exploring Operation: 36+29=65, Resulting Numbers: [65]
+65,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 10+36=46, Resulting Numbers: [39, 46]
+Generated Node #0,0,1: 37:[39, 46] Operation: 10+36=46
+Exploring Operation: 46-39=7, Resulting Numbers: [7]
+7,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 36-10=26, Resulting Numbers: [39, 26]
+Generated Node #0,0,2: 37:[39, 26] Operation: 36-10=26
+Exploring Operation: 39-26=13, Resulting Numbers: [13]
+13,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 10+39=49, Resulting Numbers: [36, 49]
+Generated Node #0,0,3: 37:[36, 49] Operation: 10+39=49
+Exploring Operation: 49-36=13, Resulting Numbers: [13]
+13,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 39-36=3, Resulting Numbers: [10, 3]
+Generated Node #0,0,4: 37:[10, 3] Operation: 39-36=3
+Exploring Operation: 10*3=30, Resulting Numbers: [30]
+30,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 36+39=75, Resulting Numbers: [10, 75]
+Generated Node #0,0,5: 37:[10, 75] Operation: 36+39=75
+Exploring Operation: 75-10=65, Resulting Numbers: [65]
+65,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 10*36=360, Resulting Numbers: [39, 360]
+Generated Node #0,0,6: 37:[39, 360] Operation: 10*36=360
+Exploring Operation: 360-39=321, Resulting Numbers: [321]
+321,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 10*39=390, Resulting Numbers: [36, 390]
+Generated Node #0,0,7: 37:[36, 390] Operation: 10*39=390
+Exploring Operation: 390-36=354, Resulting Numbers: [354]
+354,37 unequal: No Solution
+
+Moving to Node #0,0
+Current State: 37:[10, 36, 39], Operations: ['13*3=39']
+Exploring Operation: 36*39=1404, Resulting Numbers: [10, 1404]
+Generated Node #0,0,8: 37:[10, 1404] Operation: 36*39=1404
+Exploring Operation: 1404-10=1394, Resulting Numbers: [1394]
+1394,37 unequal: No Solution
+
+Moving to Node #0
+Current State: 37:[13, 10, 3, 36], Operations: []
+Exploring Operation: 10*3=30, Resulting Numbers: [13, 36, 30]
+Generated Node #0,1: 37:[13, 36, 30] Operation: 10*3=30
+Exploring Operation: 13+30=43, Resulting Numbers: [36, 43]
+Generated Node #0,1,0: 37:[36, 43] Operation: 13+30=43
+Exploring Operation: 43-36=7, Resulting Numbers: [7]
+7,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 13+36=49, Resulting Numbers: [30, 49]
+Generated Node #0,1,1: 37:[30, 49] Operation: 13+36=49
+Exploring Operation: 49-30=19, Resulting Numbers: [19]
+19,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 36-13=23, Resulting Numbers: [30, 23]
+Generated Node #0,1,2: 37:[30, 23] Operation: 36-13=23
+Exploring Operation: 30+23=53, Resulting Numbers: [53]
+53,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 30-13=17, Resulting Numbers: [36, 17]
+Generated Node #0,1,3: 37:[36, 17] Operation: 30-13=17
+Exploring Operation: 36+17=53, Resulting Numbers: [53]
+53,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 36+30=66, Resulting Numbers: [13, 66]
+Generated Node #0,1,4: 37:[13, 66] Operation: 36+30=66
+Exploring Operation: 66-13=53, Resulting Numbers: [53]
+53,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 36-30=6, Resulting Numbers: [13, 6]
+Generated Node #0,1,5: 37:[13, 6] Operation: 36-30=6
+Exploring Operation: 13+6=19, Resulting Numbers: [19]
+19,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 13*30=390, Resulting Numbers: [36, 390]
+Generated Node #0,1,6: 37:[36, 390] Operation: 13*30=390
+Exploring Operation: 390-36=354, Resulting Numbers: [354]
+354,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 13*36=468, Resulting Numbers: [30, 468]
+Generated Node #0,1,7: 37:[30, 468] Operation: 13*36=468
+Exploring Operation: 468-30=438, Resulting Numbers: [438]
+438,37 unequal: No Solution
+
+Moving to Node #0,1
+Current State: 37:[13, 36, 30], Operations: ['10*3=30']
+Exploring Operation: 36*30=1080, Resulting Numbers: [13, 1080]
+Generated Node #0,1,8: 37:[13, 1080] Operation: 36*30=1080
+Exploring Operation: 1080-13=1067, Resulting Numbers: [1067]
+1067,37 unequal: No Solution
+
+Moving to Node #0
+Current State: 37:[13, 10, 3, 36], Operations: []
+Exploring Operation: 13+10=23, Resulting Numbers: [3, 36, 23]
+Generated Node #0,2: 37:[3, 36, 23] Operation: 13+10=23
+Exploring Operation: 3+23=26, Resulting Numbers: [36, 26]
+Generated Node #0,2,0: 37:[36, 26] Operation: 3+23=26
+Exploring Operation: 36+26=62, Resulting Numbers: [62]
+62,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 3+36=39, Resulting Numbers: [23, 39]
+Generated Node #0,2,1: 37:[23, 39] Operation: 3+36=39
+Exploring Operation: 39-23=16, Resulting Numbers: [16]
+16,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 36-3=33, Resulting Numbers: [23, 33]
+Generated Node #0,2,2: 37:[23, 33] Operation: 36-3=33
+Exploring Operation: 23+33=56, Resulting Numbers: [56]
+56,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 23-3=20, Resulting Numbers: [36, 20]
+Generated Node #0,2,3: 37:[36, 20] Operation: 23-3=20
+Exploring Operation: 36+20=56, Resulting Numbers: [56]
+56,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 3*23=69, Resulting Numbers: [36, 69]
+Generated Node #0,2,4: 37:[36, 69] Operation: 3*23=69
+Exploring Operation: 69-36=33, Resulting Numbers: [33]
+33,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 36/3=12, Resulting Numbers: [23, 12]
+Generated Node #0,2,5: 37:[23, 12] Operation: 36/3=12
+Exploring Operation: 23+12=35, Resulting Numbers: [35]
+35,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 36+23=59, Resulting Numbers: [3, 59]
+Generated Node #0,2,6: 37:[3, 59] Operation: 36+23=59
+Exploring Operation: 59-3=56, Resulting Numbers: [56]
+56,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 36-23=13, Resulting Numbers: [3, 13]
+Generated Node #0,2,7: 37:[3, 13] Operation: 36-23=13
+Exploring Operation: 3*13=39, Resulting Numbers: [39]
+39,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 3*36=108, Resulting Numbers: [23, 108]
+Generated Node #0,2,8: 37:[23, 108] Operation: 3*36=108
+Exploring Operation: 108-23=85, Resulting Numbers: [85]
+85,37 unequal: No Solution
+
+Moving to Node #0,2
+Current State: 37:[3, 36, 23], Operations: ['13+10=23']
+Exploring Operation: 36*23=828, Resulting Numbers: [3, 828]
+Generated Node #0,2,9: 37:[3, 828] Operation: 36*23=828
+Exploring Operation: 828/3=276, Resulting Numbers: [276]
+276,37 unequal: No Solution
+
+Moving to Node #0
+Current State: 37:[13, 10, 3, 36], Operations: []
+Exploring Operation: 13+3=16, Resulting Numbers: [10, 36, 16]
+Generated Node #0,3: 37:[10, 36, 16] Operation: 13+3=16
+Exploring Operation: 10+16=26, Resulting Numbers: [36, 26]
+Generated Node #0,3,0: 37:[36, 26] Operation: 10+16=26
+Exploring Operation: 36+26=62, Resulting Numbers: [62]
+62,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 10+36=46, Resulting Numbers: [16, 46]
+Generated Node #0,3,1: 37:[16, 46] Operation: 10+36=46
+Exploring Operation: 46-16=30, Resulting Numbers: [30]
+30,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 36-10=26, Resulting Numbers: [16, 26]
+Generated Node #0,3,2: 37:[16, 26] Operation: 36-10=26
+Exploring Operation: 16+26=42, Resulting Numbers: [42]
+42,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 16-10=6, Resulting Numbers: [36, 6]
+Generated Node #0,3,3: 37:[36, 6] Operation: 16-10=6
+Exploring Operation: 36+6=42, Resulting Numbers: [42]
+42,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 36+16=52, Resulting Numbers: [10, 52]
+Generated Node #0,3,4: 37:[10, 52] Operation: 36+16=52
+Exploring Operation: 52-10=42, Resulting Numbers: [42]
+42,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 36-16=20, Resulting Numbers: [10, 20]
+Generated Node #0,3,5: 37:[10, 20] Operation: 36-16=20
+Exploring Operation: 10+20=30, Resulting Numbers: [30]
+30,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 10*16=160, Resulting Numbers: [36, 160]
+Generated Node #0,3,6: 37:[36, 160] Operation: 10*16=160
+Exploring Operation: 160-36=124, Resulting Numbers: [124]
+124,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 10*36=360, Resulting Numbers: [16, 360]
+Generated Node #0,3,7: 37:[16, 360] Operation: 10*36=360
+Exploring Operation: 360-16=344, Resulting Numbers: [344]
+344,37 unequal: No Solution
+
+Moving to Node #0,3
+Current State: 37:[10, 36, 16], Operations: ['13+3=16']
+Exploring Operation: 36*16=576, Resulting Numbers: [10, 576]
+Generated Node #0,3,8: 37:[10, 576] Operation: 36*16=576
+Exploring Operation: 576-10=566, Resulting Numbers: [566]
+566,37 unequal: No Solution
+
+Moving to Node #0
+Current State: 37:[13, 10, 3, 36], Operations: []
+Exploring Operation: 10+3=13, Resulting Numbers: [13, 36, 13]
+Generated Node #0,4: 37:[13, 36, 13] Operation: 10+3=13
+Exploring Operation: 13+13=26, Resulting Numbers: [36, 26]
+Generated Node #0,4,0: 37:[36, 26] Operation: 13+13=26
+Exploring Operation: 36+26=62, Resulting Numbers: [62]
+62,37 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 37:[13, 36, 13], Operations: ['10+3=13']
+Exploring Operation: 13+36=49, Resulting Numbers: [13, 49]
+Generated Node #0,4,1: 37:[13, 49] Operation: 13+36=49
+Exploring Operation: 49-13=36, Resulting Numbers: [36]
+36,37 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 37:[13, 36, 13], Operations: ['10+3=13']
+Exploring Operation: 36+13=49, Resulting Numbers: [13, 49]
+Generated Node #0,4,2: 37:[13, 49] Operation: 36+13=49
+Exploring Operation: 49-13=36, Resulting Numbers: [36]
+36,37 unequal: No Solution
+
+Moving to Node #0,4
+Current State: 37:[13, 36, 13], Operations: ['10+3=13']
+Exploring Operation: 13/13=1, Resulting Numbers: [36, 1]
+Generated Node #0,4,3: 37:[36, 1] Operation: 13/13=1
+Exploring Operation: 36+1=37, Resulting Numbers: [37]
+37,37 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['10+3=13', '13/13=1', '36+1=37']
+RESULT: 37
+```
+<|im_end|>
+
+2025-04-01 11:41:31 - INFO - __main__ - Sample 4506 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [96, 55, 18, 10] using only arithmetic operations (+, -, *, /) to reach the target value 13. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+Current State: 13:[96, 55, 18, 10], Operations: []
+Exploring Operation: 96-55=41, Resulting Numbers: [18, 10, 41]
+Generated Node #0,0: 13:[18, 10, 41] Operation: 96-55=41
+Exploring Operation: 41-18=23, Resulting Numbers: [10, 23]
+Generated Node #0,0,0: 13:[10, 23] Operation: 41-18=23
+Exploring Operation: 23-10=13, Resulting Numbers: [13]
+13,13 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['96-55=41', '41-18=23', '23-10=13']
+RESULT: 13
+```
+<|im_end|>
+
+2025-04-01 11:42:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-5b71e438bd76b6e9.arrow
+2025-04-01 11:42:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-338792a9a5862f33.arrow
+2025-04-01 11:42:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-ae117fa8bc50e0bc.arrow
+2025-04-01 11:43:49 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search/default/0.0.0/f09fd5e26a0ac5b5f77a39adc56c7d6f99bd1bdf/cache-b9696c6d382c4267.arrow
+2025-04-01 11:44:34 - INFO - __main__ - *** Train ***
