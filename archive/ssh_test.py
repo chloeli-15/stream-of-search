@@ -7,12 +7,12 @@ hosts = computers = [
     # "harlequin", "pintail"
     "bufflehead", "crested"
     "gadwall", "mallard", "gressingham", "mandarin"
-    "aylesbury", "barnacle", "brent", "cackling",
+    "aylesbury", "barnacle", "cackling",
     "eider", "gadwall", "goosander", "gressingham",
     "harlequin", "mallard", "mandarin", "pintail", "pochard", "ruddy",
     "scaup", "scoter", "shelduck", "shoveler", "smew", 
     # "wigeon",  "barbury",
-    
+    # "brent"
     # "albacore", "barbel", "chub", "dory", "elver", "flounder", "goldeye",
     # "hake", "inanga", "javelin", "koi", "lamprey", "mackerel", "mullet",
     # "nase", "opah", "pike", "plaice", "quillback", "roach", "rudd",
