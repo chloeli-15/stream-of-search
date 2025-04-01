@@ -276,9 +276,9 @@ def main():
             "ckpt": None,  # No default in parser, but should be None if not specified
             "dataset_name": "MelinaLaimon/stream-of-search",
             "data": "val_b3_t100_n100000_random.json",
-            "temperature": 0.0,
+            "temperature": 0.7,
             "wandb_project": "stream-of-search",
-            "wandb_entity": None
+            "wandb_entity": "yeok-c"
         }
         # turn args into namespace
         from types import SimpleNamespace
