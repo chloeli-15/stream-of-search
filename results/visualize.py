@@ -51,6 +51,7 @@ def visualize_results():
             
             data_by_model[model_name][folder_name] = mean
 
+    # 1. Overall Comparison Plot
     # Get unique model names and folder names
     models = sorted(data_by_model.keys())
     folder_names = sorted(set(folder for model_data in data_by_model.values() for folder in model_data.keys()))
@@ -64,9 +65,8 @@ def visualize_results():
     # Set up the bar chart
     x = np.arange(len(models))
     width = 0.8 / len(folder_names)  # Width of each bar
-    colors = plt.cm.tab10(np.linspace(0, 1, len(folder_names)))
-
-
+    # Use a colormap with more distinct colors to avoid similar colors
+    colors = plt.cm.tab20(np.linspace(0, 1, len(folder_names)))
 
     # Plot bars for each folder
     for i, folder in enumerate(folder_names):
@@ -82,9 +82,6 @@ def visualize_results():
                 ax_main.text(bar.get_x() + bar.get_width()/2, height + 0.01,
                             f"{value:.2f}", ha='center', va='bottom', 
                             fontsize=8)
-
-    # folder_names = [x.split('-countdown-')[1].split('-')[0] for x in folder_names]
-    # 20250330112138-distributed-eval-qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k
 
     # Calculate average success rate per model
     model_avg = {model: np.mean([value for value in data_by_model[model].values()]) 
@@ -105,18 +102,23 @@ def visualize_results():
     ax_main.set_ylim(0, 1)
     ax_main.grid(axis='y', linestyle='--', alpha=0.7)
     ax_main.axhline(y=0.5, color='r', linestyle='--', alpha=0.5, label="50% success")
+    
+    # Move legend outside the plot to prevent it from covering the bars
     ax_main.legend(
         title='Folders (Sample Size)', 
-        loc='upper left',
-        # bbox_to_anchor=(1.15, 1),
-            
-        )
+        loc='upper center',
+        bbox_to_anchor=(0.5, -0.18),
+        ncol=2,
+        fontsize=8
+    )
 
-    # plt.tight_layout()
-    plt.savefig("./results/model_comparison.png", dpi=300) # , bbox_inches='tight')
+    # Adjust layout to make room for the legend
+    plt.subplots_adjust(bottom=0.3)
+    
+    plt.savefig("./results/model_comparison.png", dpi=300, bbox_inches='tight')
     plt.close()
 
-
+    # 2. Individual Runs Scatter Plot (subsequent subplots)
     # Group run details by folder
     runs_by_folder = {}
     for run_id, details in run_details.items():
@@ -128,8 +130,8 @@ def visualize_results():
     # Map model names to numeric indices for scatter plot x-positions
     model_indices = {model: i for i, model in enumerate(models)}
 
-    # Calculate number of plots: 1 overall + 1 per folder
-    num_plots = 1 + len(folder_names)
+    # Calculate number of plots: one per folder
+    num_plots = len(folder_names)
 
     # Determine layout: use 3 columns maximum
     num_cols = min(3, num_plots)
@@ -137,60 +139,12 @@ def visualize_results():
 
     # Create figure with appropriate size
     fig = plt.figure(figsize=(7*num_cols, 6*num_rows))
-
-    # 1. Overall Comparison Plot (first subplot)
-    ax_main = plt.subplot(num_rows, num_cols, 1)
-
-    # Set up the bar chart
-    x = np.arange(len(models))
-    width = 0.8 / len(folder_names)  # Width of each bar
-    colors = plt.cm.tab10(np.linspace(0, 1, len(folder_names)))
-
-    # Plot bars for each folder
-    for i, folder in enumerate(folder_names):
-        values = [data_by_model[model].get(folder, 0) for model in models]
-        sample_size = folder_sample_sizes.get(folder, "Unknown")
-        bars = ax_main.bar(x + i*width - (len(folder_names)-1)*width/2, values, 
-                        width=width, label=f"{folder.split('-countdown-')[1].split('_Melina')[0]} (n={sample_size})", color=colors[i])
-        
-        # Add value labels
-        for bar, value in zip(bars, values):
-            height = bar.get_height()
-            if height > 0:  # Only label non-zero bars
-                ax_main.text(bar.get_x() + bar.get_width()/2, height + 0.01,
-                            f"{value:.2f}", ha='center', va='bottom', 
-                            fontsize=8)
-
-    # Calculate average success rate per model
-    model_avg = {model: np.mean([value for value in data_by_model[model].values()]) 
-                for model in models}
-
-    # Plot average line
-    avg_values = [model_avg[model] for model in models]
-    for i, (x_pos, y_pos) in enumerate(zip(x, avg_values)):
-        ax_main.plot([x_pos-0.4, x_pos+0.4], [y_pos, y_pos], color='black', linestyle='-', linewidth=2)
-        ax_main.text(x_pos, y_pos + 0.02, f"avg: {y_pos:.2f}", ha='center', fontsize=9)
-
-    # Configure the plot
-    # ax_main.set_xlabel('Models', fontsize=12)
-    ax_main.set_ylabel('Success Rate', fontsize=12)
-    ax_main.set_title('Overall Model Performance Comparison', fontsize=14)
-    ax_main.set_xticks(x)
-    ax_main.set_xticklabels(models, rotation=45, ha='right', fontsize=10)
-    ax_main.set_ylim(0, 1)
-    ax_main.grid(axis='y', linestyle='--', alpha=0.7)
-    ax_main.axhline(y=0.5, color='r', linestyle='--', alpha=0.5, label="50% success")
-    ax_main.legend(title='Folders (Sample Size)', loc='upper left')
-
-
-    # Map model names to numeric indices for scatter plot x-positions
-    model_indices = {model: i for i, model in enumerate(models)}
-
+    
     # Create scatter plot for each folder
-    folder_experiment_names  = []
+    folder_experiment_names = []
     for i, folder in enumerate(folder_names):
-        # Create subplot (i+2 because position 1 is for overall comparison)
-        ax_folder = plt.subplot(num_rows, num_cols, i+2)
+        # Create subplot, starting from position 1
+        ax_folder = plt.subplot(num_rows, num_cols, i+1)
         
         if folder in runs_by_folder:
             folder_runs = runs_by_folder[folder]
@@ -222,7 +176,6 @@ def visualize_results():
                                 textcoords="offset points", xytext=(0,10), ha='center', fontsize=8)
             
             # Configure the plot
-            # ax_folder.set_xlabel('Models', fontsize=12)
             ax_folder.set_ylabel('Success Rate', fontsize=12)
             sample_size = folder_sample_sizes.get(folder, "Unknown")
             ax_folder.set_title(f"Individual Runs with n={sample_size} in \n" + "\n".join(folder.split('-countdown-')), fontsize=14)
@@ -238,9 +191,7 @@ def visualize_results():
             ax_folder.set_title(f'{folder}', fontsize=14)
             ax_folder.axis('off')
 
-    # plt.tight_layout()
-    plt.savefig("./results/all_trials.png", dpi=300) # , bbox_inches='tight')
-    # plt.show()
+    plt.savefig("./results/all_trials.png", dpi=300, bbox_inches='tight')
 
 if __name__ == "__main__":
     visualize_results()
