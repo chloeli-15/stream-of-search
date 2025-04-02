@@ -306,7 +306,7 @@ def stop_all_processes(hosts=None, timeout=20):
     return results
 
 if __name__ == "__main__":
-    stop_all_processes()
+    # stop_all_processes()
     available_hosts = look_for_gpu()
 
 # // "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k": "messages_sos",
