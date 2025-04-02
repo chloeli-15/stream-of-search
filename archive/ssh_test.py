@@ -3,22 +3,23 @@ import re
 import concurrent.futures
 import time
 
-hosts = computers = [
-    # "harlequin", "pintail"
-    "bufflehead", "crested"
+#  "whitebait", "vimba" 
+gpu_3090 = [
     "gadwall", "mallard", "gressingham", "mandarin"
     "aylesbury", "barnacle", "cackling",
-    "eider", "gadwall", "goosander", "gressingham",
-    "harlequin", "mallard", "mandarin", "pintail", "pochard", "ruddy",
+    "eider", "gadwall", "pintail",
+    "mallard", "mandarin", "pintail", "pochard", "ruddy",
     "scaup", "scoter", "shelduck", "shoveler", "smew", 
-    # "wigeon",  "barbury",
-    # "brent"
-    # "albacore", "barbel", "chub", "dory", "elver", "flounder", "goldeye",
-    # "hake", "inanga", "javelin", "koi", "lamprey", "mackerel", "mullet",
-    # "nase", "opah", "pike", "plaice", "quillback", "roach", "rudd",
-    # "shark", "skate", "tope", "uaru", "yellowtail", "zander"
-]
-#  "whitebait", "vimba" 
+    # "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested" # "harlequin", 
+    ]
+    
+gpu_4070 = [
+    "albacore", "barbel", "chub", "dory", "elver", "flounder", "goldeye",
+    "hake", "inanga", "javelin", "koi", "lamprey", "mackerel", "mullet",
+    "nase", "opah", "pike", "plaice", "quillback", "roach", "rudd",
+    "shark", "skate", "tope", "uaru", "yellowtail", "zander"
+    ]
+
 
 def get_availability(host, timeout=20):    
     print(f"Checking {host}...")
@@ -137,8 +138,14 @@ def print_availability_report(gpu_info_list):
     
     return available_gpus
 
-def look_for_gpu():
-
+def look_for_gpu(host_flag):
+    if host_flag == "0":
+        hosts = computers = gpu_3090 + gpu_4070
+    elif host_flag == "1":
+        hosts = computers = gpu_3090
+    elif host_flag == "2":
+        hosts = computers = gpu_4070
+        
     start_time = time.time()
     
     # Use ThreadPoolExecutor to run get_availability concurrently
@@ -168,7 +175,7 @@ def look_for_gpu():
 
     return [available_gpus[i]['host'] for i in range(len(available_gpus))]
 
-def stop_all_processes(hosts=None, timeout=20):
+def stop_all_processes(host_flag, timeout=20):
     """
     SSH into each host, check for Python processes belonging to the current user and kill them.
     
@@ -179,6 +186,14 @@ def stop_all_processes(hosts=None, timeout=20):
     Returns:
         list: Results of the operation on each host
     """
+    if host_flag == "0":
+        hosts = computers = gpu_3090 + gpu_4070
+    elif host_flag == "1":
+        hosts = computers = gpu_3090
+    elif host_flag == "2":
+        hosts = computers = gpu_4070
+
+
     if hosts is None:
         hosts = computers
 
@@ -306,8 +321,18 @@ def stop_all_processes(hosts=None, timeout=20):
     return results
 
 if __name__ == "__main__":
-    # stop_all_processes()
-    available_hosts = look_for_gpu()
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser(description="Check GPU availability and stop processes on remote hosts.")
+    parser.add_argument('--kill', default=False, action='store_true', help="Stop all Python processes on remote hosts.")
+    parser.add_argument('--hosts', type=str, default="0", help="List of hosts to check. If not provided, defaults to predefined list.", choices=["0", "1", "2"])
+    if len(sys.argv) > 1:
+        args = parser.parse_args()
+    
+    if args.kill:
+        stop_all_processes(args.hosts)
+        
+    available_hosts = look_for_gpu(args.hosts)
 
 # // "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k": "messages_sos",
 # // "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k": "messages_sos",

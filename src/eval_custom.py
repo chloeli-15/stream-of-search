@@ -173,9 +173,11 @@ def custom_eval(args=None):
         
         # if it is the regular split, reverse the order so we get test results first
         if keys == ['train', 'test']:
-            keys = ['test', 'train']
+            keys = ["test"]
+        elif keys == ["countdown_3num", "countdown_5num"]:
+            pass        
             
-        for split in keys:
+        for split in keys: # keys:
             results_all_trials = []
             for trial in range(args.gens):
                 data = data_all[split].select(range(args.num))
@@ -185,13 +187,18 @@ def custom_eval(args=None):
                 pred_reasons = []
                 tokenizer.padding_side = "left"
 
-                data = data.map(lambda x: { # type: ignore
-                    'test_prompt': [
-                        # {'role': 'system', 'content': SYSTEM_PROMPT},
-                        x[args.messages_field]["role"=="user"]
-                    ],
-                    # 'answer': extract_hash_answer(x['answer'])
-                })
+                if split in ["train", "test"]:
+                    data = data.map(lambda x: { # type: ignore
+                        'test_prompt': [
+                            # {'role': 'system', 'content': SYSTEM_PROMPT},
+                            x[args.messages_field]["role"=="user"]
+                        ],
+                        # 'answer': extract_hash_answer(x['answer'])
+                    })
+                elif split in ["countdown_3num", "countdown_5num"]:
+                    data = data.map(lambda x: { # type: ignore
+                        'test_prompt': [{"content": x['user_prompt'], "role": "user"}],
+                    })
                 results = []
                 completions = eval_ll(model, tokenizer, data, batch_size=args.batch_size, context_len=args.ctx, temperature=args.temperature, n=args.gens)
                 # parse into list of dictionaries

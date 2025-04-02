@@ -7,7 +7,7 @@ import argparse
 import time
 import os
 from datetime import datetime
-from archive.ssh_test import look_for_gpu
+from archive.ssh_test import look_for_gpu, stop_all_processes
 
 def run_evaluation(hostname, model_name, messages_field, num_samples=256, 
                    dataset="MelinaLaimon/stream-of-search", temp=0.7, 
@@ -23,7 +23,7 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{model_name.split('/')[-1]}_{hostname}.log")
     
-    print(f"Starting evaluation on {hostname}: {model_name}")
+    print(f"Starting evaluation on {hostname}: {model_name} with {num_samples} samples and datsaet {dataset}")
     
     try:
         # Open log file for writing
@@ -70,6 +70,11 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
             
             print("Command:", " ".join(cmd))
             
+            # Write the start time, hostname and cmd to log
+            f.write(f"=== START TIME: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===\n")
+            f.write(f"=== HOSTNAME: {hostname} ===\n")
+            f.write(f"=== COMMAND: {' '.join(cmd)} ===\n")
+            
             # Run the evaluation command and capture output
             process = subprocess.Popen(
                 cmd,  # Use list format instead of shell=True for better control
@@ -99,19 +104,22 @@ def run_evaluation(hostname, model_name, messages_field, num_samples=256,
 def main():
     parser = argparse.ArgumentParser(description="Distributed model evaluation across hosts")
     parser.add_argument("--config", type=str, default="scripts/eval_config.json", help="Path to config JSON file")
-    parser.add_argument("--n", type=int, default=128, help="Number of samples to evaluate")
-    parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
-    parser.add_argument("--batch-size", type=int, default=8, help="Batch size for evaluation")
-    parser.add_argument("--ctx", type=int, default=10000    , help="Context length")
+    # parser.add_argument("--n", type=int, default=8, help="Number of samples to evaluate")
+    # parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
+    parser.add_argument("--batch-size", type=int, default=4, help="Batch size for evaluation")
+    parser.add_argument("--ctx", type=int, default=16384, help="Context length")
     parser.add_argument("--temp", type=float, default=0.7, help="Temperature")
     parser.add_argument("--gens", type=int, default=1, help="Number of generations")
     parser.add_argument("--project", type=str, default="stream-of-search", help="W&B project name")
     parser.add_argument("--entity", type=str, default="yeokch", help="W&B entity name")
-    
+    parser.add_argument("--hosts", type=str, default="1", help="Host flag in look_for_gpus")
+    parser.add_argument("--kill", type=bool, default=False, help="Kill all processes on all hosts")
     args = parser.parse_args()
     
+    stop_all_processes(args.hosts)
     # Get available hosts with GPUs
-    hostnames = look_for_gpu()
+    hostnames = look_for_gpu(args.hosts)
+    
     print(f"Found {len(hostnames)} hosts with GPUs: {', '.join(hostnames)}")
     
     # Load the configuration file
@@ -119,12 +127,13 @@ def main():
         config = json.load(f)
     
     models_data = config.get('models_messages_field_pairs', {})
+    
     print(f"Found {len(models_data)} models to evaluate")
     
     # Create a queue of evaluation tasks
     evaluation_queue = []
-    for model_name, messages_field in models_data.items():
-        evaluation_queue.append((model_name, messages_field))
+    for i, (model_name, messages_field, nums, dataset) in models_data.items():
+        evaluation_queue.append(((model_name, messages_field, nums, dataset)))
     
     # Create a timestamp for this evaluation run
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -138,15 +147,15 @@ def main():
         
         # Submit initial batch of tasks
         for i in range(min(len(hostnames), len(evaluation_queue))):
-            model_name, messages_field = evaluation_queue[i]
+            model_name, messages_field, nums, dataset = evaluation_queue[i]
             hostname = hostnames[host_index]
             futures[executor.submit(
                 run_evaluation, 
                 hostname, 
                 model_name, 
                 messages_field,
-                args.n,
-                args.dataset,
+                nums, # args.n,
+                dataset, # args.dataset,
                 args.temp,
                 args.batch_size,
                 args.ctx,
