@@ -1,9 +1,7 @@
 {
     "models_messages_field_pairs":{
-        "1": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages_sos", 32, "MelinaLaimon/stream-of-search-ood"],
-        "3": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search-ood"],
-        "5": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages_sos", 32, "MelinaLaimon/stream-of-search"],
-        "7": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"]
+        "3": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search-ood"],
+        "7": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"]
     },
 
     "not used": {        

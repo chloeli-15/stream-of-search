@@ -63,6 +63,21 @@ def load_model(adapter_path, base_model=None, use_quantization=False):
         
     return model, tokenizer
 
+def load_model_from_hub(model_name):
+    """Load a model from Hugging Face Hub"""
+    # Load the model
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+    
+    # Load the tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    # Set padding token
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    
+    return model, tokenizer
+    
+
 def generate(model, tokenizer, prompt, max_new_tokens=1024, temperature=1.0):
     """Generate text using the loaded model"""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)

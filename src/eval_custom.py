@@ -20,7 +20,7 @@ import pandas as pd
 # sys path append the parent folder
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from finetune.run_adapter_model import load_model, generate, generate_batch
+from finetune.run_adapter_model import load_model, load_model_from_hub, generate, generate_batch
 from result_parsers.countdown_trajectories import evaluate_countdown_trajectories
 
 from typing import List, Tuple
@@ -156,7 +156,10 @@ def custom_eval(args=None):
         adapters = [args.adapter] 
 
     for adapter in adapters:
-        model, tokenizer = load_model(adapter, args.ckpt)
+        if "chloe" in adapter:
+            model, tokenizer = load_model(adapter, args.ckpt)
+        else:
+            model, tokenizer = load_model_from_hub(adapter)    
 
         model.eval()
         model.cuda()
@@ -172,7 +175,7 @@ def custom_eval(args=None):
         keys = data_all.keys()
         
         # if it is the regular split, reverse the order so we get test results first
-        if keys == ['train', 'test']:
+        if set(keys) == set(['train', 'test']):
             keys = ["test"]
         elif keys == ["countdown_3num", "countdown_5num"]:
             pass        
@@ -241,8 +244,9 @@ def custom_eval(args=None):
         wandb.finish()
         
     # run visualization script
-    from results.visualize import visualize_results
+    from results.visualize import visualize_results, visualize_example_count_performance
     visualize_results()
+    visualize_example_count_performance()
     
 if __name__ == "__main__":
     custom_eval()
