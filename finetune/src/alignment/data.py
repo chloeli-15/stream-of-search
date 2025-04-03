@@ -227,7 +227,7 @@ def mix_datasets(
             dataset = dataset.remove_columns([col for col in dataset.column_names if col not in columns_to_keep])
             if "train" in split:
                 raw_train_datasets.append(dataset)
-            elif "test" in split:
+            elif "test" in split or "val" in split:
                 raw_val_datasets.append(dataset)
             else:
                 raise ValueError(f"Split type {split} not recognized as one of test or train.")

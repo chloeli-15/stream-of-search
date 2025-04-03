@@ -172,6 +172,6 @@ data_converted/
 .idea/vcs.xml
 .idea/misc.xml
 
-archive
+# archive
 data
 models

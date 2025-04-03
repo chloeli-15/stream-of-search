@@ -16,14 +16,17 @@
 """
 Supervised fine-tuning script for decoder language models.
 """
+import subprocess
 import logging
 import random
 import sys
+import os
 
 import datasets
 import torch
 import transformers
 from transformers import AutoModelForCausalLM, set_seed
+from callbacks import DebugCallback, CountdownEvalCallback
 
 from alignment import (
     DataArguments,
@@ -38,8 +41,6 @@ from alignment import (
     get_peft_config,
     get_quantization_config,
     get_tokenizer,
-    DebugCallback,
-    CountdownEvaluationCallback,
 )
 from trl import SFTTrainer, setup_chat_format
 
@@ -57,11 +58,22 @@ def main():
     ###############
     # Setup logging
     ###############
+    # Determine log directory - either user specified or default
+    output_parent_dir = os.path.dirname(os.path.abspath(training_args.output_dir))
+    model_name = os.path.basename(training_args.output_dir)
+    log_dir = training_args.logging_dir if training_args.logging_dir else os.path.join(output_parent_dir, "logs", model_name)
+    print("log_dir:", log_dir)
+
+    # Create log directory if it doesn't exist
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "training.log")
+
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[logging.StreamHandler(sys.stdout)],
+        handlers=[logging.StreamHandler(sys.stdout), logging.FileHandler(log_file)],
     )
+
     log_level = training_args.get_process_log_level()
     logger.setLevel(log_level)
     datasets.utils.logging.set_verbosity(log_level)
@@ -90,11 +102,21 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=["messages", "chosen", "rejected", "prompt", "completion", "label"],
+        columns_to_keep=[data_args.dataset_message_key, "chosen", "rejected", "prompt", "completion", "label"],
     )
     logger.info(
         f"Training on the following datasets and their proportions: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
     )
+
+    # Rename messages_o3 to messages
+    for split in raw_datasets:
+        if data_args.dataset_message_key in raw_datasets[split].column_names:
+            raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
+
+    # Filter out examples where messages is None
+    for split in raw_datasets:
+        raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None and example["messages"] != "" and example["messages"] != " ")
+        logger.info(f"After filtering out None and empty messages, {split} has {raw_datasets[split].num_rows} examples")
     column_names = list(raw_datasets["train"].features)
 
     ################
@@ -174,7 +196,7 @@ def main():
         eval_dataset=eval_dataset,
         tokenizer=tokenizer,
         peft_config=get_peft_config(model_args),
-        callbacks=[DebugCallback(), CountdownEvaluationCallback()],
+        # callbacks=[DebugCallback(), CountdownEvalCallback(tokenizer=tokenizer)],
         # model_init_kwargs=model_kwargs,
         # dataset_text_field="text",
         # max_seq_length=training_args.max_seq_length,
@@ -223,20 +245,49 @@ def main():
     ##########
     # Evaluate
     ##########
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-        tokenizer.padding_side = 'left'
-        metrics = trainer.evaluate()
-        metrics["eval_samples"] = len(eval_dataset)
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
-
-    if training_args.push_to_hub is True:
-        logger.info("Pushing to hub...")
-        trainer.push_to_hub(**kwargs)
-
-    logger.info("*** Training complete ***")
-
+    if training_args.evaluate_and_plot:
+        logger.info("*** Evaluating on task ***")
+        trainer.model.eval()
+        
+        # Add path to src directory
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
+        from src.eval_custom import custom_eval
+        # "--adapter", eval_args.adapter,
+        # "-n", str(eval_args.num),
+        # "--messages_field", eval_args.messages_field,
+        # "--batch_size", str(eval_args.batch_size),
+        # "--ctx", str(eval_args.ctx),
+        # "--gens", str(eval_args.gens),
+        # "--chat_template", str(eval_args.chat_template),
+        # "--upload_results", str(eval_args.upload_results)
+        args = {
+            "experiment_name": None,
+            "adapter": training_args.output_dir,
+            "num": 128,
+            "messages_field": data_args.dataset_message_key,
+            "batch_size": 8,
+            "ctx": training_args.max_seq_length,
+            "gens": 1,
+            "chat_template": True,
+            "upload_results": False,
+            
+            # Additional parameters with defaults from eval_custom.py
+            "seed": 4,
+            "ckpt": None,  # No default in parser, but should be None if not specified
+            "dataset_name": "MelinaLaimon/stream-of-search",
+            "data": "val_b3_t100_n100000_random.json",
+            "temperature": 0.7,
+            "wandb_project": "stream-of-search",
+            "wandb_entity": "None"
+        }
+        # turn args into namespace
+        from types import SimpleNamespace
+        args = SimpleNamespace(**args)
+        # Call the custom_eval function
+        custom_eval(args)
+        
+            
+        
 
 if __name__ == "__main__":
     main()
