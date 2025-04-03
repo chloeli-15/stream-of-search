@@ -22,7 +22,7 @@ def visualize_results():
     for folder in glob.glob("./results/qwen*"):
         folder_name = os.path.basename(folder)
         
-        for file in glob.glob(f"{folder}/*.json"):
+        for file in glob.glob(f"{folder}/test*.json"):
             with open(file, "r") as f:
                 data = json.load(f)
             
@@ -192,6 +192,130 @@ def visualize_results():
             ax_folder.axis('off')
 
     plt.savefig("./results/all_trials.png", dpi=300, bbox_inches='tight')
-
+def visualize_example_count_performance():
+    """
+    Visualize model performance by number of examples (3num vs 5num),
+    clustered by example count with model types within each cluster
+    """
+    # Store data by example count and model type
+    data_by_example_count = {}
+    
+    # Find all relevant JSON files in qwen folders
+    for folder in glob.glob("./results/qwen*"):
+        folder_name = os.path.basename(folder)
+        
+        # Extract model size
+        model_size = folder_name.split("-instruct")[0].split("2.5-")[-1]
+        
+        # Extract approach type (search-seq8k vs search-react-seq8k)
+        approach_match = re.search(r'countdown-(search-[^_-]+)', folder_name)
+        if approach_match:
+            approach_type = approach_match.group(1)
+        else:
+            # Fallback to a more general pattern
+            approach_match = re.search(r'countdown-([^_]+)', folder_name)
+            approach_type = approach_match.group(1) if approach_match else "unknown"
+            
+        model_key = f"{model_size}-{approach_type}"
+        
+        for file in glob.glob(f"{folder}/countdown_*.json"):
+            with open(file, "r") as f:
+                data = json.load(f)
+            
+            hyperparams = data[0]['hyperparams']
+            mean_success_rate = data[1]['mean']
+            sample_size = hyperparams['num']
+            
+            # Extract example count from filename
+            filename = os.path.basename(file)
+            example_count_match = re.search(r'countdown_(\d+)num_(\d+)', filename)
+            
+            if example_count_match:
+                example_count = int(example_count_match.group(1))
+                dataset_size = int(example_count_match.group(2))
+                
+                # Store data grouped by example count first
+                example_key = f"{example_count}num"
+                if example_key not in data_by_example_count:
+                    data_by_example_count[example_key] = {}
+                
+                if model_key not in data_by_example_count[example_key]:
+                    data_by_example_count[example_key][model_key] = []
+                
+                data_by_example_count[example_key][model_key].append({
+                    'success_rate': mean_success_rate,
+                    'sample_size': sample_size,
+                    'dataset_size': dataset_size,
+                    'file': filename
+                })
+    
+    # Create visualization if we have data
+    if not data_by_example_count:
+        print("No example count data found.")
+        return
+    
+    # Sort example counts and model types
+    example_counts = sorted(data_by_example_count.keys())
+    all_model_types = sorted(set(model for example_data in data_by_example_count.values() 
+                                for model in example_data.keys()))
+    
+    # Create figure for bar chart
+    plt.figure(figsize=(14, 8))
+    
+    # Set up the bar positions
+    x = np.arange(len(example_counts))
+    bar_width = 0.8 / len(all_model_types)
+    colors = plt.cm.tab10(np.linspace(0, 1, len(all_model_types)))
+    
+    # Plot bars grouped by example count, with model types within each cluster
+    for i, model_type in enumerate(all_model_types):
+        avg_rates = []
+        sample_sizes = []
+        
+        for count in example_counts:
+            if count in data_by_example_count and model_type in data_by_example_count[count]:
+                runs = data_by_example_count[count][model_type]
+                avg_rate = np.mean([run['success_rate'] for run in runs])
+                avg_rates.append(avg_rate)
+                max_sample = max([run['sample_size'] for run in runs])
+                sample_sizes.append(max_sample)
+            else:
+                avg_rates.append(0)
+                sample_sizes.append(0)
+        
+        # Position bars within each cluster
+        offset = i - (len(all_model_types) - 1) / 2
+        x_pos = x + offset * bar_width
+        
+        # Plot the bars
+        bars = plt.bar(x_pos, avg_rates, width=bar_width, label=model_type, color=colors[i])
+        
+        # Add value labels
+        for bar, value, sample in zip(bars, avg_rates, sample_sizes):
+            height = bar.get_height()
+            if height > 0:
+                plt.text(bar.get_x() + bar.get_width()/2, height + 0.01,
+                        f"{value:.2f}\nn={sample}", ha='center', va='bottom', 
+                        fontsize=8)
+    
+    # Configure the plot
+    plt.xlabel('Number of Examples in Input', fontsize=12)
+    plt.ylabel('Success Rate', fontsize=12)
+    plt.title('Model Performance by Number of Examples', fontsize=14)
+    plt.xticks(x, example_counts)
+    plt.ylim(0, 1)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.axhline(y=0.5, color='r', linestyle='--', alpha=0.5)
+    
+    # Add legend
+    plt.legend(title='Model Types', loc='upper center', bbox_to_anchor=(0.5, -0.1), 
+              ncol=min(3, len(all_model_types)))
+    
+    # Adjust layout and save
+    plt.tight_layout(rect=[0, 0.05, 1, 0.95])
+    plt.savefig("./results/example_count_performance.png", dpi=300, bbox_inches='tight')
+    plt.close()
+    
 if __name__ == "__main__":
     visualize_results()
+    visualize_example_count_performance()
