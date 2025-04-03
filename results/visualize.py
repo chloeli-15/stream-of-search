@@ -19,7 +19,7 @@ def visualize_results():
     # Dictionary to store sample sizes by folder
     folder_sample_sizes = {}
 
-    for folder in glob.glob("./results/qwen*"):
+    for folder in glob.glob("./results/qwen*".lower()):
         folder_name = os.path.basename(folder)
         
         for file in glob.glob(f"{folder}/test*.json"):
@@ -202,7 +202,7 @@ def visualize_example_count_performance():
     data_by_example_count = {}
     
     # Find all relevant JSON files in qwen folders
-    for folder in glob.glob("./results/qwen*"):
+    for folder in glob.glob("./results/qwen*".lower()):
         folder_name = os.path.basename(folder)
         
         # Extract model size
