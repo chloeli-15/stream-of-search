@@ -324,12 +324,12 @@ if __name__ == "__main__":
     import argparse
     import sys
     parser = argparse.ArgumentParser(description="Check GPU availability and stop processes on remote hosts.")
-    parser.add_argument('--kill', default=False, action='store_true', help="Stop all Python processes on remote hosts.")
+    parser.add_argument('--kill', type=bool, default=False, help="Stop all Python processes on remote hosts.")
     parser.add_argument('--hosts', type=str, default="0", help="List of hosts to check. If not provided, defaults to predefined list.", choices=["0", "1", "2"])
     if len(sys.argv) > 1:
         args = parser.parse_args()
     
-    if args.kill:
+    if args.kill == True:
         stop_all_processes(args.hosts)
         
     available_hosts = look_for_gpu(args.hosts)

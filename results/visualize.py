@@ -192,6 +192,7 @@ def visualize_results():
             ax_folder.axis('off')
 
     plt.savefig("./results/all_trials.png", dpi=300, bbox_inches='tight')
+
 def visualize_example_count_performance():
     """
     Visualize model performance by number of examples (3num vs 5num),

@@ -115,10 +115,11 @@ def main():
     parser.add_argument("--hosts", type=str, default="1", help="Host flag in look_for_gpus")
     parser.add_argument("--kill", type=bool, default=False, help="Kill all processes on all hosts")
     args = parser.parse_args()
-    
-    stop_all_processes(args.hosts)
+    if args.kill:
+        stop_all_processes(args.hosts)
     # Get available hosts with GPUs
     hostnames = look_for_gpu(args.hosts)
+    
     
     print(f"Found {len(hostnames)} hosts with GPUs: {', '.join(hostnames)}")
     
@@ -148,6 +149,14 @@ def main():
         # Submit initial batch of tasks
         for i in range(min(len(hostnames), len(evaluation_queue))):
             model_name, messages_field, nums, dataset = evaluation_queue[i]
+            # override ctx length
+            if 'react' in model_name:
+                args.ctx = 16384
+                batch_size = args.batch_size 
+            else:
+                args.ctx = 8192
+                batch_size = args.batch_size*2
+ 
             hostname = hostnames[host_index]
             futures[executor.submit(
                 run_evaluation, 
@@ -157,7 +166,7 @@ def main():
                 nums, # args.n,
                 dataset, # args.dataset,
                 args.temp,
-                args.batch_size,
+                batch_size,
                 args.ctx,
                 args.gens,
                 f"{experiment_name}-{model_name.split('/')[-1]}",
@@ -192,7 +201,7 @@ def main():
                         args.n,
                         args.dataset,
                         args.temp,
-                        args.batch_size,
+                        batch_size,
                         args.ctx,
                         args.gens,
                         f"{experiment_name}-{next_model.split('/')[-1]}",
