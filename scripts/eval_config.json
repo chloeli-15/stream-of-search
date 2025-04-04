@@ -1,7 +1,7 @@
 {
     "models_messages_field_pairs":{        
-        "4": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages", 128, "MelinaLaimon/stream-of-search"],
-        "5": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages", 128, "MelinaLaimon/stream-of-search"],
+        "4": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "5": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         "9":  ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
         "10": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
     },

@@ -467,8 +467,167 @@ def visualize_knk_scores():
     plt.tight_layout()
     plt.savefig("./results/knk_all_scores.png", dpi=300, bbox_inches='tight')
     plt.close()
+    
+def export_data_for_paper():
+    """
+    Export all relevant result data as pandas DataFrames and save as CSV files
+    for easy inclusion in papers and presentations.
+    """
+    import pandas as pd
+    import os
+    
+    # Create export directory if it doesn't exist
+    export_dir = "./results/paper_data"
+    os.makedirs(export_dir, exist_ok=True)
+    
+    # 1. Export model performance data
+    model_data = []
+    for folder in glob.glob("./results/qwen*".lower()):
+        folder_name = os.path.basename(folder)
+        
+        for file in glob.glob(f"{folder}/test*.json"):
+            with open(file, "r") as f:
+                data = json.load(f)
+            
+            hyperparams = data[0]['hyperparams']
+            mean = data[1]['mean']
+            model_name = hyperparams['adapter'].split("instruct")[0].split("2.5-")[-1]
+            sample_size = hyperparams['num']
+            experiment_name = hyperparams.get('experiment_name', os.path.basename(file))
+            parts = extract_parts(experiment_name)
+            
+            model_data.append({
+                'model': model_name,
+                'approach': parts[1],
+                'success_rate': mean,
+                'sample_size': sample_size,
+                'file': os.path.basename(file),
+                'folder': folder_name
+            })
+    
+    if model_data:
+        df_models = pd.DataFrame(model_data)
+        df_models.to_csv(f"{export_dir}/model_performance.csv", index=False)
+        print(f"Exported model performance data to {export_dir}/model_performance.csv")
+    
+    # 2. Export example count performance data
+    example_data = []
+    for folder in glob.glob("./results/qwen*".lower()):
+        folder_name = os.path.basename(folder)
+        
+        # Extract model size
+        model_size = folder_name.split("-instruct")[0].split("2.5-")[-1]
+        
+        # Extract approach type
+        parts = extract_parts(folder_name)
+        approach_type = parts[1]
+        
+        for file in glob.glob(f"{folder}/countdown_*.json"):
+            with open(file, "r") as f:
+                data = json.load(f)
+            
+            hyperparams = data[0]['hyperparams']
+            mean_success_rate = data[1]['mean']
+            sample_size = hyperparams['num']
+            
+            # Extract example count from filename
+            filename = os.path.basename(file)
+            example_count_match = re.search(r'countdown_(\d+)num_(\d+)', filename)
+            
+            if example_count_match:
+                example_count = int(example_count_match.group(1))
+                dataset_size = int(example_count_match.group(2))
+                
+                example_data.append({
+                    'model_size': model_size,
+                    'approach': approach_type,
+                    'num_examples': example_count,
+                    'dataset_size': dataset_size,
+                    'success_rate': mean_success_rate,
+                    'sample_size': sample_size,
+                    'file': filename
+                })
+    
+    if example_data:
+        df_examples = pd.DataFrame(example_data)
+        df_examples.to_csv(f"{export_dir}/example_count_performance.csv", index=False)
+        print(f"Exported example count data to {export_dir}/example_count_performance.csv")
+    
+    # 3. Export KNK scores data
+    knk_data_list = []
+    for folder in glob.glob("./results/qwen*".lower()):
+        folder_name = os.path.basename(folder)
+        
+        # Extract model size and approach
+        parts = extract_parts(folder_name)
+        model_size = parts[0]
+        approach_type = parts[1]
+        
+        # Look for knk.json file
+        knk_file = os.path.join(folder, "knk.json")
+        if os.path.exists(knk_file):
+            with open(knk_file, "r") as f:
+                data = json.load(f)
+            
+            if "scores" in data:
+                scores = data["scores"]
+                
+                knk_data_list.append({
+                    'model_size': model_size,
+                    'approach': approach_type,
+                    'folder': folder_name,
+                    'score_2ppl': scores.get("2ppl", 0),
+                    'score_3ppl': scores.get("3ppl", 0),
+                    'score_4ppl': scores.get("4ppl", 0)
+                })
+    
+    if knk_data_list:
+        df_knk = pd.DataFrame(knk_data_list)
+        df_knk.to_csv(f"{export_dir}/knk_scores.csv", index=False)
+        print(f"Exported KNK scores to {export_dir}/knk_scores.csv")
+    
+    # 4. Create a summary table with aggregated results
+    if model_data:
+        summary_data = []
+        df_models = pd.DataFrame(model_data)
+        
+        # Group by model and approach and calculate mean success rate
+        grouped = df_models.groupby(['model', 'approach'])
+        
+        for (model, approach), group in grouped:
+            mean_success = group['success_rate'].mean()
+            sample_count = group['sample_size'].sum()
+            
+            # Get KNK scores if available
+            knk_scores = {'score_2ppl': 0, 'score_3ppl': 0, 'score_4ppl': 0}
+            if knk_data_list:
+                df_knk = pd.DataFrame(knk_data_list)
+                knk_match = df_knk[(df_knk['model_size'] == model) & (df_knk['approach'] == approach)]
+                if not knk_match.empty:
+                    knk_scores = {
+                        'score_2ppl': knk_match['score_2ppl'].mean(),
+                        'score_3ppl': knk_match['score_3ppl'].mean(),
+                        'score_4ppl': knk_match['score_4ppl'].mean()
+                    }
+            
+            summary_data.append({
+                'model': model,
+                'approach': approach,
+                'avg_success_rate': mean_success,
+                'total_samples': sample_count,
+                **knk_scores
+            })
+        
+        if summary_data:
+            df_summary = pd.DataFrame(summary_data)
+            df_summary.to_csv(f"{export_dir}/results_summary.csv", index=False)
+            print(f"Exported summary results to {export_dir}/results_summary.csv")
+    
+    print(f"All data exported successfully to {export_dir}/")
+    return export_dir
 
 if __name__ == "__main__":
     visualize_results()
     visualize_example_count_performance()
     visualize_knk_scores()
+    export_data_for_paper()  # Add this line to export data
