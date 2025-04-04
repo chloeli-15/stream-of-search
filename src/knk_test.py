@@ -1,6 +1,6 @@
 import sys
 # sys.path.append('/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search')
-from finetune.run_adapter_model import load_model, generate, generate_batch
+# from finetune.run_adapter_model import load_model, generate, generate_batch
 from tqdm import tqdm
 import datasets
 import re
@@ -252,82 +252,82 @@ def visualize_results(all_results, output_dir="./results/visualizations"):
 
 
 if __name__ == "__main__":
-    # data_ = datasets.load_dataset("K-and-K/knights-and-knaves", name="train")
-    # context_len = 2048
-    # temperature = 0.7
+    data_ = datasets.load_dataset("K-and-K/knights-and-knaves", name="train")
+    context_len = 2048
+    temperature = 0.7
 
-    # keys = ["2ppl", "3ppl", "4ppl"]
-    # results = {}
-    # results['trajectories'] = {}
-    # results['scores'] = {}
+    keys = ["2ppl", "3ppl", "4ppl"]
+    results = {}
+    results['trajectories'] = {}
+    results['scores'] = {}
 
-    # for adapter in [
-    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k",
-    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k",
-    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k",
-    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k",
-    #     "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", 
-    #     "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k",
-    #     "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k",
-    #     ]:
-    #     if model: del model
-    #     if tokenizer: del tokenizer
-    #     batch_size=32
-    #     model, tokenizer = load_model(adapter)
-    #     model.eval()
-    #     model.cuda()
-    #     tokenizer.pad_token = tokenizer.eos_token
+    for adapter in [
+        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k",
+        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k",
+        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k",
+        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", 
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+        ]:
+        if model: del model
+        if tokenizer: del tokenizer
+        batch_size=32
+        model, tokenizer = load_model(adapter)
+        model.eval()
+        model.cuda()
+        tokenizer.pad_token = tokenizer.eos_token
 
-    #     def message_template(example_question):
-    #         return [{ "content": f"{example_question}.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\ \nRESULT: final_value\n```\nThe final_value should be statements separated by commas. For example, 'Michael is a knight, Zoey is a knight, and Ethan is a knight.'", "role": "user" }]
+        def message_template(example_question):
+            return [{ "content": f"{example_question}.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\ \nRESULT: final_value\n```\nThe final_value should be statements separated by commas. For example, 'Michael is a knight, Zoey is a knight, and Ethan is a knight.'", "role": "user" }]
 
-    #     for key in keys:
-    #         output_texts_concat = []
+        for key in keys:
+            output_texts_concat = []
 
-    #         data = data_[key]
-    #         data = data.map(lambda x: {
-    #             "test_prompt": message_template(x['quiz']) 
-    #         })
+            data = data_[key]
+            data = data.map(lambda x: {
+                "test_prompt": message_template(x['quiz']) 
+            })
             
-    #         # Generate completions for this batch
-    #         for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
-    #             chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
-    #             outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
-    #             output_texts_concat.extend(outputs)
+            # Generate completions for this batch
+            for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
+                chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
+                outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
+                output_texts_concat.extend(outputs)
 
-    #         # Add completions column to dataset
-    #         column_name = f"completions_{key}"
-    #         data = data.add_column(column_name, output_texts_concat)
+            # Add completions column to dataset
+            column_name = f"completions_{key}"
+            data = data.add_column(column_name, output_texts_concat)
             
-    #         # Evaluate completions
-    #         verified_column = f"verified_{key}"
-    #         discrepancies_column = f"discrepancies_{key}"
-    #         data = eval_dataset(data, column_name, verified_column, discrepancies_column)
+            # Evaluate completions
+            verified_column = f"verified_{key}"
+            discrepancies_column = f"discrepancies_{key}"
+            data = eval_dataset(data, column_name, verified_column, discrepancies_column)
             
-    #         # Calculate score
-    #         score = data[verified_column].count(True) / len(data) * 100
-    #         print(f"{key} score: {score:.2f}%")
+            # Calculate score
+            score = data[verified_column].count(True) / len(data) * 100
+            print(f"{key} score: {score:.2f}%")
             
-    #         # Store score and trajectories
-    #         results['scores'][key] = score
-    #         results['trajectories'][key] = []
+            # Store score and trajectories
+            results['scores'][key] = score
+            results['trajectories'][key] = []
             
-    #         # Create trajectory data using the correct column names for each key
-    #         for i in range(len(data)):
-    #             results['trajectories'][key].append({
-    #                 'completions': data[column_name][i],
-    #                 'verified': data[verified_column][i],
-    #                 'discrepancies': data[discrepancies_column][i]
-    #             })
+            # Create trajectory data using the correct column names for each key
+            for i in range(len(data)):
+                results['trajectories'][key].append({
+                    'completions': data[column_name][i],
+                    'verified': data[verified_column][i],
+                    'discrepancies': data[discrepancies_column][i]
+                })
 
-    #     savepath = f"./results/ood/{adapter}/knk.json"
-    #     os.makedirs(os.path.dirname(savepath), exist_ok=True)
-    #     with open(savepath, 'w') as f:
-    #         json.dump(results, f, indent=4)
+        savepath = f"./results/ood/{adapter}/knk.json"
+        os.makedirs(os.path.dirname(savepath), exist_ok=True)
+        with open(savepath, 'w') as f:
+            json.dump(results, f, indent=4)
     
     # After all models have been evaluated, visualize the results
-    print("\nGenerating visualizations...")
-    all_results = load_results()
-    visualize_results(all_results)
-    print("\nVisualizations saved to ./results/visualizations/")
+    # print("\nGenerating visualizations...")
+    # all_results = load_results()
+    # visualize_results(all_results)
+    # print("\nVisualizations saved to ./results/visualizations/")
 
