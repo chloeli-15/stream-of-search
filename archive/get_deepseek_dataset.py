@@ -10,6 +10,10 @@ from tqdm import tqdm
 import json
 from datasets import load_dataset
 import backoff  # Add backoff for robust API error handling
+import threading
+import queue
+import uuid
+from collections import defaultdict
 
 class OnlineLM:
     """Online language model using API services."""
@@ -29,14 +33,12 @@ class OnlineLM:
         )
     
     @backoff.on_exception(backoff.expo, Exception, max_tries=5)
-    def _fetch_response(self, message_data):
+    def _fetch_response(self, message, max_tokens):
         """Fetch a response from the API with exponential backoff retry."""
-        messages, max_tokens = message_data
-        
         try:
             chat_completion = self.openai.chat.completions.create(
                 model=self.model,
-                messages=messages,
+                messages=message,
                 max_tokens=max_tokens,
                 temperature=self.temperature if self.temperature > 0 else 0     
             )
@@ -47,53 +49,61 @@ class OnlineLM:
         except Exception as e:
             print(f"API error: {str(e)}")
             raise  # Let backoff handle the retry
-    
-    def generate(self, 
-                input_messages: List[Dict[str, Any]], 
-                max_new_tokens: int = 100, 
-                repeat_input: bool = False) -> Tuple[List[Any], Any]:
-        """Generate text using the API."""
-        
-        # Prepare batch of requests
-        request_data = []
-        for messages in input_messages:
-            request_data.append((messages, max_new_tokens))
-        
-        # Process in parallel
-        results = []
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            api_results = list(executor.map(self._fetch_response, request_data))
-            
-            for i, content in enumerate(api_results):
-                if repeat_input:
-                    # Append generation to the original message
-                    new_message = input_messages[i].copy()
-                    new_message[-1] = new_message[-1].copy()
-                    new_message[-1]['content'] += content
-                    results.append(new_message)
-                else:
-                    results.append(content)
-        
-        # For API compatibility, return both results and a metadata object
-        metadata = {"model": self.model, "online": True}
-        # Add proper rate limiting
-        time.sleep(0.5)  # More reasonable rate limiting for API calls
-        return results, metadata    
 
-def process_and_save_batch(model, batch, output_file, max_tokens):
-    """Process a batch of inputs and save results"""
-    responses, metadata = model.generate(
-        input_messages=batch['messages_deepseek'],
-        max_new_tokens=max_tokens,
-        repeat_input=True,
-    )
-    
-    # Save responses to file
-    with open(output_file, 'a') as f:
-        for response in responses:
-            f.write(json.dumps(response) + '\n')
-    
-    return len(batch['messages_deepseek'])
+def worker(task_queue, output_file, result_dict, pbar, model, max_tokens, lock):
+    """Worker function for processing tasks"""
+    while True:
+        try:
+            # Get a task from the queue
+            task = task_queue.get(block=False)
+            if task is None:  # None is our signal to stop
+                task_queue.put(None)  # Put it back for other workers
+                break
+                
+            idx, message = task
+            message_id = str(uuid.uuid4())  # Generate a unique ID for this message
+            
+            # Process the request
+            lm = model  # Use the shared model instance
+            try:
+                reasoning_content, content = lm._fetch_response(message, max_tokens)
+                
+                # Create response with original message
+                new_message = message.copy()
+                response_message = {
+                    'role': 'assistant',
+                    'content': content,
+                    'reasoning_content': reasoning_content
+                }
+                result = {
+                    'id': message_id, 
+                    'original_idx': idx,
+                    'messages': new_message + [response_message]
+                }
+                
+                # Write to file immediately
+                with lock:
+                    with open(output_file, 'a') as f:
+                        f.write(json.dumps(result) + '\n')
+                
+                # Store mapping for later alignment
+                with lock:
+                    result_dict[idx] = message_id
+                    pbar.update(1)
+                
+            except Exception as e:
+                print(f"Error processing task {idx}: {str(e)}")
+                # Put failed tasks back in the queue after a delay
+                time.sleep(1)
+                task_queue.put(task)
+                
+            # Small delay to control API rate
+            time.sleep(0.1)
+            
+        except queue.Empty:
+            break
+            
+    return True
 
 def main():
     parser = argparse.ArgumentParser(description='Generate responses from DeepSeek API')
@@ -101,8 +111,8 @@ def main():
                         help='API token for authentication')
     parser.add_argument('--output_file', type=str, default="./res/output.jsonl",
                         help='Path to output file')
-    parser.add_argument('--batch_size', type=int, default=200,
-                        help='Batch size for API requests')
+    parser.add_argument('--max_workers', type=int, default=100,
+                        help='Number of concurrent workers')
     parser.add_argument('--max_tokens', type=int, default=8192,
                         help='Maximum tokens for generation')
     parser.add_argument('--api_base_url', type=str, default="https://api.deepseek.com/v1",
@@ -111,37 +121,117 @@ def main():
                         help='Model name')
     parser.add_argument('--temperature', type=float, default=0,
                         help='Temperature for generation')
+    parser.add_argument('--resume_from', type=str, default=None,
+                        help='Path to a checkpoint file to resume from')
     
     args = parser.parse_args()
 
     # Initialize the model
     model = OnlineLM(args.model, args.api_token, args.api_base_url, temperature=args.temperature)
-    api = HfApi()
-
+    
     # Create output directory if it doesn't exist
     os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
-
+    
+    # Create a mapping file path for remapping results later
+    mapping_file = os.path.join(os.path.dirname(args.output_file), "mapping.json")
+    
     # Load the dataset
     print("Loading dataset from Hugging Face...")
-    data = load_dataset("MelinaLaimon/stream-of-search", split="train[90%:100%]")
+    data = load_dataset("MelinaLaimon/stream-of-search", split="train[0%:80%]")
 
-    data = data.map(lambda message:{
-            'messages_deepseek': [{'content': message['messages_sos'][0]['content'] + 
-                                 "\nNote that the solution does exist. Verify your solutions before your present your final results and backtrack to correct mistakes from before your mistakes if you have to.", 
-                                 'role': 'user'}]
-        }
-    )
-
-    # Process batches with progress bar
-    total_processed = 0
-    with tqdm(total=len(data)) as progress_bar:
-        for batch in data.iter(batch_size=args.batch_size):
-            batch_size = process_and_save_batch(model, batch, args.output_file, args.max_tokens)
-            total_processed += batch_size
-            progress_bar.update(batch_size)
-            print(f"Progress: {total_processed}/{len(data)} messages processed.")
-
-    print(f"Done! All {total_processed} messages processed and saved to {args.output_file}")
+    # Prepare the messages
+    print("Preparing messages...")
+    messages = []
+    for idx, example in enumerate(data):
+        message = [{
+            'content': example['messages_sos'][0]['content'] + 
+                     "\nNote that the solution does exist. Verify your solutions before your present your final results and backtrack to correct mistakes from before your mistakes if you have to.",
+            'role': 'user'
+        }]
+        messages.append((idx, message))
+    
+    # Resume logic
+    completed_tasks = {}
+    if args.resume_from and os.path.exists(args.resume_from) and os.path.exists(mapping_file):
+        print(f"Resuming from {args.resume_from}")
+        with open(mapping_file, 'r') as f:
+            completed_tasks = json.load(f)
+        print(f"Found {len(completed_tasks)} completed tasks")
+    
+    # Create a task queue
+    task_queue = queue.Queue()
+    
+    # Add tasks to the queue (skip completed ones if resuming)
+    skipped = 0
+    for idx, message in messages:
+        if str(idx) not in completed_tasks:
+            task_queue.put((idx, message))
+        else:
+            skipped += 1
+            
+    print(f"Skipped {skipped} already completed tasks")
+    print(f"Added {task_queue.qsize()} tasks to the queue")
+    
+    # Add sentinel values to stop workers
+    for _ in range(args.max_workers):
+        task_queue.put(None)
+    
+    # Create a thread lock for file access
+    lock = threading.Lock()
+    
+    # Setup progress bar
+    total_tasks = len(messages) - skipped
+    pbar = tqdm(total=total_tasks, desc="Processing requests")
+    
+    # Store results for remapping
+    result_dict = defaultdict(str)
+    # Add already completed tasks
+    for idx, message_id in completed_tasks.items():
+        result_dict[int(idx)] = message_id
+    
+    # Create and start worker threads
+    print(f"Starting {args.max_workers} workers...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.max_workers) as executor:
+        futures = []
+        for _ in range(args.max_workers):
+            future = executor.submit(
+                worker, task_queue, args.output_file, result_dict, 
+                pbar, model, args.max_tokens, lock
+            )
+            futures.append(future)
+        
+        # Wait for all workers to complete
+        concurrent.futures.wait(futures)
+    
+    pbar.close()
+    
+    # Save the mapping for potential future resumption
+    with open(mapping_file, 'w') as f:
+        json.dump(result_dict, f)
+    
+    print(f"Done! All tasks processed and saved to {args.output_file}")
+    print(f"Mapping saved to {mapping_file} for future reference")
+    
+    # Optional: Create an aligned version with original dataset order
+    print("Creating aligned dataset...")
+    aligned_file = args.output_file.replace('.jsonl', '_aligned.jsonl')
+    
+    # Load all results
+    results = {}
+    with open(args.output_file, 'r') as f:
+        for line in f:
+            item = json.loads(line)
+            results[item['id']] = item
+    
+    # Write aligned results
+    with open(aligned_file, 'w') as f:
+        for idx in range(len(messages)):
+            if str(idx) in result_dict:
+                message_id = result_dict[str(idx)]
+                if message_id in results:
+                    f.write(json.dumps(results[message_id]) + '\n')
+    
+    print(f"Aligned dataset saved to {aligned_file}")
 
 if __name__ == '__main__':
     main()

@@ -175,3 +175,5 @@ data_converted/
 # archive
 data
 models
+res
+bak-*
