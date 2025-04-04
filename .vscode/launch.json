@@ -164,6 +164,22 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
+        {
+        "name": "Debug run_sft.py",
+        "type": "python",
+        "request": "launch",
+        "program": "${workspaceFolder}/finetune/scripts/run_sft.py",
+        "args": ["./finetune/recipes/qwen-2.5/sft/config_deepseek_1k.yaml"],
+        "env": {
+            "task": "sft",
+            "model_name": "qwen-2.5",
+            "ACCELERATE_LOG_LEVEL": "info",
+            "WANDB_PROJECT": "stream-of-search-train",
+            "WANDB_ENTITY": "yeokch"
+        },
+        "console": "integratedTerminal",
+        "justMyCode": true
+        }
 
     ],
     "inputs": [

@@ -1,6 +1,6 @@
 import sys
 # sys.path.append('/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search')
-# from finetune.run_adapter_model import load_model, generate, generate_batch
+from finetune.run_adapter_model import load_model, generate, generate_batch
 from tqdm import tqdm
 import datasets
 import re
