@@ -336,7 +336,139 @@ def visualize_example_count_performance():
     plt.tight_layout(rect=[0, 0.05, 1, 0.95])
     plt.savefig("./results/example_count_performance.png", dpi=300, bbox_inches='tight')
     plt.close()
+
+def visualize_knk_scores():
+    """
+    Visualize the 2ppl, 3ppl, and 4ppl scores from knk.json files
+    """
+    # Store data by model and folder
+    knk_data = {}
     
+    # Find all knk.json files in qwen folders
+    for folder in glob.glob("./results/qwen*".lower()):
+        folder_name = os.path.basename(folder)
+        
+        # Extract model size and approach
+        parts = extract_parts(folder_name)
+        model_size = parts[0]
+        approach_type = parts[1]
+        
+        # Define the model key
+        model_key = f"{model_size}-{approach_type}"
+        
+        # Look for knk.json file
+        knk_file = os.path.join(folder, "knk.json")
+        if os.path.exists(knk_file):
+            with open(knk_file, "r") as f:
+                data = json.load(f)
+            
+            if "scores" in data:
+                scores = data["scores"]
+                
+                # Store the scores
+                if model_key not in knk_data:
+                    knk_data[model_key] = {}
+                
+                knk_data[model_key][folder_name] = {
+                    "2ppl": scores.get("2ppl", 0),
+                    "3ppl": scores.get("3ppl", 0),
+                    "4ppl": scores.get("4ppl", 0)
+                }
+                print(f"Added KNK scores for {model_key}, folder: {folder_name}")
+    
+    if not knk_data:
+        print("No KNK score data found.")
+        return
+    
+    # Get unique model keys and score types
+    model_keys = sorted(knk_data.keys())
+    score_types = ["2ppl", "3ppl", "4ppl"]
+    
+    # Create a figure for each score type
+    for score_type in score_types:
+        plt.figure(figsize=(12, 7))
+        
+        # Set up the bar positions
+        x = np.arange(len(model_keys))
+        width = 0.8
+        
+        # Calculate scores for each model
+        scores = []
+        for model_key in model_keys:
+            # Average the scores across all folders for this model
+            model_scores = [folder_data[score_type] for folder_data in knk_data[model_key].values()]
+            avg_score = np.mean(model_scores) if model_scores else 0
+            scores.append(avg_score)
+        
+        # Plot the bars
+        bars = plt.bar(x, scores, width=width, color=plt.cm.viridis(np.linspace(0, 0.8, len(model_keys))))
+        
+        # Add value labels
+        for bar, value in zip(bars, scores):
+            height = bar.get_height()
+            plt.text(bar.get_x() + bar.get_width()/2, height + 0.01,
+                    f"{value:.2f}", ha='center', va='bottom', fontsize=9)
+        
+        # Configure the plot
+        plt.xlabel('Models', fontsize=12)
+        plt.ylabel(f'{score_type} Score', fontsize=12)
+        plt.title(f'Model Performance - {score_type} Scores', fontsize=14)
+        plt.xticks(x, model_keys, rotation=45, ha='right')
+        plt.ylim(0, max(scores) * 1.1 + 0.1)  # Adjust y-axis limit based on data
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
+        
+        # Add a horizontal line at y=1.0 as a reference point
+        plt.axhline(y=1.0, color='r', linestyle='--', alpha=0.5, label="Score = 1.0")
+        
+        plt.tight_layout()
+        plt.savefig(f"./results/knk_{score_type}_scores.png", dpi=300, bbox_inches='tight')
+        plt.close()
+    
+    # Create a combined visualization with all score types
+    plt.figure(figsize=(14, 8))
+    
+    # Set up the bar positions
+    x = np.arange(len(model_keys))
+    bar_width = 0.8 / len(score_types)
+    colors = plt.cm.viridis(np.linspace(0, 0.8, len(score_types)))
+    
+    # Plot bars for each score type
+    for i, score_type in enumerate(score_types):
+        all_scores = []
+        for model_key in model_keys:
+            # Average the scores across all folders for this model
+            model_scores = [folder_data[score_type] for folder_data in knk_data[model_key].values()]
+            avg_score = np.mean(model_scores) if model_scores else 0
+            all_scores.append(avg_score)
+        
+        offset = i - (len(score_types) - 1) / 2
+        x_pos = x + offset * bar_width
+        
+        bars = plt.bar(x_pos, all_scores, width=bar_width, label=score_type, color=colors[i])
+        
+        # Add value labels
+        for bar, value in zip(bars, all_scores):
+            height = bar.get_height()
+            if height > 0:  # Only label non-zero bars
+                plt.text(bar.get_x() + bar.get_width()/2, height + 0.01,
+                        f"{value:.2f}", ha='center', va='bottom', fontsize=8)
+    
+    # Configure the plot
+    plt.xlabel('Models', fontsize=12)
+    plt.ylabel('KNK Scores', fontsize=12)
+    plt.title('Model Performance - All KNK Scores', fontsize=14)
+    plt.xticks(x, model_keys, rotation=45, ha='right')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.axhline(y=1.0, color='r', linestyle='--', alpha=0.5, label="Score = 1.0")
+    
+    # Add legend
+    plt.legend(title='Score Types')
+    
+    plt.tight_layout()
+    plt.savefig("./results/knk_all_scores.png", dpi=300, bbox_inches='tight')
+    plt.close()
+
 if __name__ == "__main__":
     visualize_results()
     visualize_example_count_performance()
+    visualize_knk_scores()
