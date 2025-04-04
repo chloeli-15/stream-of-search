@@ -1,16 +1,12 @@
 model,approach,success_rate,sample_size,file,folder
 0.5B-,o3-1k,0.0078125,128,test_128_20250330-195109.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k
 1.5B-,o3-1k,0.013020833333333334,128,test_128_20250330-164311.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-o3-1k
-1.5B-,search-react-5k,0.3984375,128,test_128_20250401-132051.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k
 1.5B-,search-long-1k,0.328125,128,test_128_20250401-123936.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-long-1k
 0.5B-,search-1k,0.140625,128,test_128_20250331-062021.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k
 1.5B-,optimal-seq8k-5k,0.0546875,128,test_128_20250401-224329.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k
 0.5B-,optimal-1k,0.010416666666666666,128,test_128_20250330-235123.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k
 0.5B-,search-react-1k,0.03125,128,test_128_20250331-043701.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k
 0.5B-,o3-5k,0.0,128,test_128_20250330-173225.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k
-1.5B-,search-1k,0.46875,128,test_128_20250401-122421.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k
-1.5B-,search-react-1k,0.390625,128,test_128_20250401-122436.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k
-1.5B-,search-5k,0.5390625,128,test_128_20250401-123534.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k
 0.5B-,optimal-seq8k-5k,0.0234375,128,test_128_20250401-224033.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k
 0.5B-,search-seq8k-5k,0.40625,32,test_32_20250402-202327.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k
 0.5B-,search-react-seq8k-5k,0.1875,32,test_32_20250402-203110.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-seq8k-5k
@@ -18,4 +14,4 @@ model,approach,success_rate,sample_size,file,folder
 1.5B-,search-react-seq8k-5k,0.40625,32,test_32_20250403-044726.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k
 1.5B-,search-react-seq8k-5k,0.375,128,test_128_20250404-164930.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k
 0.5B-,search-react-correct-seq10k-5k,0.0078125,128,test_128_20250404-042128.json,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k
-1.5B-,sos_react-1k,0.328125,128,test_128_20250404-160335.json,qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k
+0.5B-Instruct,base_model,0.0,128,test_128_20250404-180326.json,qwen2.5-0.5B-Instruct-countdown-

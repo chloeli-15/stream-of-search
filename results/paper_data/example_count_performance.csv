@@ -1,13 +1,9 @@
 model_size,approach,num_examples,dataset_size,success_rate,sample_size,file
+1.5B-Instruct-countdown-,base_model,3,128,0.03125,128,countdown_3num_128_20250404-010809.json
+1.5B-Instruct-countdown-,base_model,5,128,0.0,128,countdown_5num_128_20250404-011155.json
 1.5B,search-seq8k-5k,3,128,0.578125,128,countdown_3num_128_20250403-183154.json
 1.5B,search-seq8k-5k,5,128,0.0,128,countdown_5num_128_20250403-171417.json
 1.5B,search-react-seq8k-5k,3,128,0.4453125,128,countdown_3num_128_20250404-161519.json
 1.5B,search-react-seq8k-5k,5,32,0.03125,32,countdown_5num_32_20250403-040504.json
 1.5B,search-react-seq8k-5k,3,128,0.5078125,128,countdown_3num_128_20250403-082141.json
 1.5B,search-react-correct-seq10k-5k,3,128,0.625,128,countdown_3num_128_20250404-110225.json
-1.5B-Instruct,base_model,3,128,0.03125,128,countdown_3num_128_20250403-192831.json
-1.5B-Instruct,base_model,5,128,0.0,128,countdown_5num_128_20250403-193216.json
-1.5B-Instruct,base_model,3,128,0.03125,128,countdown_3num_128_20250404-010809.json
-1.5B-Instruct,base_model,5,128,0.0,128,countdown_5num_128_20250404-011155.json
-1.5B,deepseek-1k,3,128,0.21875,128,countdown_3num_128_20250404-163937.json
-1.5B,sos_react-1k,3,128,0.6015625,128,countdown_3num_128_20250404-111653.json

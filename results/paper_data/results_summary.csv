@@ -8,13 +8,9 @@ model,approach,avg_success_rate,total_samples,score_2ppl,score_3ppl,score_4ppl
 0.5B-,search-react-correct-seq10k-5k,0.0078125,128,0,0,0
 0.5B-,search-react-seq8k-5k,0.1875,32,0,0,0
 0.5B-,search-seq8k-5k,0.40625,32,0,0,0
+0.5B-Instruct,base_model,0.0,128,0,0,0
 1.5B-,o3-1k,0.013020833333333334,128,0,0,0
 1.5B-,optimal-seq8k-5k,0.0546875,128,0,0,0
-1.5B-,search-1k,0.46875,128,0,0,0
-1.5B-,search-5k,0.5390625,128,0,0,0
 1.5B-,search-long-1k,0.328125,128,0,0,0
-1.5B-,search-react-1k,0.390625,128,0,0,0
-1.5B-,search-react-5k,0.3984375,128,0,0,0
 1.5B-,search-react-seq8k-5k,0.390625,160,0,0,0
 1.5B-,search-seq8k-5k,0.4921875,128,0,0,0
-1.5B-,sos_react-1k,0.328125,128,0,0,0
