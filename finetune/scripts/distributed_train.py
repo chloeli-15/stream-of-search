@@ -124,7 +124,7 @@ def main():
         hostnames = ["local"]
     else:
         # Get available hosts with GPUs
-        hostnames = look_for_gpu()
+        hostnames = look_for_gpu("1")
         print(f"Found {len(hostnames)} hosts with GPUs: {', '.join(hostnames)}")
     
     config_files = glob.glob(os.path.join(args.config_folder, "*.yaml"))

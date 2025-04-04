@@ -5,12 +5,13 @@ import time
 
 #  "whitebait", "vimba" 
 gpu_3090 = [
+    # "eider", "gerssingham", "cackling", "shelduck",
     "gadwall", "mallard", "gressingham", "mandarin"
     "aylesbury", "barnacle", "cackling",
     "eider", "gadwall", "pintail",
     "mallard", "mandarin", "pintail", "pochard", "ruddy",
-    "scaup", "scoter", "shelduck", "shoveler", "smew", 
-    # "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested" # "harlequin", 
+    "scaup", "shelduck", "shoveler", "smew", 
+    # "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", "scoter"
     ]
     
 gpu_4070 = [

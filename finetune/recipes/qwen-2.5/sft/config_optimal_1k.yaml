@@ -74,22 +74,22 @@ chat_template: |
 
 # These fields will be modified by the script
 dataset_mixer:
-  MelinaLaimon/stream-of-search: 0.5
+  yeok/stream-of-search-dataset_deepseek: 1.0
 dataset_splits:
-- train
+- train_optimal
 - test
 preprocessing_num_workers: 12
-dataset_message_key: messages_optimal
+dataset_message_key: messages
 
 # SFT trainer config
 bf16: true
-do_eval: true
+do_eval: false
 eval_strategy: epoch
 gradient_accumulation_steps: 8
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-5k
+hub_model_id: qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k
 hub_strategy: every_save
 learning_rate: 0.0002
 log_level: info
@@ -99,10 +99,10 @@ lr_scheduler_type: cosine
 max_seq_length: 8192
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-5k
-logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-5k
+output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k
+logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k
 overwrite_output_dir: true
-per_device_eval_batch_size: 1
+per_device_eval_batch_size: 4
 per_device_train_batch_size: 1
 push_to_hub: true
 report_to:
@@ -113,4 +113,4 @@ save_total_limit: 1
 seed: 42
 warmup_ratio: 0.1
 evaluate_and_plot: true
-eval_num_samples: 64
+eval_num_samples: 128

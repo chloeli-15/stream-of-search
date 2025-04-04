@@ -1,10 +1,7 @@
-# Model arguments
-model_name_or_path: Qwen/Qwen2.5-1.5B-Instruct 
+model_name_or_path: Qwen/Qwen2.5-1.5B-Instruct
 model_revision: main
 torch_dtype: bfloat16
 attn_implementation: flash_attention_2
-
-# LoRA arguments
 load_in_4bit: false
 use_peft: true
 lora_r: 16
@@ -18,8 +15,6 @@ lora_target_modules:
 - gate_proj
 - up_proj
 - down_proj
-
-# Data training arguments
 chat_template: |
   {%- if tools %}
     {{- '<|im_start|>system\n' }}
@@ -76,47 +71,47 @@ chat_template: |
       {{- '<|im_start|>assistant\n' }}
   {%- endif %}
 
+
 # These fields will be modified by the script
 dataset_mixer:
-  MelinaLaimon/stream-of-search: 0.5
+  yeok/stream-of-search-dataset_deepseek: 1.0
 dataset_splits:
-- train
+- train_deepseek
 - test
+
 preprocessing_num_workers: 12
-dataset_message_key: messages_sos
+dataset_message_key: messages
 
 # SFT trainer config
 bf16: true
 do_eval: false
-eval_strategy: "epoch" 
+eval_strategy: epoch
 gradient_accumulation_steps: 8
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-1.5B-instruct-sft-lora
+hub_model_id: qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k
 hub_strategy: every_save
-learning_rate: 2.0e-04
+learning_rate: 0.0002
 log_level: info
-logging_steps: 5  
+logging_steps: 5
 logging_strategy: steps
 lr_scheduler_type: cosine
 max_seq_length: 8192
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/output
-logging_dir: ./logs/output
+output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k
+logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k
 overwrite_output_dir: true
 per_device_eval_batch_size: 4
 per_device_train_batch_size: 1
 push_to_hub: true
 report_to:
 - wandb
-save_strategy: "steps"
+save_strategy: steps
 save_steps: 100
 save_total_limit: 1
 seed: 42
 warmup_ratio: 0.1
-
-
 evaluate_and_plot: true
-eval_num_samples: 128 # make sure this is multiple of per_device_eval_batch_size
+eval_num_samples: 128
