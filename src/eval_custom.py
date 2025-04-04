@@ -139,12 +139,17 @@ def custom_eval(args=None):
         
     if args.upload_results:
         run_name = args.experiment_name if args.experiment_name else datetime.now().strftime("%Y%m%d-%H%M%S")
-        wandb.init(
-            project=args.wandb_project,
-            entity=args.wandb_entity,
-            name=run_name,
-            config=vars(args)
-        )
+        try:
+            wandb.init(
+                project=args.wandb_project,
+                entity=args.wandb_entity,
+                name=run_name,
+                config=vars(args)
+            )
+        except Exception as e:
+            print(f"Error initializing wandb: {e}")
+            args.upload_results = False
+            print("Wandb logging disabled.")
         
     torch.manual_seed(args.seed)
     
@@ -175,10 +180,13 @@ def custom_eval(args=None):
         keys = data_all.keys()
         
         # if it is the regular split, reverse the order so we get test results first
-        if set(keys) == set(['train', 'test']):
-            keys = ["test"]
-        elif keys == ["countdown_3num", "countdown_5num"]:
-            pass        
+
+        if "ood" in args.dataset_name: 
+            keys = ["countdown_3num", "countdown_5num"]
+        else: 
+            keys=["test"]             
+
+        print("Keys to evaluate:", keys)
             
         for split in keys: # keys:
             results_all_trials = []
@@ -202,6 +210,9 @@ def custom_eval(args=None):
                     data = data.map(lambda x: { # type: ignore
                         'test_prompt': [{"content": x['user_prompt'], "role": "user"}],
                     })
+                else:
+                    raise ValueError(f"Unknown split: {split}")
+
                 results = []
                 completions = eval_ll(model, tokenizer, data, batch_size=args.batch_size, context_len=args.ctx, temperature=args.temperature, n=args.gens)
                 # parse into list of dictionaries

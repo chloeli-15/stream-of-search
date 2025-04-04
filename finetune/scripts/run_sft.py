@@ -102,16 +102,23 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=[data_args.dataset_message_key, "chosen", "rejected", "prompt", "completion", "label"],
+        columns_to_keep=['messages', 'nums', 'target', 'solution'],
     )
+    
+    # Rename the split with the word "train" in it to "train"
+    for split in raw_datasets:
+        if "train" in split:
+            raw_datasets["train"] = raw_datasets[split]
+            break
+
     logger.info(
         f"Training on the following datasets and their proportions: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
     )
 
-    # Rename messages_o3 to messages
-    for split in raw_datasets:
-        if data_args.dataset_message_key in raw_datasets[split].column_names:
-            raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
+    # # Rename messages_o3 to messages
+    # for split in raw_datasets:
+    #     if data_args.dataset_message_key in raw_datasets[split].column_names:
+    #         raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
 
     # Filter out examples where messages is None
     for split in raw_datasets:
@@ -178,7 +185,7 @@ def main():
     # )
 
     train_dataset = raw_datasets["train"]
-    eval_dataset = raw_datasets["test"] if training_args.do_eval else None
+    eval_dataset = raw_datasets["test"] if training_args.do_eval else None # 
 
     with training_args.main_process_first(desc="Log a few random samples from the processed training set"):
         for index in random.sample(range(len(raw_datasets["train"])), 3):

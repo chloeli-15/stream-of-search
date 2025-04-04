@@ -1,1 +1,1 @@
-./train_distributed.py
+python ./finetune/scripts/distributed_train.py

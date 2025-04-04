@@ -1,44 +1,19 @@
 {
     "models_messages_field_pairs":{
-        "3": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search-ood"],
-        "7": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"]
-    },
-
-    "not used": {        
+        "2": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search"],
+        "3": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search-ood"],
+        "0": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search-ood"],
+        "1": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search"],
+        "8": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         
-        "0": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 32, "MelinaLaimon/stream-of-search-ood"],
-        "2": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search-ood"],
-        "4": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 32, "MelinaLaimon/stream-of-search"],
-        "6": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages_sos_react", 128, "MelinaLaimon/stream-of-search"],
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k": "messages_sos",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k": "messages_sos_react",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k": "messages_sos",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k": "messages_sos",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k": "messages_sos",
-
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-5k": "messages_sos_react",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k": "messages_sos_react",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k": "messages_sos",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-5k": "messages_sos",
+        "4": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k", "messages", 128, "yeok/stream-of-search-dataset_deepseek"],
+        "5": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k", "messages", 128, "yeok/stream-of-search-dataset_deepseek"],
+        "6": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k", "messages", 128, "yeok/stream-of-search-dataset_deepseek"],
+        "7": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k", "messages", 128, "yeok/stream-of-search-dataset_deepseek"],
         
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-long-1k": "messages_sos",
-
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k": "messages_sos_react",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k": "messages_sos",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k": "messages_sos",       
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k": "messages_sos",        
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
-
-
-        
-
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k": "messages_sos",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-5k": "messages_sos",
-
-        "Qwen/Qwen2.5-0.5B-Instruct": "messages_sos",
-        "Qwen/Qwen2.5-1.5B-Instruct": "messages_sos"
+        "9": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "10": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "11": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "12": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
     }
 }
