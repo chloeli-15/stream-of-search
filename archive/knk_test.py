@@ -1,14 +1,36 @@
-# qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k
 import sys
-sys.path.append('/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search')
-from finetune.run_adapter_model import load_model, generate, generate_batch, load_model_from_hub
-
+# sys.path.append('/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search')
+from finetune.run_adapter_model import load_model, generate, generate_batch
 from tqdm import tqdm
 import datasets
-data_ = datasets.load_dataset("K-and-K/knights-and-knaves", name="train")
+import re
+import json
+import os
+import glob
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from pathlib import Path
 
-def message_template(example_question):
-    return [{ "content": f"{example_question}.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\ \nRESULT: final_value\n```\nThe final_value should be statements separated by commas. For example, 'Michael is a knight, Zoey is a knight, and Ethan is a knight.'", "role": "user" }]
+def extract_parts(string):
+    # Try the original pattern for folders with "countdown-"
+    pattern1 = re.compile(r'(\d+\.\d+B).*countdown-(.+?)$')
+    match = pattern1.search(string)
+    
+    if match:
+        return [match.group(1), match.group(2)]
+    
+    string = string.lower()
+    # Pattern for folders like "Qwen2.5-1.5B-Instruct"
+    pattern2 = re.compile(r'qwen\d+\.\d+-(\d+\.\d+B)-instruct', re.IGNORECASE)
+    match = pattern2.search(string)
+    
+    if match:
+        return [match.group(1), "base_model"]
+    
+    # If no pattern matches, return default values
+    return ["unknown", "unknown"]
+
 
 def verify_solution_text(names, solution, solution_text):
     """
@@ -64,7 +86,7 @@ def verify_solution_text(names, solution, solution_text):
     
     return len(discrepancies) == 0, discrepancies
 
-# use the results to update the verified and discrepancies column of the data_[key]_[key]set
+
 def eval_dataset(data, field='solution_text', verified_col='verified', discrepancies_col='discrepancies'):
     """
     Updates the dataset with verification results.
@@ -90,205 +112,222 @@ def eval_dataset(data, field='solution_text', verified_col='verified', discrepan
     
     return data
 
-def visualize_example_count_performance():
+
+def load_results(results_dir="./results/ood"):
     """
-    Visualize model performance by number of examples (3num vs 5num),
-    clustered by example count with model types within each cluster
+    Load all KnK results from the results directory.
+    
+    Args:
+        results_dir: Directory containing results folders
+        
+    Returns:
+        Dictionary mapping adapter names to their results
     """
-    # Store data by example count and model type
-    data_by_example_count = {}
+    all_results = {}
     
-    # Find all relevant JSON files in qwen folders
-    for folder in glob.glob("./results/qwen*".lower()):
-        folder_name = os.path.basename(folder)
+    # Find all knk.json files
+    knk_files = glob.glob(f"{results_dir}/**/knk.json", recursive=True)
+    
+    for file_path in knk_files:
+        # Extract adapter name from path
+        adapter_name = file_path.split(results_dir + '/')[1].split('/knk.json')[0]
         
-        # Extract model size
-        model_size = folder_name.split("-instruct")[0].split("2.5-")[-1]
+        # Load the JSON data
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            
+        all_results[adapter_name] = data
         
-        # Extract approach type (search-seq8k vs search-react-seq8k)
-        approach_match = re.search(r'countdown-(search-[^_-]+)', folder_name)
-        if approach_match:
-            approach_type = approach_match.group(1)
-        else:
-            # Fallback to a more general pattern
-            approach_match = re.search(r'countdown-([^_]+)', folder_name)
-            approach_type = approach_match.group(1) if approach_match else "unknown"
-            
-        model_key = f"{model_size}-{approach_type}"
+    return all_results
+
+
+def visualize_results(all_results, output_dir="./results/visualizations"):
+    """
+    Create visualizations comparing the performance of different models.
+    
+    Args:
+        all_results: Dictionary mapping adapter names to their results
+        output_dir: Directory to save visualizations
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Extract scores and model info
+    model_data = []
+    
+    for adapter, results in all_results.items():
+        model_size, model_type = extract_parts(adapter)
         
-        for file in glob.glob(f"{folder}/countdown_*.json"):
-            with open(file, "r") as f:
-                data = json.load(f)
-            
-            hyperparams = data[0]['hyperparams']
-            mean_success_rate = data[1]['mean']
-            sample_size = hyperparams['num']
-            
-            # Extract example count from filename
-            filename = os.path.basename(file)
-            example_count_match = re.search(r'countdown_(\d+)num_(\d+)', filename)
-            
-            if example_count_match:
-                example_count = int(example_count_match.group(1))
-                dataset_size = int(example_count_match.group(2))
-                
-                # Store data grouped by example count first
-                example_key = f"{example_count}num"
-                if example_key not in data_by_example_count:
-                    data_by_example_count[example_key] = {}
-                
-                if model_key not in data_by_example_count[example_key]:
-                    data_by_example_count[example_key][model_key] = []
-                
-                data_by_example_count[example_key][model_key].append({
-                    'success_rate': mean_success_rate,
-                    'sample_size': sample_size,
-                    'dataset_size': dataset_size,
-                    'file': filename
-                })
+        for key in results['scores']:
+            score = results['scores'][key]
+            model_data.append({
+                'Adapter': adapter,
+                'Model Size': model_size,
+                'Model Type': model_type,
+                'Dataset': key,
+                'Score': score
+            })
     
-    # Create visualization if we have data
-    if not data_by_example_count:
-        print("No example count data found.")
-        return
+    # Convert to DataFrame for easier manipulation
+    df = pd.DataFrame(model_data)
     
-    # Sort example counts and model types
-    example_counts = sorted(data_by_example_count.keys())
-    all_model_types = sorted(set(model for example_data in data_by_example_count.values() 
-                                for model in example_data.keys()))
-    
-    # Create figure for bar chart
+    # Create visualizations
+    # 1. Bar chart comparing models across datasets
     plt.figure(figsize=(14, 8))
     
-    # Set up the bar positions
-    x = np.arange(len(example_counts))
-    bar_width = 0.8 / len(all_model_types)
-    colors = plt.cm.tab10(np.linspace(0, 1, len(all_model_types)))
-    
-    # Plot bars grouped by example count, with model types within each cluster
-    for i, model_type in enumerate(all_model_types):
-        avg_rates = []
-        sample_sizes = []
+    # Group by model type and dataset
+    for i, dataset in enumerate(["2ppl", "3ppl", "4ppl"]):
+        dataset_df = df[df['Dataset'] == dataset]
         
-        for count in example_counts:
-            if count in data_by_example_count and model_type in data_by_example_count[count]:
-                runs = data_by_example_count[count][model_type]
-                avg_rate = np.mean([run['success_rate'] for run in runs])
-                avg_rates.append(avg_rate)
-                max_sample = max([run['sample_size'] for run in runs])
-                sample_sizes.append(max_sample)
-            else:
-                avg_rates.append(0)
-                sample_sizes.append(0)
+        plt.subplot(1, 3, i+1)
         
-        # Position bars within each cluster
-        offset = i - (len(all_model_types) - 1) / 2
-        x_pos = x + offset * bar_width
+        # Sort by model size, then type
+        sorted_df = dataset_df.sort_values(['Model Size', 'Model Type'])
         
-        # Plot the bars
-        bars = plt.bar(x_pos, avg_rates, width=bar_width, label=model_type, color=colors[i])
+        # Create bar chart
+        bars = plt.bar(range(len(sorted_df)), sorted_df['Score'], color='skyblue')
         
-        # Add value labels
-        for bar, value, sample in zip(bars, avg_rates, sample_sizes):
-            height = bar.get_height()
-            if height > 0:
-                plt.text(bar.get_x() + bar.get_width()/2, height + 0.01,
-                        f"{value:.2f}\nn={sample}", ha='center', va='bottom', 
-                        fontsize=8)
+        # Add model info as labels
+        plt.xticks(range(len(sorted_df)), 
+                  [f"{row['Model Size']}\n{row['Model Type']}" for _, row in sorted_df.iterrows()], 
+                  rotation=90)
+        
+        plt.title(f"Knights and Knaves - {dataset}")
+        plt.ylabel("Accuracy (%)")
+        plt.ylim(0, 105)  # Leave some space at the top
+        
+        # Add score values on top of bars
+        for j, bar in enumerate(bars):
+            plt.text(bar.get_x() + bar.get_width()/2, 
+                    bar.get_height() + 1, 
+                    f"{sorted_df['Score'].iloc[j]:.1f}%", 
+                    ha='center')
     
-    # Configure the plot
-    plt.xlabel('Number of Examples in Input', fontsize=12)
-    plt.ylabel('Success Rate', fontsize=12)
-    plt.title('Model Performance by Number of Examples', fontsize=14)
-    plt.xticks(x, example_counts)
-    plt.ylim(0, 1)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.axhline(y=0.5, color='r', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/knk_comparison_by_dataset.png", dpi=300, bbox_inches='tight')
     
-    # Add legend
-    plt.legend(title='Model Types', loc='upper center', bbox_to_anchor=(0.5, -0.1), 
-              ncol=min(3, len(all_model_types)))
+    # 2. Heatmap of model performance
+    plt.figure(figsize=(12, 8))
     
-    # Adjust layout and save
-    plt.tight_layout(rect=[0, 0.05, 1, 0.95])
-    plt.savefig("./results/example_count_performance.png", dpi=300, bbox_inches='tight')
-    plt.close()
+    # Pivot data for heatmap
+    heatmap_data = df.pivot_table(
+        index=['Model Size', 'Model Type'], 
+        columns='Dataset', 
+        values='Score'
+    )
+    
+    # Sort by model size
+    model_sizes = ['0.5B', '1.5B']
+    heatmap_data = heatmap_data.reindex(
+        pd.MultiIndex.from_product([model_sizes, heatmap_data.index.get_level_values('Model Type').unique()]), 
+        names=['Model Size', 'Model Type']
+    )
+    
+    # Create heatmap
+    plt.imshow(heatmap_data, cmap='viridis', aspect='auto')
+    
+    # Add labels
+    plt.colorbar(label='Accuracy (%)')
+    plt.xticks(range(len(heatmap_data.columns)), heatmap_data.columns)
+    plt.yticks(range(len(heatmap_data.index)), 
+              [f"{idx[0]} - {idx[1]}" for idx in heatmap_data.index])
+    
+    # Add text annotations
+    for i in range(len(heatmap_data.index)):
+        for j in range(len(heatmap_data.columns)):
+            value = heatmap_data.iloc[i, j]
+            if not pd.isna(value):
+                plt.text(j, i, f"{value:.1f}%", ha='center', va='center', 
+                        color='white' if value < 50 else 'black')
+    
+    plt.title('Knights and Knaves Performance by Model and Dataset')
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/knk_heatmap.png", dpi=300, bbox_inches='tight')
+    
+    # Print summary statistics
+    print("\nModel Performance Summary:")
+    print("-------------------------")
+    print(df.groupby(['Model Size', 'Model Type'])['Score'].mean().sort_values(ascending=False))
+    
+    return df
+
 
 if __name__ == "__main__":
-    adapters= [
-            "Qwen/Qwen2.5-1.5B-Instruct",
-            "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-1k",
-            "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-1k"
-        ]
-        
-    CTX = 512
-    for adapter in adapters:
-        if 'react' in adapter:
-            context_len = CTX*2
-        else:
-            context_len = CTX
-            
-        batch_size=32
-        if "chloeli" in adapter:
-            model, tokenizer = load_model(adapter)
-        else:
-            model, tokenizer = load_model_from_hub(adapter)
-        model.eval()
-        model.cuda()
-        tokenizer.pad_token = tokenizer.eos_token
+    # data_ = datasets.load_dataset("K-and-K/knights-and-knaves", name="train")
+    # context_len = 2048
+    # temperature = 0.7
 
-        temperature = 0.7
+    # keys = ["2ppl", "3ppl", "4ppl"]
+    # results = {}
+    # results['trajectories'] = {}
+    # results['scores'] = {}
 
-        keys = ["2ppl", "3ppl"]
-        results = {}
-        results['trajectories'] = {}
-        results['scores'] = {}
+    # for adapter in [
+    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k",
+    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k",
+    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k",
+    #     "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k",
+    #     "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", 
+    #     "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k",
+    #     "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+    #     ]:
+    #     if model: del model
+    #     if tokenizer: del tokenizer
+    #     batch_size=32
+    #     model, tokenizer = load_model(adapter)
+    #     model.eval()
+    #     model.cuda()
+    #     tokenizer.pad_token = tokenizer.eos_token
 
-        for key in keys:
-            output_texts_concat = []
+    #     def message_template(example_question):
+    #         return [{ "content": f"{example_question}.\nConclude with the final result in EXACTLY this format:\n```\nSOLUTION: YES/NO\ \nRESULT: final_value\n```\nThe final_value should be statements separated by commas. For example, 'Michael is a knight, Zoey is a knight, and Ethan is a knight.'", "role": "user" }]
 
-            data = data_[key]
-            data = data.map(lambda x: {
-                "test_prompt": message_template(x['quiz']) 
-            })
-            
-            # Generate completions for this batch
-            for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
-                chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
-                outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
-                output_texts_concat.extend(outputs)
+    #     for key in keys:
+    #         output_texts_concat = []
 
-            # Add completions column to dataset
-            column_name = f"completions_{key}"
-            data = data.add_column(column_name, output_texts_concat)
+    #         data = data_[key]
+    #         data = data.map(lambda x: {
+    #             "test_prompt": message_template(x['quiz']) 
+    #         })
             
-            # Evaluate completions
-            verified_column = f"verified_{key}"
-            discrepancies_column = f"discrepancies_{key}"
-            data = eval_dataset(data, column_name, verified_column, discrepancies_column)
-            
-            # Calculate score
-            score = data[verified_column].count(True) / len(data) * 100
-            print(f"{key} score: {score:.2f}%")
-            
-            # Store score and trajectories
-            results['scores'][key] = score
-            results['trajectories'][key] = []
-            
-            # Create trajectory data using the correct column names for each key
-            for i in range(len(data)):
-                results['trajectories'][key].append({
-                    'completions': data[column_name][i],
-                    'verified': data[verified_column][i],
-                    'discrepancies': data[discrepancies_column][i]
-                })
+    #         # Generate completions for this batch
+    #         for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
+    #             chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
+    #             outputs = generate_batch(model, tokenizer, chat_inputs, max_new_tokens=context_len, temperature=temperature)
+    #             output_texts_concat.extend(outputs)
 
-        import json, os
-        savepath = f"./results/ood/{adapter}/knk.json"
-        os.makedirs(os.path.dirname(savepath), exist_ok=True)
-        with open(savepath, 'w') as f:
-            json.dump(results, f, indent=4)
+    #         # Add completions column to dataset
+    #         column_name = f"completions_{key}"
+    #         data = data.add_column(column_name, output_texts_concat)
             
+    #         # Evaluate completions
+    #         verified_column = f"verified_{key}"
+    #         discrepancies_column = f"discrepancies_{key}"
+    #         data = eval_dataset(data, column_name, verified_column, discrepancies_column)
+            
+    #         # Calculate score
+    #         score = data[verified_column].count(True) / len(data) * 100
+    #         print(f"{key} score: {score:.2f}%")
+            
+    #         # Store score and trajectories
+    #         results['scores'][key] = score
+    #         results['trajectories'][key] = []
+            
+    #         # Create trajectory data using the correct column names for each key
+    #         for i in range(len(data)):
+    #             results['trajectories'][key].append({
+    #                 'completions': data[column_name][i],
+    #                 'verified': data[verified_column][i],
+    #                 'discrepancies': data[discrepancies_column][i]
+    #             })
+
+    #     savepath = f"./results/ood/{adapter}/knk.json"
+    #     os.makedirs(os.path.dirname(savepath), exist_ok=True)
+    #     with open(savepath, 'w') as f:
+    #         json.dump(results, f, indent=4)
     
-    # Visualize example count performance
-    visualize_example_count_performance()
+    # After all models have been evaluated, visualize the results
+    print("\nGenerating visualizations...")
+    all_results = load_results()
+    visualize_results(all_results)
+    print("\nVisualizations saved to ./results/visualizations/")
+
