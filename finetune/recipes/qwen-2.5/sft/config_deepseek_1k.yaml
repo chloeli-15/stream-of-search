@@ -79,14 +79,14 @@ dataset_splits:
 - train_deepseek
 - test
 
-preprocessing_num_workers: 12
+preprocessing_num_workers: 8
 dataset_message_key: messages
 
 # SFT trainer config
 bf16: true
 do_eval: false
 eval_strategy: epoch
-gradient_accumulation_steps: 8
+gradient_accumulation_steps: 16
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
@@ -103,7 +103,7 @@ num_train_epochs: 1
 output_dir: ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k
 logging_dir: ./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k
 overwrite_output_dir: true
-per_device_eval_batch_size: 4
+per_device_eval_batch_size: 2
 per_device_train_batch_size: 1
 push_to_hub: true
 report_to:
