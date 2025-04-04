@@ -102,7 +102,7 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=['messages', 'nums', 'target', 'solution'],
+        columns_to_keep=["messages_sos_react", "chosen", "rejected", "prompt", "completion", "label"],
     )
     
     # Rename the split with the word "train" in it to "train"
@@ -117,8 +117,8 @@ def main():
 
     # # Rename messages_o3 to messages
     # for split in raw_datasets:
-    #     if data_args.dataset_message_key in raw_datasets[split].column_names:
-    #         raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
+    #     if "messages_sos_react" in raw_datasets[split].column_names:
+    #         raw_datasets[split] = raw_datasets[split].rename_column("messages_sos_react", "messages")
 
     # Filter out examples where messages is None
     for split in raw_datasets:
