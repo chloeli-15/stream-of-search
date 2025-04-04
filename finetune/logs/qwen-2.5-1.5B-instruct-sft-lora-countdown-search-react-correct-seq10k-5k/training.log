@@ -1,0 +1,1459 @@
+2025-04-03 22:44:10 - WARNING - __main__ - Process rank: 0, device: cuda:0, n_gpu: 1 distributed training: True, 16-bits training: False
+2025-04-03 22:44:10 - INFO - __main__ - Model parameters ModelArguments(base_model_revision=None, model_name_or_path='Qwen/Qwen2.5-1.5B-Instruct', model_revision='main', model_code_revision=None, torch_dtype='bfloat16', tokenizer_name_or_path=None, trust_remote_code=False, attn_implementation='flash_attention_2', use_peft=True, lora_r=16, lora_alpha=16, lora_dropout=0.05, lora_target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'], lora_modules_to_save=None, load_in_8bit=False, load_in_4bit=False, bnb_4bit_quant_type='nf4', use_bnb_nested_quant=False, bnb_4bit_quant_storage='uint8')
+2025-04-03 22:44:10 - INFO - __main__ - Data parameters DataArguments(chat_template='{%- if tools %}\n  {{- \'<|im_start|>system\\n\' }}\n  {%- if messages[0][\'role\'] == \'system\' %}\n      {{- messages[0][\'content\'] }}\n  {%- else %}\n      {{- \'You are Qwen, created by Alibaba Cloud. You are a helpful assistant.\' }}\n  {%- endif %}\n  {{- "\\n\\n# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>" }}\n  {%- for tool in tools %}\n      {{- "\\n" }}\n      {{- tool | tojson }}\n  {%- endfor %}\n  {{- "\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\"name\\": <function-name>, \\"arguments\\": <args-json-object>}\\n</tool_call><|im_end|>\\n" }}\n{%- else %}\n    {%- if messages[0][\'role\'] == \'system\' %}\n        {{- \'<|im_start|>system\\n\' + messages[0][\'content\'] + \'<|im_end|>\\n\' }}\n    {%- else %}\n        {{- \'<|im_start|>system\\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\\n\' }}\n    {%- endif %}\n{%- endif %}\n{%- for message in messages %}\n    {%- if (message.role == "user") or (message.role == "system" and not loop.first) or (message.role == "assistant" and not message.tool_calls) %}\n        {{- \'<|im_start|>\' + message.role + \'\\n\' + message.content + \'<|im_end|>\' + \'\\n\' }}\n    {%- elif message.role == "assistant" %}\n        {{- \'<|im_start|>\' + message.role }}\n        {%- if message.content %}\n            {{- \'\\n\' + message.content }}\n        {%- endif %}\n        {%- for tool_call in message.tool_calls %}\n            {%- if tool_call.function is defined %}\n                {%- set tool_call = tool_call.function %}\n            {%- endif %}\n            {{- \'\\n<tool_call>\\n{"name": "\' }}\n            {{- tool_call.name }}\n            {{- \'", "arguments": \' }}\n            {{- tool_call.arguments | tojson }}\n            {{- \'}\\n</tool_call>\' }}\n        {%- endfor %}\n        {{- \'<|im_end|>\\n\' }}\n    {%- elif message.role == "tool" %}\n        {%- if (loop.index0 == 0) or (messages[loop.index0 - 1].role != "tool") %}\n            {{- \'<|im_start|>user\' }}\n        {%- endif %}\n        {{- \'\\n<tool_response>\\n\' }}\n        {{- message.content }}\n        {{- \'\\n</tool_response>\' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != "tool") %}\n            {{- \'<|im_end|>\\n\' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- \'<|im_start|>assistant\\n\' }}\n{%- endif %}\n', dataset_mixer={'MelinaLaimon/stream-of-search-react-correct-5k': 1.0}, text_column='text', dataset_splits=['train'], dataset_configs=None, preprocessing_num_workers=12, truncation_side=None, auto_insert_empty_system_msg=True)
+2025-04-03 22:44:10 - INFO - __main__ - Training/evaluation parameters SFTConfig(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'non_blocking': False, 'gradient_accumulation_kwargs': None, 'use_configured_state': False},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+average_tokens_across_devices=False,
+batch_eval_metrics=False,
+bf16=True,
+bf16_full_eval=False,
+chars_per_token=<CHARS_PER_TOKEN>,
+data_seed=None,
+dataloader_drop_last=False,
+dataloader_num_workers=0,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+dataset_batch_size=None,
+dataset_kwargs=None,
+dataset_num_proc=None,
+dataset_text_field=text,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=None,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_on_start=False,
+eval_packing=None,
+eval_steps=None,
+eval_strategy=no,
+eval_use_gather_object=False,
+evaluation_strategy=None,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=2,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k,
+hub_model_revision=main,
+hub_private_repo=None,
+hub_strategy=every_save,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_for_metrics=[],
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=0.0002,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=info,
+log_level_replica=warning,
+log_on_each_node=True,
+logging_dir=./logs/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=5,
+logging_strategy=steps,
+lr_scheduler_kwargs={},
+lr_scheduler_type=cosine,
+max_grad_norm=1.0,
+max_seq_length=10000,
+max_steps=-1,
+metric_for_best_model=None,
+model_init_kwargs=None,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_of_sequences=None,
+num_train_epochs=1,
+optim=adamw_torch,
+optim_args=None,
+optim_target_modules=None,
+output_dir=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k,
+overwrite_output_dir=True,
+packing=False,
+past_index=-1,
+per_device_eval_batch_size=8,
+per_device_train_batch_size=4,
+prediction_loss_only=False,
+push_to_hub=True,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=['wandb'],
+restore_callback_states_from_checkpoint=False,
+resume_from_checkpoint=None,
+run_name=./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k,
+save_on_each_node=False,
+save_only_model=False,
+save_safetensors=True,
+save_steps=100,
+save_strategy=steps,
+save_total_limit=1,
+seed=42,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torch_empty_cache_steps=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_liger=False,
+use_liger_kernel=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_steps=0,
+weight_decay=0.0,
+)
+2025-04-03 22:44:13 - INFO - datasets.builder - Generating dataset stream-of-search-react-correct-5k (/root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce)
+2025-04-03 22:44:13 - INFO - datasets.builder - Downloading and preparing dataset stream-of-search-react-correct-5k/default to /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce...
+2025-04-03 22:44:14 - INFO - datasets.download.download_manager - Downloading took 0.0 min
+2025-04-03 22:44:14 - INFO - datasets.download.download_manager - Checksum Computation took 0.0 min
+2025-04-03 22:44:14 - INFO - datasets.builder - Generating train split
+2025-04-03 22:44:14 - INFO - datasets.utils.info_utils - All the splits matched successfully.
+2025-04-03 22:44:14 - INFO - datasets.builder - Dataset stream-of-search-react-correct-5k downloaded and prepared to /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce. Subsequent calls will reuse this data.
+2025-04-03 22:44:14 - INFO - datasets.arrow_dataset - Caching indices mapping at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-1dd6150b882b4095.arrow
+2025-04-03 22:44:14 - INFO - __main__ - Training on the following datasets and their proportions: ['train : 5000']
+2025-04-03 22:44:14 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-b88dca4d5a85fd97.arrow
+2025-04-03 22:44:14 - INFO - __main__ - After filtering out None and empty messages, train has 5000 examples
+2025-04-03 22:44:17 - INFO - __main__ - *** Load pretrained model ***
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #0 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00000_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #1 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00001_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #2 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00002_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #3 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00003_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #4 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00004_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #5 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00005_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #6 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00006_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #7 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00007_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #8 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00008_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #9 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00009_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #10 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00010_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Process #11 will write at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00011_of_00012.arrow
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Spawning 12 processes
+2025-04-03 22:44:18 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00000_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00001_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00002_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00003_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00004_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00005_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00006_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00007_of_00012.arrow
+2025-04-03 22:44:19 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00008_of_00012.arrow
+2025-04-03 22:44:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00009_of_00012.arrow
+2025-04-03 22:44:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00010_of_00012.arrow
+2025-04-03 22:44:20 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6107bc0a6eb239c7_00011_of_00012.arrow
+2025-04-03 22:44:20 - INFO - datasets.arrow_dataset - Concatenating 12 shards
+2025-04-03 22:44:20 - INFO - __main__ - Example prompt: <|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [96, 71, 24, 73] using only arithmetic operations (+, -, *, /) to reach the target value 73. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+We have these numbers [96, 71, 24, 73]. Our goal is to produce 73. Let's show the search process step by step:
+One possible strategy is to use a Depth-First Search (DFS) guided by a **sum-based** heuristic, which computes the average of the absolute differences between each number and the target number.
+Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.
+
+
+Current State #0: 73:[96, 71, 24, 73]. Operations so far : [].
+
+Thought    : Expand Node #0’s 1st child to build next frontier.
+Action     : Exploring operation 96-24=72. 
+Resulting numbers: [71, 73, 72].
+Heuristic score : (|71-73| + |73-73| + |72-73|)/3 = (2 + 0 + 1)/3 = 1.00
+Generated Node #0,0: 73:[71, 73, 72] Operation: 96-24=72
+
+Thought    : Expand Node #0,0’s 1st child to build next frontier.
+Action     : Exploring operation 71+72=143. 
+Resulting numbers: [73, 143].
+Heuristic score : (|73-73| + |143-73|)/2 = (0 + 70)/2 = 35.00
+Generated Node #0,0,0: 73:[73, 143] Operation: 71+72=143
+
+Thought    : Expand Node #0,0,0’s 1st child to build next frontier.
+Action     : Exploring operation 143-73=70. 
+Resulting numbers: [70].
+70,73 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 1.0
+Current State #0,0: 73:[71, 73, 72]. Operations so far : ['96-24=72'].
+
+Thought    : Expand Node #0,0’s 2nd child to build next frontier.
+Action     : Exploring operation 71+73=144. 
+Resulting numbers: [72, 144].
+Heuristic score : (|72-73| + |144-73|)/2 = (1 + 71)/2 = 36.00
+Generated Node #0,0,1: 73:[72, 144] Operation: 71+73=144
+
+Thought    : Expand Node #0,0,1’s 1st child to build next frontier.
+Action     : Exploring operation 144-72=72. 
+Resulting numbers: [72].
+72,73 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 1.0
+Current State #0,0: 73:[71, 73, 72]. Operations so far : ['96-24=72'].
+
+Thought    : Expand Node #0,0’s 3rd child to build next frontier.
+Action     : Exploring operation 73-71=2. 
+Resulting numbers: [72, 2].
+Heuristic score : (|72-73| + |2-73|)/2 = (1 + 71)/2 = 36.00
+Generated Node #0,0,2: 73:[72, 2] Operation: 73-71=2
+
+Thought    : Expand Node #0,0,2’s 1st child to build next frontier.
+Action     : Exploring operation 72+2=74. 
+Resulting numbers: [74].
+74,73 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 1.0
+Current State #0,0: 73:[71, 73, 72]. Operations so far : ['96-24=72'].
+
+Thought    : Expand Node #0,0’s 4th child to build next frontier.
+Action     : Exploring operation 72-71=1. 
+Resulting numbers: [73, 1].
+Heuristic score : (|73-73| + |1-73|)/2 = (0 + 72)/2 = 36.00
+Generated Node #0,0,3: 73:[73, 1] Operation: 72-71=1
+
+Thought    : Expand Node #0,0,3’s 1st child to build next frontier.
+Action     : Exploring operation 73*1=73. 
+Resulting numbers: [73].
+73,73 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['96-24=72', '72-71=1', '73*1=73']
+RESULT: 73
+```
+<|im_end|>
+
+2025-04-03 22:44:20 - INFO - __main__ - Sample 912 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [25, 92, 68, 17] using only arithmetic operations (+, -, *, /) to reach the target value 63. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+We have these numbers [25, 92, 68, 17]. Our goal is to produce 63. Let's show the search process step by step:
+One possible strategy is to use a Depth-First Search (DFS) guided by a **sum-based** heuristic, which computes the average of the absolute differences between each number and the target number.
+Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.
+
+
+Current State #0: 63:[25, 92, 68, 17]. Operations so far : [].
+
+Thought    : Expand Node #0’s 1st child to build next frontier.
+Action     : Exploring operation 92-25=67. 
+Resulting numbers: [68, 17, 67].
+Heuristic score : (|68-63| + |17-63| + |67-63|)/3 = (5 + 46 + 4)/3 = 18.33
+Generated Node #0,0: 63:[68, 17, 67] Operation: 92-25=67
+
+Thought    : Expand Node #0,0’s 1st child to build next frontier.
+Action     : Exploring operation 68-17=51. 
+Resulting numbers: [67, 51].
+Heuristic score : (|67-63| + |51-63|)/2 = (4 + 12)/2 = 8.00
+Generated Node #0,0,0: 63:[67, 51] Operation: 68-17=51
+
+Thought    : Expand Node #0,0,0’s 1st child to build next frontier.
+Action     : Exploring operation 67-51=16. 
+Resulting numbers: [16].
+16,63 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 18.333333333333332
+Current State #0,0: 63:[68, 17, 67]. Operations so far : ['92-25=67'].
+
+Thought    : Expand Node #0,0’s 2nd child to build next frontier.
+Action     : Exploring operation 67-17=50. 
+Resulting numbers: [68, 50].
+Heuristic score : (|68-63| + |50-63|)/2 = (5 + 13)/2 = 9.00
+Generated Node #0,0,1: 63:[68, 50] Operation: 67-17=50
+
+Thought    : Expand Node #0,0,1’s 1st child to build next frontier.
+Action     : Exploring operation 68-50=18. 
+Resulting numbers: [18].
+18,63 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 18.333333333333332
+Current State #0,0: 63:[68, 17, 67]. Operations so far : ['92-25=67'].
+
+Thought    : Expand Node #0,0’s 3rd child to build next frontier.
+Action     : Exploring operation 68+17=85. 
+Resulting numbers: [67, 85].
+Heuristic score : (|67-63| + |85-63|)/2 = (4 + 22)/2 = 13.00
+Generated Node #0,0,2: 63:[67, 85] Operation: 68+17=85
+
+Thought    : Expand Node #0,0,2’s 1st child to build next frontier.
+Action     : Exploring operation 85-67=18. 
+Resulting numbers: [18].
+18,63 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 18.333333333333332
+Current State #0,0: 63:[68, 17, 67]. Operations so far : ['92-25=67'].
+
+Thought    : Expand Node #0,0’s 4th child to build next frontier.
+Action     : Exploring operation 17+67=84. 
+Resulting numbers: [68, 84].
+Heuristic score : (|68-63| + |84-63|)/2 = (5 + 21)/2 = 13.00
+Generated Node #0,0,3: 63:[68, 84] Operation: 17+67=84
+
+Thought    : Expand Node #0,0,3’s 1st child to build next frontier.
+Action     : Exploring operation 84-68=16. 
+Resulting numbers: [16].
+16,63 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 18.333333333333332
+Current State #0,0: 63:[68, 17, 67]. Operations so far : ['92-25=67'].
+
+Thought    : Expand Node #0,0’s 5th child to build next frontier.
+Action     : Exploring operation 68/17=4. 
+Resulting numbers: [67, 4].
+Heuristic score : (|67-63| + |4-63|)/2 = (4 + 59)/2 = 31.50
+Generated Node #0,0,4: 63:[67, 4] Operation: 68/17=4
+
+Thought    : Expand Node #0,0,4’s 1st child to build next frontier.
+Action     : Exploring operation 67-4=63. 
+Resulting numbers: [63].
+63,63 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['92-25=67', '68/17=4', '67-4=63']
+RESULT: 63
+```
+<|im_end|>
+
+2025-04-03 22:44:20 - INFO - __main__ - Sample 204 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [12, 2, 85, 28] using only arithmetic operations (+, -, *, /) to reach the target value 67. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+We have these numbers [12, 2, 85, 28]. Our goal is to produce 67. Let's show the search process step by step:
+One possible strategy is to use a Depth-First Search (DFS) guided by a **sum-based** heuristic, which computes the average of the absolute differences between each number and the target number.
+Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.
+
+
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 1st child to build next frontier.
+Action     : Exploring operation 2*28=56. 
+Resulting numbers: [12, 85, 56].
+Heuristic score : (|12-67| + |85-67| + |56-67|)/3 = (55 + 18 + 11)/3 = 28.00
+Generated Node #0,0: 67:[12, 85, 56] Operation: 2*28=56
+
+Thought    : Expand Node #0,0’s 1st child to build next frontier.
+Action     : Exploring operation 85-12=73. 
+Resulting numbers: [56, 73].
+Heuristic score : (|56-67| + |73-67|)/2 = (11 + 6)/2 = 8.50
+Generated Node #0,0,0: 67:[56, 73] Operation: 85-12=73
+
+Thought    : Expand Node #0,0,0’s 1st child to build next frontier.
+Action     : Exploring operation 73-56=17. 
+Resulting numbers: [17].
+17,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 2nd child to build next frontier.
+Action     : Exploring operation 12+56=68. 
+Resulting numbers: [85, 68].
+Heuristic score : (|85-67| + |68-67|)/2 = (18 + 1)/2 = 9.50
+Generated Node #0,0,1: 67:[85, 68] Operation: 12+56=68
+
+Thought    : Expand Node #0,0,1’s 1st child to build next frontier.
+Action     : Exploring operation 85-68=17. 
+Resulting numbers: [17].
+17,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 3rd child to build next frontier.
+Action     : Exploring operation 12+85=97. 
+Resulting numbers: [56, 97].
+Heuristic score : (|56-67| + |97-67|)/2 = (11 + 30)/2 = 20.50
+Generated Node #0,0,2: 67:[56, 97] Operation: 12+85=97
+
+Thought    : Expand Node #0,0,2’s 1st child to build next frontier.
+Action     : Exploring operation 97-56=41. 
+Resulting numbers: [41].
+41,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 4th child to build next frontier.
+Action     : Exploring operation 56-12=44. 
+Resulting numbers: [85, 44].
+Heuristic score : (|85-67| + |44-67|)/2 = (18 + 23)/2 = 20.50
+Generated Node #0,0,3: 67:[85, 44] Operation: 56-12=44
+
+Thought    : Expand Node #0,0,3’s 1st child to build next frontier.
+Action     : Exploring operation 85-44=41. 
+Resulting numbers: [41].
+41,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 5th child to build next frontier.
+Action     : Exploring operation 85-56=29. 
+Resulting numbers: [12, 29].
+Heuristic score : (|12-67| + |29-67|)/2 = (55 + 38)/2 = 46.50
+Generated Node #0,0,4: 67:[12, 29] Operation: 85-56=29
+
+Thought    : Expand Node #0,0,4’s 1st child to build next frontier.
+Action     : Exploring operation 12+29=41. 
+Resulting numbers: [41].
+41,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 6th child to build next frontier.
+Action     : Exploring operation 85+56=141. 
+Resulting numbers: [12, 141].
+Heuristic score : (|12-67| + |141-67|)/2 = (55 + 74)/2 = 64.50
+Generated Node #0,0,5: 67:[12, 141] Operation: 85+56=141
+
+Thought    : Expand Node #0,0,5’s 1st child to build next frontier.
+Action     : Exploring operation 141-12=129. 
+Resulting numbers: [129].
+129,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 7th child to build next frontier.
+Action     : Exploring operation 12*56=672. 
+Resulting numbers: [85, 672].
+Heuristic score : (|85-67| + |672-67|)/2 = (18 + 605)/2 = 311.50
+Generated Node #0,0,6: 67:[85, 672] Operation: 12*56=672
+
+Thought    : Expand Node #0,0,6’s 1st child to build next frontier.
+Action     : Exploring operation 672-85=587. 
+Resulting numbers: [587].
+587,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 8th child to build next frontier.
+Action     : Exploring operation 12*85=1020. 
+Resulting numbers: [56, 1020].
+Heuristic score : (|56-67| + |1020-67|)/2 = (11 + 953)/2 = 482.00
+Generated Node #0,0,7: 67:[56, 1020] Operation: 12*85=1020
+
+Thought    : Expand Node #0,0,7’s 1st child to build next frontier.
+Action     : Exploring operation 1020-56=964. 
+Resulting numbers: [964].
+964,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 28.0
+Current State #0,0: 67:[12, 85, 56]. Operations so far : ['2*28=56'].
+
+Thought    : Expand Node #0,0’s 9th child to build next frontier.
+Action     : Exploring operation 85*56=4760. 
+Resulting numbers: [12, 4760].
+Heuristic score : (|12-67| + |4760-67|)/2 = (55 + 4693)/2 = 2374.00
+Generated Node #0,0,8: 67:[12, 4760] Operation: 85*56=4760
+
+Thought    : Expand Node #0,0,8’s 1st child to build next frontier.
+Action     : Exploring operation 4760-12=4748. 
+Resulting numbers: [4748].
+4748,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0 with lowest heuristic value 44.25
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 2nd child to build next frontier.
+Action     : Exploring operation 12*2=24. 
+Resulting numbers: [85, 28, 24].
+Heuristic score : (|85-67| + |28-67| + |24-67|)/3 = (18 + 39 + 43)/3 = 33.33
+Generated Node #0,1: 67:[85, 28, 24] Operation: 12*2=24
+
+Thought    : Expand Node #0,1’s 1st child to build next frontier.
+Action     : Exploring operation 28+24=52. 
+Resulting numbers: [85, 52].
+Heuristic score : (|85-67| + |52-67|)/2 = (18 + 15)/2 = 16.50
+Generated Node #0,1,0: 67:[85, 52] Operation: 28+24=52
+
+Thought    : Expand Node #0,1,0’s 1st child to build next frontier.
+Action     : Exploring operation 85-52=33. 
+Resulting numbers: [33].
+33,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 2nd child to build next frontier.
+Action     : Exploring operation 85-24=61. 
+Resulting numbers: [28, 61].
+Heuristic score : (|28-67| + |61-67|)/2 = (39 + 6)/2 = 22.50
+Generated Node #0,1,1: 67:[28, 61] Operation: 85-24=61
+
+Thought    : Expand Node #0,1,1’s 1st child to build next frontier.
+Action     : Exploring operation 28+61=89. 
+Resulting numbers: [89].
+89,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 3rd child to build next frontier.
+Action     : Exploring operation 85-28=57. 
+Resulting numbers: [24, 57].
+Heuristic score : (|24-67| + |57-67|)/2 = (43 + 10)/2 = 26.50
+Generated Node #0,1,2: 67:[24, 57] Operation: 85-28=57
+
+Thought    : Expand Node #0,1,2’s 1st child to build next frontier.
+Action     : Exploring operation 24+57=81. 
+Resulting numbers: [81].
+81,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 4th child to build next frontier.
+Action     : Exploring operation 85+24=109. 
+Resulting numbers: [28, 109].
+Heuristic score : (|28-67| + |109-67|)/2 = (39 + 42)/2 = 40.50
+Generated Node #0,1,3: 67:[28, 109] Operation: 85+24=109
+
+Thought    : Expand Node #0,1,3’s 1st child to build next frontier.
+Action     : Exploring operation 109-28=81. 
+Resulting numbers: [81].
+81,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 5th child to build next frontier.
+Action     : Exploring operation 28-24=4. 
+Resulting numbers: [85, 4].
+Heuristic score : (|85-67| + |4-67|)/2 = (18 + 63)/2 = 40.50
+Generated Node #0,1,4: 67:[85, 4] Operation: 28-24=4
+
+Thought    : Expand Node #0,1,4’s 1st child to build next frontier.
+Action     : Exploring operation 85-4=81. 
+Resulting numbers: [81].
+81,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 6th child to build next frontier.
+Action     : Exploring operation 85+28=113. 
+Resulting numbers: [24, 113].
+Heuristic score : (|24-67| + |113-67|)/2 = (43 + 46)/2 = 44.50
+Generated Node #0,1,5: 67:[24, 113] Operation: 85+28=113
+
+Thought    : Expand Node #0,1,5’s 1st child to build next frontier.
+Action     : Exploring operation 113-24=89. 
+Resulting numbers: [89].
+89,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 7th child to build next frontier.
+Action     : Exploring operation 28*24=672. 
+Resulting numbers: [85, 672].
+Heuristic score : (|85-67| + |672-67|)/2 = (18 + 605)/2 = 311.50
+Generated Node #0,1,6: 67:[85, 672] Operation: 28*24=672
+
+Thought    : Expand Node #0,1,6’s 1st child to build next frontier.
+Action     : Exploring operation 672-85=587. 
+Resulting numbers: [587].
+587,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 8th child to build next frontier.
+Action     : Exploring operation 85*24=2040. 
+Resulting numbers: [28, 2040].
+Heuristic score : (|28-67| + |2040-67|)/2 = (39 + 1973)/2 = 1006.00
+Generated Node #0,1,7: 67:[28, 2040] Operation: 85*24=2040
+
+Thought    : Expand Node #0,1,7’s 1st child to build next frontier.
+Action     : Exploring operation 2040-28=2012. 
+Resulting numbers: [2012].
+2012,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 33.333333333333336
+Current State #0,1: 67:[85, 28, 24]. Operations so far : ['12*2=24'].
+
+Thought    : Expand Node #0,1’s 9th child to build next frontier.
+Action     : Exploring operation 85*28=2380. 
+Resulting numbers: [24, 2380].
+Heuristic score : (|24-67| + |2380-67|)/2 = (43 + 2313)/2 = 1178.00
+Generated Node #0,1,8: 67:[24, 2380] Operation: 85*28=2380
+
+Thought    : Expand Node #0,1,8’s 1st child to build next frontier.
+Action     : Exploring operation 2380-24=2356. 
+Resulting numbers: [2356].
+2356,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0 with lowest heuristic value 44.25
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 3rd child to build next frontier.
+Action     : Exploring operation 12+2=14. 
+Resulting numbers: [85, 28, 14].
+Heuristic score : (|85-67| + |28-67| + |14-67|)/3 = (18 + 39 + 53)/3 = 36.67
+Generated Node #0,2: 67:[85, 28, 14] Operation: 12+2=14
+
+Thought    : Expand Node #0,2’s 1st child to build next frontier.
+Action     : Exploring operation 85-14=71. 
+Resulting numbers: [28, 71].
+Heuristic score : (|28-67| + |71-67|)/2 = (39 + 4)/2 = 21.50
+Generated Node #0,2,0: 67:[28, 71] Operation: 85-14=71
+
+Thought    : Expand Node #0,2,0’s 1st child to build next frontier.
+Action     : Exploring operation 71-28=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 2nd child to build next frontier.
+Action     : Exploring operation 28+14=42. 
+Resulting numbers: [85, 42].
+Heuristic score : (|85-67| + |42-67|)/2 = (18 + 25)/2 = 21.50
+Generated Node #0,2,1: 67:[85, 42] Operation: 28+14=42
+
+Thought    : Expand Node #0,2,1’s 1st child to build next frontier.
+Action     : Exploring operation 85-42=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 3rd child to build next frontier.
+Action     : Exploring operation 85-28=57. 
+Resulting numbers: [14, 57].
+Heuristic score : (|14-67| + |57-67|)/2 = (53 + 10)/2 = 31.50
+Generated Node #0,2,2: 67:[14, 57] Operation: 85-28=57
+
+Thought    : Expand Node #0,2,2’s 1st child to build next frontier.
+Action     : Exploring operation 14+57=71. 
+Resulting numbers: [71].
+71,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 4th child to build next frontier.
+Action     : Exploring operation 85+14=99. 
+Resulting numbers: [28, 99].
+Heuristic score : (|28-67| + |99-67|)/2 = (39 + 32)/2 = 35.50
+Generated Node #0,2,3: 67:[28, 99] Operation: 85+14=99
+
+Thought    : Expand Node #0,2,3’s 1st child to build next frontier.
+Action     : Exploring operation 99-28=71. 
+Resulting numbers: [71].
+71,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 5th child to build next frontier.
+Action     : Exploring operation 28-14=14. 
+Resulting numbers: [85, 14].
+Heuristic score : (|85-67| + |14-67|)/2 = (18 + 53)/2 = 35.50
+Generated Node #0,2,4: 67:[85, 14] Operation: 28-14=14
+
+Thought    : Expand Node #0,2,4’s 1st child to build next frontier.
+Action     : Exploring operation 85-14=71. 
+Resulting numbers: [71].
+71,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 6th child to build next frontier.
+Action     : Exploring operation 28/14=2. 
+Resulting numbers: [85, 2].
+Heuristic score : (|85-67| + |2-67|)/2 = (18 + 65)/2 = 41.50
+Generated Node #0,2,5: 67:[85, 2] Operation: 28/14=2
+
+Thought    : Expand Node #0,2,5’s 1st child to build next frontier.
+Action     : Exploring operation 85-2=83. 
+Resulting numbers: [83].
+83,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 7th child to build next frontier.
+Action     : Exploring operation 85+28=113. 
+Resulting numbers: [14, 113].
+Heuristic score : (|14-67| + |113-67|)/2 = (53 + 46)/2 = 49.50
+Generated Node #0,2,6: 67:[14, 113] Operation: 85+28=113
+
+Thought    : Expand Node #0,2,6’s 1st child to build next frontier.
+Action     : Exploring operation 113-14=99. 
+Resulting numbers: [99].
+99,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 8th child to build next frontier.
+Action     : Exploring operation 28*14=392. 
+Resulting numbers: [85, 392].
+Heuristic score : (|85-67| + |392-67|)/2 = (18 + 325)/2 = 171.50
+Generated Node #0,2,7: 67:[85, 392] Operation: 28*14=392
+
+Thought    : Expand Node #0,2,7’s 1st child to build next frontier.
+Action     : Exploring operation 392-85=307. 
+Resulting numbers: [307].
+307,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 9th child to build next frontier.
+Action     : Exploring operation 85*14=1190. 
+Resulting numbers: [28, 1190].
+Heuristic score : (|28-67| + |1190-67|)/2 = (39 + 1123)/2 = 581.00
+Generated Node #0,2,8: 67:[28, 1190] Operation: 85*14=1190
+
+Thought    : Expand Node #0,2,8’s 1st child to build next frontier.
+Action     : Exploring operation 1190-28=1162. 
+Resulting numbers: [1162].
+1162,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 36.666666666666664
+Current State #0,2: 67:[85, 28, 14]. Operations so far : ['12+2=14'].
+
+Thought    : Expand Node #0,2’s 10th child to build next frontier.
+Action     : Exploring operation 85*28=2380. 
+Resulting numbers: [14, 2380].
+Heuristic score : (|14-67| + |2380-67|)/2 = (53 + 2313)/2 = 1183.00
+Generated Node #0,2,9: 67:[14, 2380] Operation: 85*28=2380
+
+Thought    : Expand Node #0,2,9’s 1st child to build next frontier.
+Action     : Exploring operation 2380/14=170. 
+Resulting numbers: [170].
+170,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0 with lowest heuristic value 44.25
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 4th child to build next frontier.
+Action     : Exploring operation 85-12=73. 
+Resulting numbers: [2, 28, 73].
+Heuristic score : (|2-67| + |28-67| + |73-67|)/3 = (65 + 39 + 6)/3 = 36.67
+Generated Node #0,3: 67:[2, 28, 73] Operation: 85-12=73
+
+Thought    : Expand Node #0,3’s 1st child to build next frontier.
+Action     : Exploring operation 2*28=56. 
+Resulting numbers: [73, 56].
+Heuristic score : (|73-67| + |56-67|)/2 = (6 + 11)/2 = 8.50
+Generated Node #0,3,0: 67:[73, 56] Operation: 2*28=56
+
+Thought    : Expand Node #0,3,0’s 1st child to build next frontier.
+Action     : Exploring operation 73-56=17. 
+Resulting numbers: [17].
+17,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 2nd child to build next frontier.
+Action     : Exploring operation 2+28=30. 
+Resulting numbers: [73, 30].
+Heuristic score : (|73-67| + |30-67|)/2 = (6 + 37)/2 = 21.50
+Generated Node #0,3,1: 67:[73, 30] Operation: 2+28=30
+
+Thought    : Expand Node #0,3,1’s 1st child to build next frontier.
+Action     : Exploring operation 73-30=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 3rd child to build next frontier.
+Action     : Exploring operation 73-2=71. 
+Resulting numbers: [28, 71].
+Heuristic score : (|28-67| + |71-67|)/2 = (39 + 4)/2 = 21.50
+Generated Node #0,3,2: 67:[28, 71] Operation: 73-2=71
+
+Thought    : Expand Node #0,3,2’s 1st child to build next frontier.
+Action     : Exploring operation 71-28=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 4th child to build next frontier.
+Action     : Exploring operation 28-2=26. 
+Resulting numbers: [73, 26].
+Heuristic score : (|73-67| + |26-67|)/2 = (6 + 41)/2 = 23.50
+Generated Node #0,3,3: 67:[73, 26] Operation: 28-2=26
+
+Thought    : Expand Node #0,3,3’s 1st child to build next frontier.
+Action     : Exploring operation 73-26=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 5th child to build next frontier.
+Action     : Exploring operation 2+73=75. 
+Resulting numbers: [28, 75].
+Heuristic score : (|28-67| + |75-67|)/2 = (39 + 8)/2 = 23.50
+Generated Node #0,3,4: 67:[28, 75] Operation: 2+73=75
+
+Thought    : Expand Node #0,3,4’s 1st child to build next frontier.
+Action     : Exploring operation 75-28=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 6th child to build next frontier.
+Action     : Exploring operation 28/2=14. 
+Resulting numbers: [73, 14].
+Heuristic score : (|73-67| + |14-67|)/2 = (6 + 53)/2 = 29.50
+Generated Node #0,3,5: 67:[73, 14] Operation: 28/2=14
+
+Thought    : Expand Node #0,3,5’s 1st child to build next frontier.
+Action     : Exploring operation 73-14=59. 
+Resulting numbers: [59].
+59,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 7th child to build next frontier.
+Action     : Exploring operation 73-28=45. 
+Resulting numbers: [2, 45].
+Heuristic score : (|2-67| + |45-67|)/2 = (65 + 22)/2 = 43.50
+Generated Node #0,3,6: 67:[2, 45] Operation: 73-28=45
+
+Thought    : Expand Node #0,3,6’s 1st child to build next frontier.
+Action     : Exploring operation 2+45=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 8th child to build next frontier.
+Action     : Exploring operation 28+73=101. 
+Resulting numbers: [2, 101].
+Heuristic score : (|2-67| + |101-67|)/2 = (65 + 34)/2 = 49.50
+Generated Node #0,3,7: 67:[2, 101] Operation: 28+73=101
+
+Thought    : Expand Node #0,3,7’s 1st child to build next frontier.
+Action     : Exploring operation 101-2=99. 
+Resulting numbers: [99].
+99,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 9th child to build next frontier.
+Action     : Exploring operation 2*73=146. 
+Resulting numbers: [28, 146].
+Heuristic score : (|28-67| + |146-67|)/2 = (39 + 79)/2 = 59.00
+Generated Node #0,3,8: 67:[28, 146] Operation: 2*73=146
+
+Thought    : Expand Node #0,3,8’s 1st child to build next frontier.
+Action     : Exploring operation 146-28=118. 
+Resulting numbers: [118].
+118,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 36.666666666666664
+Current State #0,3: 67:[2, 28, 73]. Operations so far : ['85-12=73'].
+
+Thought    : Expand Node #0,3’s 10th child to build next frontier.
+Action     : Exploring operation 28*73=2044. 
+Resulting numbers: [2, 2044].
+Heuristic score : (|2-67| + |2044-67|)/2 = (65 + 1977)/2 = 1021.00
+Generated Node #0,3,9: 67:[2, 2044] Operation: 28*73=2044
+
+Thought    : Expand Node #0,3,9’s 1st child to build next frontier.
+Action     : Exploring operation 2044/2=1022. 
+Resulting numbers: [1022].
+1022,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0 with lowest heuristic value 44.25
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 5th child to build next frontier.
+Action     : Exploring operation 12+28=40. 
+Resulting numbers: [2, 85, 40].
+Heuristic score : (|2-67| + |85-67| + |40-67|)/3 = (65 + 18 + 27)/3 = 36.67
+Generated Node #0,4: 67:[2, 85, 40] Operation: 12+28=40
+
+Thought    : Expand Node #0,4’s 1st child to build next frontier.
+Action     : Exploring operation 2*40=80. 
+Resulting numbers: [85, 80].
+Heuristic score : (|85-67| + |80-67|)/2 = (18 + 13)/2 = 15.50
+Generated Node #0,4,0: 67:[85, 80] Operation: 2*40=80
+
+Thought    : Expand Node #0,4,0’s 1st child to build next frontier.
+Action     : Exploring operation 85-80=5. 
+Resulting numbers: [5].
+5,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 2nd child to build next frontier.
+Action     : Exploring operation 85-2=83. 
+Resulting numbers: [40, 83].
+Heuristic score : (|40-67| + |83-67|)/2 = (27 + 16)/2 = 21.50
+Generated Node #0,4,1: 67:[40, 83] Operation: 85-2=83
+
+Thought    : Expand Node #0,4,1’s 1st child to build next frontier.
+Action     : Exploring operation 83-40=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 3rd child to build next frontier.
+Action     : Exploring operation 2+40=42. 
+Resulting numbers: [85, 42].
+Heuristic score : (|85-67| + |42-67|)/2 = (18 + 25)/2 = 21.50
+Generated Node #0,4,2: 67:[85, 42] Operation: 2+40=42
+
+Thought    : Expand Node #0,4,2’s 1st child to build next frontier.
+Action     : Exploring operation 85-42=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 4th child to build next frontier.
+Action     : Exploring operation 2+85=87. 
+Resulting numbers: [40, 87].
+Heuristic score : (|40-67| + |87-67|)/2 = (27 + 20)/2 = 23.50
+Generated Node #0,4,3: 67:[40, 87] Operation: 2+85=87
+
+Thought    : Expand Node #0,4,3’s 1st child to build next frontier.
+Action     : Exploring operation 87-40=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 5th child to build next frontier.
+Action     : Exploring operation 40-2=38. 
+Resulting numbers: [85, 38].
+Heuristic score : (|85-67| + |38-67|)/2 = (18 + 29)/2 = 23.50
+Generated Node #0,4,4: 67:[85, 38] Operation: 40-2=38
+
+Thought    : Expand Node #0,4,4’s 1st child to build next frontier.
+Action     : Exploring operation 85-38=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 6th child to build next frontier.
+Action     : Exploring operation 40/2=20. 
+Resulting numbers: [85, 20].
+Heuristic score : (|85-67| + |20-67|)/2 = (18 + 47)/2 = 32.50
+Generated Node #0,4,5: 67:[85, 20] Operation: 40/2=20
+
+Thought    : Expand Node #0,4,5’s 1st child to build next frontier.
+Action     : Exploring operation 85-20=65. 
+Resulting numbers: [65].
+65,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 7th child to build next frontier.
+Action     : Exploring operation 85-40=45. 
+Resulting numbers: [2, 45].
+Heuristic score : (|2-67| + |45-67|)/2 = (65 + 22)/2 = 43.50
+Generated Node #0,4,6: 67:[2, 45] Operation: 85-40=45
+
+Thought    : Expand Node #0,4,6’s 1st child to build next frontier.
+Action     : Exploring operation 2+45=47. 
+Resulting numbers: [47].
+47,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 8th child to build next frontier.
+Action     : Exploring operation 85+40=125. 
+Resulting numbers: [2, 125].
+Heuristic score : (|2-67| + |125-67|)/2 = (65 + 58)/2 = 61.50
+Generated Node #0,4,7: 67:[2, 125] Operation: 85+40=125
+
+Thought    : Expand Node #0,4,7’s 1st child to build next frontier.
+Action     : Exploring operation 125-2=123. 
+Resulting numbers: [123].
+123,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 9th child to build next frontier.
+Action     : Exploring operation 2*85=170. 
+Resulting numbers: [40, 170].
+Heuristic score : (|40-67| + |170-67|)/2 = (27 + 103)/2 = 65.00
+Generated Node #0,4,8: 67:[40, 170] Operation: 2*85=170
+
+Thought    : Expand Node #0,4,8’s 1st child to build next frontier.
+Action     : Exploring operation 170-40=130. 
+Resulting numbers: [130].
+130,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 36.666666666666664
+Current State #0,4: 67:[2, 85, 40]. Operations so far : ['12+28=40'].
+
+Thought    : Expand Node #0,4’s 10th child to build next frontier.
+Action     : Exploring operation 85*40=3400. 
+Resulting numbers: [2, 3400].
+Heuristic score : (|2-67| + |3400-67|)/2 = (65 + 3333)/2 = 1699.00
+Generated Node #0,4,9: 67:[2, 3400] Operation: 85*40=3400
+
+Thought    : Expand Node #0,4,9’s 1st child to build next frontier.
+Action     : Exploring operation 3400/2=1700. 
+Resulting numbers: [1700].
+1700,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0 with lowest heuristic value 44.25
+Current State #0: 67:[12, 2, 85, 28]. Operations so far : [].
+
+Thought    : Expand Node #0’s 6th child to build next frontier.
+Action     : Exploring operation 85-2=83. 
+Resulting numbers: [12, 28, 83].
+Heuristic score : (|12-67| + |28-67| + |83-67|)/3 = (55 + 39 + 16)/3 = 36.67
+Generated Node #0,5: 67:[12, 28, 83] Operation: 85-2=83
+
+Thought    : Expand Node #0,5’s 1st child to build next frontier.
+Action     : Exploring operation 12+28=40. 
+Resulting numbers: [83, 40].
+Heuristic score : (|83-67| + |40-67|)/2 = (16 + 27)/2 = 21.50
+Generated Node #0,5,0: 67:[83, 40] Operation: 12+28=40
+
+Thought    : Expand Node #0,5,0’s 1st child to build next frontier.
+Action     : Exploring operation 83-40=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,5 with lowest heuristic value 36.666666666666664
+Current State #0,5: 67:[12, 28, 83]. Operations so far : ['85-2=83'].
+
+Thought    : Expand Node #0,5’s 2nd child to build next frontier.
+Action     : Exploring operation 83-12=71. 
+Resulting numbers: [28, 71].
+Heuristic score : (|28-67| + |71-67|)/2 = (39 + 4)/2 = 21.50
+Generated Node #0,5,1: 67:[28, 71] Operation: 83-12=71
+
+Thought    : Expand Node #0,5,1’s 1st child to build next frontier.
+Action     : Exploring operation 71-28=43. 
+Resulting numbers: [43].
+43,67 unequal: No Solution ... backtracking
+
+Thought    : Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,5 with lowest heuristic value 36.666666666666664
+Current State #0,5: 67:[12, 28, 83]. Operations so far : ['85-2=83'].
+
+Thought    : Expand Node #0,5’s 3rd child to build next frontier.
+Action     : Exploring operation 28-12=16. 
+Resulting numbers: [83, 16].
+Heuristic score : (|83-67| + |16-67|)/2 = (16 + 51)/2 = 33.50
+Generated Node #0,5,2: 67:[83, 16] Operation: 28-12=16
+
+Thought    : Expand Node #0,5,2’s 1st child to build next frontier.
+Action     : Exploring operation 83-16=67. 
+Resulting numbers: [67].
+67,67 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['85-2=83', '28-12=16', '83-16=67']
+RESULT: 67
+```
+<|im_end|>
+
+2025-04-03 22:44:20 - INFO - __main__ - Sample 2253 of the processed training set:
+
+<|im_start|>system
+<|im_end|>
+<|im_start|>user
+Combine these initial numbers [49, 3, 57, 58] using only arithmetic operations (+, -, *, /) to reach the target value 45. All initial numbers must be used exactly once.
+Conclude with the final result in EXACTLY this format:
+```
+SOLUTION: YES/NO
+OPERATIONS: list of string of operations performed, each string involving only 1 operation. For example, ['A+B=C','C+D=E'] is allowed, ['A+B+D=E'] is not allowed
+RESULT: final_value
+```
+<|im_end|>
+<|im_start|>assistant
+We have these numbers [49, 3, 57, 58]. Our goal is to produce 45. Let's show the search process step by step:
+One possible strategy is to use a Breadth-First Search (BFS) with Beam Size 5 guided by a **sum-based** heuristic, which computes the average of the absolute differences between each number and the target number.
+Lower scores indicate that, on average, the numbers are closer to the target, making the state more promising for reaching the target via additive operations.
+
+
+Current State #0: 45:[49, 3, 57, 58]. Operations so far : [].
+
+Thought    : Expand Node #0’s 1st child to build next frontier.
+Action     : Exploring operation 58-3=55. 
+Resulting numbers: [49, 57, 55].
+Heuristic score : (|49-45| + |57-45| + |55-45|)/3 = (4 + 12 + 10)/3 = 8.67
+Generated Node #0,0: 45:[49, 57, 55] Operation: 58-3=55
+
+Thought    : Expand Node #0’s 2nd child to build next frontier.
+Action     : Exploring operation 3+57=60. 
+Resulting numbers: [49, 58, 60].
+Heuristic score : (|49-45| + |58-45| + |60-45|)/3 = (4 + 13 + 15)/3 = 10.67
+Generated Node #0,1: 45:[49, 58, 60] Operation: 3+57=60
+
+Thought    : Expand Node #0’s 3rd child to build next frontier.
+Action     : Exploring operation 49+3=52. 
+Resulting numbers: [57, 58, 52].
+Heuristic score : (|57-45| + |58-45| + |52-45|)/3 = (12 + 13 + 7)/3 = 10.67
+Generated Node #0,2: 45:[57, 58, 52] Operation: 49+3=52
+
+Thought    : Expand Node #0’s 4th child to build next frontier.
+Action     : Exploring operation 49-3=46. 
+Resulting numbers: [57, 58, 46].
+Heuristic score : (|57-45| + |58-45| + |46-45|)/3 = (12 + 13 + 1)/3 = 8.67
+Generated Node #0,3: 45:[57, 58, 46] Operation: 49-3=46
+
+Thought    : Expand Node #0’s 5th child to build next frontier.
+Action     : Exploring operation 57-3=54. 
+Resulting numbers: [49, 58, 54].
+Heuristic score : (|49-45| + |58-45| + |54-45|)/3 = (4 + 13 + 9)/3 = 8.67
+Generated Node #0,4: 45:[49, 58, 54] Operation: 57-3=54
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,0 with lowest heuristic value 8.666666666666666
+Current State #0,0: 45:[49, 57, 55]. Operations so far : ['58-3=55'].
+
+Thought    : Expand Node #0,0’s 1st child to build next frontier.
+Action     : Exploring operation 57-55=2. 
+Resulting numbers: [49, 2].
+Heuristic score : (|49-45| + |2-45|)/2 = (4 + 43)/2 = 23.50
+Generated Node #0,0,0: 45:[49, 2] Operation: 57-55=2
+
+Thought    : Expand Node #0,0’s 2nd child to build next frontier.
+Action     : Exploring operation 49+57=106. 
+Resulting numbers: [55, 106].
+Heuristic score : (|55-45| + |106-45|)/2 = (10 + 61)/2 = 35.50
+Generated Node #0,0,1: 45:[55, 106] Operation: 49+57=106
+
+Thought    : Expand Node #0,0’s 3rd child to build next frontier.
+Action     : Exploring operation 49+55=104. 
+Resulting numbers: [57, 104].
+Heuristic score : (|57-45| + |104-45|)/2 = (12 + 59)/2 = 35.50
+Generated Node #0,0,2: 45:[57, 104] Operation: 49+55=104
+
+Thought    : Expand Node #0,0’s 4th child to build next frontier.
+Action     : Exploring operation 55-49=6. 
+Resulting numbers: [57, 6].
+Heuristic score : (|57-45| + |6-45|)/2 = (12 + 39)/2 = 25.50
+Generated Node #0,0,3: 45:[57, 6] Operation: 55-49=6
+
+Thought    : Expand Node #0,0’s 5th child to build next frontier.
+Action     : Exploring operation 57-49=8. 
+Resulting numbers: [55, 8].
+Heuristic score : (|55-45| + |8-45|)/2 = (10 + 37)/2 = 23.50
+Generated Node #0,0,4: 45:[55, 8] Operation: 57-49=8
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4 with lowest heuristic value 8.666666666666666
+Current State #0,4: 45:[49, 58, 54]. Operations so far : ['57-3=54'].
+
+Thought    : Expand Node #0,4’s 1st child to build next frontier.
+Action     : Exploring operation 58-54=4. 
+Resulting numbers: [49, 4].
+Heuristic score : (|49-45| + |4-45|)/2 = (4 + 41)/2 = 22.50
+Generated Node #0,4,0: 45:[49, 4] Operation: 58-54=4
+
+Thought    : Expand Node #0,4’s 2nd child to build next frontier.
+Action     : Exploring operation 54-49=5. 
+Resulting numbers: [58, 5].
+Heuristic score : (|58-45| + |5-45|)/2 = (13 + 40)/2 = 26.50
+Generated Node #0,4,1: 45:[58, 5] Operation: 54-49=5
+
+Thought    : Expand Node #0,4’s 3rd child to build next frontier.
+Action     : Exploring operation 58-49=9. 
+Resulting numbers: [54, 9].
+Heuristic score : (|54-45| + |9-45|)/2 = (9 + 36)/2 = 22.50
+Generated Node #0,4,2: 45:[54, 9] Operation: 58-49=9
+
+Thought    : Expand Node #0,4’s 4th child to build next frontier.
+Action     : Exploring operation 49+54=103. 
+Resulting numbers: [58, 103].
+Heuristic score : (|58-45| + |103-45|)/2 = (13 + 58)/2 = 35.50
+Generated Node #0,4,3: 45:[58, 103] Operation: 49+54=103
+
+Thought    : Expand Node #0,4’s 5th child to build next frontier.
+Action     : Exploring operation 49+58=107. 
+Resulting numbers: [54, 107].
+Heuristic score : (|54-45| + |107-45|)/2 = (9 + 62)/2 = 35.50
+Generated Node #0,4,4: 45:[54, 107] Operation: 49+58=107
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,3 with lowest heuristic value 8.666666666666666
+Current State #0,3: 45:[57, 58, 46]. Operations so far : ['49-3=46'].
+
+Thought    : Expand Node #0,3’s 1st child to build next frontier.
+Action     : Exploring operation 58-57=1. 
+Resulting numbers: [46, 1].
+Heuristic score : (|46-45| + |1-45|)/2 = (1 + 44)/2 = 22.50
+Generated Node #0,3,0: 45:[46, 1] Operation: 58-57=1
+
+Thought    : Expand Node #0,3’s 2nd child to build next frontier.
+Action     : Exploring operation 57+58=115. 
+Resulting numbers: [46, 115].
+Heuristic score : (|46-45| + |115-45|)/2 = (1 + 70)/2 = 35.50
+Generated Node #0,3,1: 45:[46, 115] Operation: 57+58=115
+
+Thought    : Expand Node #0,3’s 3rd child to build next frontier.
+Action     : Exploring operation 58-46=12. 
+Resulting numbers: [57, 12].
+Heuristic score : (|57-45| + |12-45|)/2 = (12 + 33)/2 = 22.50
+Generated Node #0,3,2: 45:[57, 12] Operation: 58-46=12
+
+Thought    : Expand Node #0,3’s 4th child to build next frontier.
+Action     : Exploring operation 57+46=103. 
+Resulting numbers: [58, 103].
+Heuristic score : (|58-45| + |103-45|)/2 = (13 + 58)/2 = 35.50
+Generated Node #0,3,3: 45:[58, 103] Operation: 57+46=103
+
+Thought    : Expand Node #0,3’s 5th child to build next frontier.
+Action     : Exploring operation 57-46=11. 
+Resulting numbers: [58, 11].
+Heuristic score : (|58-45| + |11-45|)/2 = (13 + 34)/2 = 23.50
+Generated Node #0,3,4: 45:[58, 11] Operation: 57-46=11
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,1 with lowest heuristic value 10.666666666666666
+Current State #0,1: 45:[49, 58, 60]. Operations so far : ['3+57=60'].
+
+Thought    : Expand Node #0,1’s 1st child to build next frontier.
+Action     : Exploring operation 58-49=9. 
+Resulting numbers: [60, 9].
+Heuristic score : (|60-45| + |9-45|)/2 = (15 + 36)/2 = 25.50
+Generated Node #0,1,0: 45:[60, 9] Operation: 58-49=9
+
+Thought    : Expand Node #0,1’s 2nd child to build next frontier.
+Action     : Exploring operation 60-49=11. 
+Resulting numbers: [58, 11].
+Heuristic score : (|58-45| + |11-45|)/2 = (13 + 34)/2 = 23.50
+Generated Node #0,1,1: 45:[58, 11] Operation: 60-49=11
+
+Thought    : Expand Node #0,1’s 3rd child to build next frontier.
+Action     : Exploring operation 49+60=109. 
+Resulting numbers: [58, 109].
+Heuristic score : (|58-45| + |109-45|)/2 = (13 + 64)/2 = 38.50
+Generated Node #0,1,2: 45:[58, 109] Operation: 49+60=109
+
+Thought    : Expand Node #0,1’s 4th child to build next frontier.
+Action     : Exploring operation 60-58=2. 
+Resulting numbers: [49, 2].
+Heuristic score : (|49-45| + |2-45|)/2 = (4 + 43)/2 = 23.50
+Generated Node #0,1,3: 45:[49, 2] Operation: 60-58=2
+
+Thought    : Expand Node #0,1’s 5th child to build next frontier.
+Action     : Exploring operation 49+58=107. 
+Resulting numbers: [60, 107].
+Heuristic score : (|60-45| + |107-45|)/2 = (15 + 62)/2 = 38.50
+Generated Node #0,1,4: 45:[60, 107] Operation: 49+58=107
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,2 with lowest heuristic value 10.666666666666666
+Current State #0,2: 45:[57, 58, 52]. Operations so far : ['49+3=52'].
+
+Thought    : Expand Node #0,2’s 1st child to build next frontier.
+Action     : Exploring operation 57+58=115. 
+Resulting numbers: [52, 115].
+Heuristic score : (|52-45| + |115-45|)/2 = (7 + 70)/2 = 38.50
+Generated Node #0,2,0: 45:[52, 115] Operation: 57+58=115
+
+Thought    : Expand Node #0,2’s 2nd child to build next frontier.
+Action     : Exploring operation 57-52=5. 
+Resulting numbers: [58, 5].
+Heuristic score : (|58-45| + |5-45|)/2 = (13 + 40)/2 = 26.50
+Generated Node #0,2,1: 45:[58, 5] Operation: 57-52=5
+
+Thought    : Expand Node #0,2’s 3rd child to build next frontier.
+Action     : Exploring operation 57+52=109. 
+Resulting numbers: [58, 109].
+Heuristic score : (|58-45| + |109-45|)/2 = (13 + 64)/2 = 38.50
+Generated Node #0,2,2: 45:[58, 109] Operation: 57+52=109
+
+Thought    : Expand Node #0,2’s 4th child to build next frontier.
+Action     : Exploring operation 58-52=6. 
+Resulting numbers: [57, 6].
+Heuristic score : (|57-45| + |6-45|)/2 = (12 + 39)/2 = 25.50
+Generated Node #0,2,3: 45:[57, 6] Operation: 58-52=6
+
+Thought    : Expand Node #0,2’s 5th child to build next frontier.
+Action     : Exploring operation 58-57=1. 
+Resulting numbers: [52, 1].
+Heuristic score : (|52-45| + |1-45|)/2 = (7 + 44)/2 = 25.50
+Generated Node #0,2,4: 45:[52, 1] Operation: 58-57=1
+
+Thought    : Completed expansion of previous level. Selecting next node to expand based on heuristic value
+Action     : Moving to Node #0,4,0 with lowest heuristic value 22.5
+Current State #0,4,0: 45:[49, 4]. Operations so far : ['57-3=54', '58-54=4'].
+
+Thought    : Expand Node #0,4,0’s 1st child to build next frontier.
+Action     : Exploring operation 49+4=53. 
+Resulting numbers: [53].
+53,45 unequal: No Solution
+
+Thought    : Expand Node #0,4,0’s 2nd child to build next frontier.
+Action     : Exploring operation 49*4=196. 
+Resulting numbers: [196].
+196,45 unequal: No Solution
+
+Thought    : Expand Node #0,4,0’s 3rd child to build next frontier.
+Action     : Exploring operation 49-4=45. 
+Resulting numbers: [45].
+45,45 equal: Goal Reached
+
+```
+SOLUTION: YES
+OPERATIONS: ['57-3=54', '58-54=4', '49-4=45']
+RESULT: 45
+```
+<|im_end|>
+
+2025-04-03 22:45:38 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-6597292e316decca.arrow
+2025-04-03 22:45:38 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-382b40155aec2dba.arrow
+2025-04-03 22:45:38 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-f98373ef12c69685.arrow
+2025-04-03 22:46:22 - INFO - datasets.arrow_dataset - Caching processed dataset at /root/.cache/huggingface/datasets/MelinaLaimon___stream-of-search-react-correct-5k/default/0.0.0/6f2c53bb286d66d0b80c98567f6600ff493890ce/cache-7082b11ac9bda5e0.arrow
+2025-04-03 22:46:38 - INFO - __main__ - *** Train ***
+2025-04-03 23:30:07 - INFO - __main__ - *** Save model ***
+2025-04-03 23:30:13 - INFO - __main__ - Model saved to ./models/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k
+2025-04-03 23:30:13 - INFO - __main__ - Pushing to hub...
+2025-04-03 23:30:17 - INFO - __main__ - *** Training complete ***
