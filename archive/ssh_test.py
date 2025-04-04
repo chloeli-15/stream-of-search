@@ -12,7 +12,7 @@ gpu_3090 = [
     "eider", "gadwall", "pintail",
     "mallard", "mandarin", "pintail", "pochard", "ruddy",
     "scaup", "shelduck", "shoveler", "smew", 
-    # "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", "scoter"
+    "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", "scoter"
     ]
     
 gpu_4070 = [

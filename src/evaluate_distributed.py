@@ -106,7 +106,7 @@ def main():
     parser.add_argument("--config", type=str, default="scripts/eval_config.json", help="Path to config JSON file")
     # parser.add_argument("--n", type=int, default=8, help="Number of samples to evaluate")
     # parser.add_argument("--dataset", type=str, default="MelinaLaimon/stream-of-search", help="Dataset name")
-    parser.add_argument("--batch-size", type=int, default=4, help="Batch size for evaluation")
+    parser.add_argument("--batch_size", type=int, default=4, help="Batch size for evaluation")
     parser.add_argument("--ctx", type=int, default=16384, help="Context length")
     parser.add_argument("--temp", type=float, default=0.7, help="Temperature")
     parser.add_argument("--gens", type=int, default=1, help="Number of generations")
