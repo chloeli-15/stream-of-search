@@ -51,7 +51,7 @@ def main():
     parser = H4ArgumentParser((ModelArguments, DataArguments, SFTConfig))
     model_args, data_args, training_args = parser.parse()
     print(f"data_args: {data_args}")
-
+    training_args.do_eval = False
     # Set seed for reproducibility
     set_seed(training_args.seed)
 
@@ -110,7 +110,7 @@ def main():
         if "train" in split:
             raw_datasets["train"] = raw_datasets[split]
             break
-
+        
     logger.info(
         f"Training on the following datasets and their proportions: {[split + ' : ' + str(dset.num_rows) for split, dset in raw_datasets.items()]}"
     )
@@ -183,7 +183,7 @@ def main():
     # logger.info(
     #     f"Decontaminated {num_filtered_train_samples} ({num_filtered_train_samples/num_raw_train_samples * 100:.2f}%) samples from the training set."
     # )
-
+    
     train_dataset = raw_datasets["train"]
     eval_dataset = raw_datasets["test"] if training_args.do_eval else None # 
 
