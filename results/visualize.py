@@ -7,9 +7,23 @@ import re
 
 
 def extract_parts(string):
-    pattern = re.compile(r'(\d+\.\d+B).*countdown-(.+?)$')
-    match = pattern.search(string)
-    return [match.group(1), match.group(2)]
+    # Try the original pattern for folders with "countdown-"
+    pattern1 = re.compile(r'(\d+\.\d+B).*countdown-(.+?)$')
+    match = pattern1.search(string)
+    
+    if match:
+        return [match.group(1), match.group(2)]
+    
+    string = string.lower()
+    # Pattern for folders like "Qwen2.5-1.5B-Instruct"
+    pattern2 = re.compile(r'qwen\d+\.\d+-(\d+\.\d+B)-instruct', re.IGNORECASE)
+    match = pattern2.search(string)
+    
+    if match:
+        return [match.group(1), "base_model"]
+    
+    # If no pattern matches, return default values
+    return ["unknown", "unknown"]
 
 def visualize_results():
     # Dictionary to store data by model and folder
@@ -208,16 +222,12 @@ def visualize_example_count_performance():
         # Extract model size
         model_size = folder_name.split("-instruct")[0].split("2.5-")[-1]
         
-        # Extract approach type (search-seq8k vs search-react-seq8k)
-        approach_match = re.search(r'countdown-(search-[^_-]+)', folder_name)
-        if approach_match:
-            approach_type = approach_match.group(1)
-        else:
-            # Fallback to a more general pattern
-            approach_match = re.search(r'countdown-([^_]+)', folder_name)
-            approach_type = approach_match.group(1) if approach_match else "unknown"
-            
+        # Extract approach type using extract_parts
+        parts = extract_parts(folder_name)
+        approach_type = parts[1]  # Fix: Use the second element of the list
+
         model_key = f"{model_size}-{approach_type}"
+        print(f"Processing folder: {folder_name}, model_key: {model_key}")
         
         for file in glob.glob(f"{folder}/countdown_*.json"):
             with open(file, "r") as f:
@@ -249,11 +259,20 @@ def visualize_example_count_performance():
                     'dataset_size': dataset_size,
                     'file': filename
                 })
+                print(f"Added data point: {example_key}, {model_key}, success_rate: {mean_success_rate}")
     
     # Create visualization if we have data
     if not data_by_example_count:
         print("No example count data found.")
         return
+    
+    # Print the collected data for debugging
+    print("\nCollected data:")
+    for example_key, models in data_by_example_count.items():
+        print(f"{example_key}:")
+        for model_key, runs in models.items():
+            rates = [run['success_rate'] for run in runs]
+            print(f"  {model_key}: {rates}")
     
     # Sort example counts and model types
     example_counts = sorted(data_by_example_count.keys())
@@ -291,18 +310,19 @@ def visualize_example_count_performance():
         # Plot the bars
         bars = plt.bar(x_pos, avg_rates, width=bar_width, label=model_type, color=colors[i])
         
-        # Add value labels
+        # Add value labels - modified to label all bars, even zero height ones
         for bar, value, sample in zip(bars, avg_rates, sample_sizes):
             height = bar.get_height()
-            if height > 0:
-                plt.text(bar.get_x() + bar.get_width()/2, height + 0.01,
-                        f"{value:.2f}\nn={sample}", ha='center', va='bottom', 
-                        fontsize=8)
+            # Label all bars, including zero-height ones
+            y_pos = max(height, 0.01)  # Slightly above zero for zero-height bars
+            plt.text(bar.get_x() + bar.get_width()/2, y_pos + 0.01,
+                    f"{value:.2f}\nn={sample}", ha='center', va='bottom', 
+                    fontsize=8)
     
     # Configure the plot
-    plt.xlabel('Number of Examples in Input', fontsize=12)
+    plt.xlabel('Number of Examples', fontsize=12)
     plt.ylabel('Success Rate', fontsize=12)
-    plt.title('Model Performance by Number of Examples', fontsize=14)
+    plt.title('Model Performance by Example Count', fontsize=14)
     plt.xticks(x, example_counts)
     plt.ylim(0, 1)
     plt.grid(axis='y', linestyle='--', alpha=0.7)
