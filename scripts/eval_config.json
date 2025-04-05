@@ -1,9 +1,18 @@
 {
     "models_messages_field_pairs":{        
-        "0": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq10k-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
-        "1": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq10k-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"]
-    },
+        "0": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "1": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+
+        "2": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "3": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+
+        "4": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "5": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
+        },
     "prev":{        
+        "0": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "1": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+
         "4": ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         "5": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         "9":  ["chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],

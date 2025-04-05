@@ -1,10 +1,11 @@
-\begin{tabular}{lrr}
+\begin{tabular}{lrrrrrrrrrr}
 \toprule
- & \multicolumn{2}{r}{1.5B} \\
- & No rejection 
-sampling & With rejection 
-sampling \\
+ & \multicolumn{5}{r}{0.5B} & \multicolumn{5}{r}{1.5B} \\
+ & Baseline & OP & SoS & RSoS & Distill & Baseline & OP & SoS & RSoS & Distill \\
 \midrule
-Countdown: & NaN & 0.52 \\
+Countdown: & 0.00 & 2.34 & 37.50 & 0.78 & 13.28 & 0.78 & 5.47 & 49.22 & 52.34 & 21.09 \\
+Countdown-3 & 0.00 & 1.56 & 33.59 & 0.00 & 22.66 & 3.12 & 4.69 & 57.81 & 62.50 & 42.19 \\
+Countdown-5 & 0.00 & 0.78 & 0.00 & 0.00 & 0.00 & 0.00 & 0.78 & 0.00 & 0.00 & 0.00 \\
+KnK & 1.00 & NaN & NaN & NaN & NaN & 7.00 & NaN & 0.00 & 0.00 & NaN \\
 \bottomrule
 \end{tabular}

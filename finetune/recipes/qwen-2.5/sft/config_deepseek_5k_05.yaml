@@ -74,7 +74,7 @@ chat_template: |
 
 # These fields will be modified by the script
 dataset_mixer:
-  yeok/stream-of-search-dataset_deepseek_full: 0.8
+  yeok/stream-of-search-dataset_deepseek_mixed: 1.0
 dataset_splits:
 - train
 - test
