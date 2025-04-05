@@ -1,9 +1,14 @@
 {
     "models_messages_field_pairs":{        
-        "1": ["Qwen/Qwen2.5-0.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
-        "2": ["Qwen/Qwen2.5-0.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
-        "4": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
-        "5": ["Qwen/Qwen2.5-1.5B-Instruct", "messages_sos", 128, "MelinaLaimon/stream-of-search"]
+        "0": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-seq8k-5k", "messages", 128, "MelinaLaimon/stream-of-search"],
+        "1": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k", "messages", 128, "MelinaLaimon/stream-of-search"],
+        "7": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "8": ["chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        
+        "9": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search"],
+        "10":["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search"],
+        "11": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "12":["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
     },
     "prev":{
         

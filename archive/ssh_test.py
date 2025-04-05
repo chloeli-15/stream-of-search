@@ -5,22 +5,21 @@ import time
 
 #  "whitebait", "vimba" 
 gpu_3090 = [
-    # "eider", "gerssingham", "cackling", "shelduck",
+    # "eider", "gressingham", "cackling", "shelduck","pochard"
     # "gadwall", 
-    "mallard", "gressingham", "mandarin"
     "aylesbury", "barnacle", "cackling",
     "eider", "gadwall", "pintail",
-    "mallard", "mandarin", "pintail", "pochard", "ruddy",
+    "mallard", "mandarin", "pintail", "ruddy",
     "scaup", "shelduck", "shoveler", "smew", 
-    "brent" "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", "scoter"
+    "brent", "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", # "scoter"
     ]
     
 gpu_4070 = [
-    "albacore", "barbel", "chub", "dory", "elver", "flounder", "goldeye",
+    "albacore", "barbel", "chub", "dory", "elver", "goldeye",
     "hake", "inanga", "javelin", "koi", "lamprey", "mackerel", "mullet",
     "nase", "opah", "pike", "plaice", "quillback", "roach", "rudd",
     "shark", "skate", "tope", "uaru", "yellowtail", "zander"
-    ]
+    ] # "flounder"
 
 
 def get_availability(host, timeout=20):    
@@ -328,9 +327,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check GPU availability and stop processes on remote hosts.")
     parser.add_argument('--kill', type=bool, default=False, help="Stop all Python processes on remote hosts.")
     parser.add_argument('--hosts', type=str, default="0", help="List of hosts to check. If not provided, defaults to predefined list.", choices=["0", "1", "2"])
-    if len(sys.argv) > 1:
-        args = parser.parse_args()
-    
+    # if len(sys.argv) > 1:
+    args = parser.parse_args()    
     if args.kill == True:
         stop_all_processes(args.hosts)
         

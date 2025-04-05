@@ -262,17 +262,16 @@ if __name__ == "__main__":
     results['scores'] = {}
 
     for adapter in [
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos-1k",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-sos_react-1k",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-1k",
-        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-1k",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k", 
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
+        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+        "Qwen/Qwen2.5-0.5B-Instruct",
+        "Qwen/Qwen2.5-0.5B-Instruct",
         ]:
-        if model: del model
-        if tokenizer: del tokenizer
-        batch_size=32
+        # if model: del model
+        # if tokenizer: del tokenizer
+        batch_size=16
         model, tokenizer = load_model(adapter)
         model.eval()
         model.cuda()
