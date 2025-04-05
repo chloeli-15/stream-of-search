@@ -6,12 +6,12 @@ import time
 #  "whitebait", "vimba" 
 gpu_3090 = [
     # "eider", "gressingham", "cackling", "shelduck","pochard"
-    # "gadwall", 
+    "gadwall", "pochard", 
     "aylesbury", "barnacle", "cackling",
     "eider", "gadwall", "pintail",
     "mallard", "mandarin", "pintail", "ruddy",
     "scaup", "shelduck", "shoveler", "smew", 
-    "brent", "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", # "scoter"
+    "brent", "goosander", "gressingham", "wigeon",  "barbury", "bufflehead", "crested", "harlequin", "scoter"
     ]
     
 gpu_4070 = [
@@ -128,7 +128,7 @@ def print_availability_report(gpu_info_list):
             continue
             
         for info in host_gpus:
-            if info['used_power'] < 100 and info['used_memory'] < 200:
+            if info['used_power'] < 100 and info['used_memory'] < 400:
                 available_gpus.append(info)
                 print(f"✓ {info['host']} - GPU {info['gpu']} ({info['name']})")
                 print(f"  Memory: {info['used_memory']}MiB used / {info['total_memory']}MiB total")
