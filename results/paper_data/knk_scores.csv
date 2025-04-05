@@ -1,6 +1,6 @@
 model_size,approach,folder,score_2ppl,score_3ppl,score_4ppl
 0.5B,search-1k,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-1k,1.0,0.0,0.0
 0.5B,search-react-1k,qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-1k,2.0,0.0,0.0
-1.5B,search-seq8k-5k,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k,0.0,0.0,0.0
-1.5B,search-react-seq8k-5k,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k,2.0,0.0,0.0
 1.5B,search-react-correct-seq10k-5k,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k,0.0,0.0,0.0
+1.5B,search-react-seq8k-5k,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-react-seq8k-5k,2.0,0.0,0.0
+1.5B,search-seq8k-5k,qwen-2.5-1.5B-instruct-sft-lora-countdown-search-seq8k-5k,0.0,0.0,0.0
