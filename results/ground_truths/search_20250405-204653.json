@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250405-193617-gt-eval-search",
+            "experiment_name": "20250405-204653-gt-eval-search",
             "model": "search",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_sos",

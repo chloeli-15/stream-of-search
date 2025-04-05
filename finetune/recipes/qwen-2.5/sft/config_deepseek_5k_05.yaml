@@ -90,7 +90,7 @@ gradient_accumulation_steps: 16
 gradient_checkpointing: true
 gradient_checkpointing_kwargs:
   use_reentrant: false
-hub_model_id: qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k-non-rejection
+hub_model_id: qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k
 hub_strategy: every_save
 learning_rate: 0.0002
 log_level: info
@@ -100,8 +100,8 @@ lr_scheduler_type: cosine
 max_seq_length: 8192
 max_steps: -1
 num_train_epochs: 1
-output_dir: ./models/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k-non-rejection
-logging_dir: ./logs/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k-non-rejection
+output_dir: ./models/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k
+logging_dir: ./logs/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k
 overwrite_output_dir: true
 # per_device_eval_batch_size: 2
 per_device_train_batch_size: 1

@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250405-193620-gt-eval-deepseek",
+            "experiment_name": "20250405-204718-gt-eval-deepseek",
             "model": "deepseek",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_deepseek",

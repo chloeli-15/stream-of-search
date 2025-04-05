@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250405-193617-gt-eval-optimal",
+            "experiment_name": "20250405-204645-gt-eval-optimal",
             "model": "optimal",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_optimal",
