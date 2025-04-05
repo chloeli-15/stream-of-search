@@ -1,6 +1,6 @@
 import sys
 # sys.path.append('/cs/student/msc/ml/2024/ycheah/projects/sos/stream-of-search')
-from finetune.run_adapter_model import load_model, generate, generate_batch
+from finetune.run_adapter_model import load_model, generate, generate_batch, load_model_from_hub
 from tqdm import tqdm
 import datasets
 import re
@@ -262,17 +262,20 @@ if __name__ == "__main__":
     results['scores'] = {}
 
     for adapter in [
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
-        "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
-        "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+        # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
+        # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
+        # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+        # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
         "Qwen/Qwen2.5-0.5B-Instruct",
-        "Qwen/Qwen2.5-0.5B-Instruct",
+        "Qwen/Qwen2.5-1.5B-Instruct",
         ]:
         # if model: del model
         # if tokenizer: del tokenizer
         batch_size=16
-        model, tokenizer = load_model(adapter)
+        if "Qwen" in adapter:
+            model, tokenizer = load_model_from_hub(adapter)
+        else:
+            model, tokenizer = load_model(adapter)
         model.eval()
         model.cuda()
         tokenizer.pad_token = tokenizer.eos_token
