@@ -27,6 +27,8 @@ from result_parsers.countdown_trajectories import evaluate_countdown_trajectorie
 
 from typing import List, Tuple
 
+import tiktoken
+enc = tiktoken.get_encoding("cl100k_base")
                                                          
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset_name", type=str, default="MelinaLaimon/stream-of-search")
@@ -129,6 +131,11 @@ if __name__ == "__main__":
                 x[message_field][1]['content'],
             # 'answer': extract_hash_answer(x['answer'])
         })
+        data = data.map(lambda x: { 
+            'tokens': len(enc.encode(x['completion'])
+        )})
+        
+        # data_rejection_sampled = data.filter(lambda x: x['tokens'] < 8192)
             
         if args.upload_results:
             run_name = model_name-datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -143,6 +150,7 @@ if __name__ == "__main__":
 
         data = data.add_column("parsed_results", list(map(evaluate_countdown_trajectory, data)))
         results = sum([d['solved'] for d in data['parsed_results']]) / len(data['parsed_results'])
+        
         
         # Save results locally
         save_path = os.path.join("./results/ground_truths/", f'{model_name}')
@@ -162,12 +170,12 @@ if __name__ == "__main__":
                 }
             },
             {
-                "success_rate_mean": results,
-                "success_rate_best_of_n": results
+                "success_rate": results,
+                "percentage_solved_at_8192": len(data.filter(lambda x: x['tokens'] < 8192 and x['parsed_results']['solved']==True))/len(data),
+                "percentage_solved_at_10000": len(data.filter(lambda x: x['tokens'] < 10000 and x['parsed_results']['solved']==True))/len(data),            
             }
         ]
-        
-        print(f"Model: {model_name}, Success Rate: {results}")
+        print(f"Model: {model_name}, Success Rate: {results:.2%}")
         with open(results_file, "w") as f:
             json.dump(eval_results, f, indent=4)
         

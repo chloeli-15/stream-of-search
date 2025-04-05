@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250331-224804-gt-eval-search",
+            "experiment_name": "20250405-193617-gt-eval-search",
             "model": "search",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_sos",
@@ -9,7 +9,8 @@
         }
     },
     {
-        "success_rate_mean": 0.6325,
-        "success_rate_best_of_n": 0.6325
+        "success_rate": 0.6325,
+        "percentage_solved_at_8192": 0.5125,
+        "percentage_solved_at_10000": 0.555
     }
 ]

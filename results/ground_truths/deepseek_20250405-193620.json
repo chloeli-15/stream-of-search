@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250331-224805-gt-eval-deepseek",
+            "experiment_name": "20250405-193620-gt-eval-deepseek",
             "model": "deepseek",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_deepseek",
@@ -9,7 +9,8 @@
         }
     },
     {
-        "success_rate_mean": 0.685,
-        "success_rate_best_of_n": 0.685
+        "success_rate": 0.685,
+        "percentage_solved_at_8192": 0.685,
+        "percentage_solved_at_10000": 0.685
     }
 ]

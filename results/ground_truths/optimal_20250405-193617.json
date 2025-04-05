@@ -1,7 +1,7 @@
 [
     {
         "hyperparams": {
-            "experiment_name": "20250331-224803-gt-eval-optimal",
+            "experiment_name": "20250405-193617-gt-eval-optimal",
             "model": "optimal",
             "dataset": "MelinaLaimon/stream-of-search",
             "messages_field": "messages_optimal",
@@ -9,7 +9,8 @@
         }
     },
     {
-        "success_rate_mean": 1.0,
-        "success_rate_best_of_n": 1.0
+        "success_rate": 1.0,
+        "percentage_solved_at_8192": 1.0,
+        "percentage_solved_at_10000": 1.0
     }
 ]
