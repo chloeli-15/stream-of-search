@@ -262,13 +262,18 @@ if __name__ == "__main__":
     results['scores'] = {}
 
     for adapter in [
-        # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
-        # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
-        # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
-        # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
-        "Qwen/Qwen2.5-0.5B-Instruct",
-        "Qwen/Qwen2.5-1.5B-Instruct",
+            # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
+            # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
+            # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+        
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k",
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k",
+            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k"
         ]:
+        
         # if model: del model
         # if tokenizer: del tokenizer
         batch_size=16

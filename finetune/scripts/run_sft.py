@@ -102,7 +102,7 @@ def main():
         data_args,
         splits=data_args.dataset_splits,
         configs=data_args.dataset_configs,
-        columns_to_keep=['messages', 'nums', 'target', 'solution'],
+        columns_to_keep=['messages_deepseek', 'nums', 'target', 'solution'],
     )
     
     # Rename the split with the word "train" in it to "train"
@@ -121,9 +121,9 @@ def main():
     #         raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
 
     # Filter out examples where messages is None
-    for split in raw_datasets:
-        raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None and example["messages"] != "" and example["messages"] != " ")
-        logger.info(f"After filtering out None and empty messages, {split} has {raw_datasets[split].num_rows} examples")
+    # for split in raw_datasets:
+    #     raw_datasets[split] = raw_datasets[split].filter(lambda example: example["messages"] is not None and example["messages"] != "" and example["messages"] != " ")
+    #     logger.info(f"After filtering out None and empty messages, {split} has {raw_datasets[split].num_rows} examples")
     column_names = list(raw_datasets["train"].features)
 
     ################
