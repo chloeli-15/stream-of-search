@@ -116,9 +116,9 @@ def main():
     )
 
     # # Rename messages_o3 to messages
-    # for split in raw_datasets:
-    #     if data_args.dataset_message_key in raw_datasets[split].column_names:
-    #         raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
+    for split in raw_datasets:
+        if data_args.dataset_message_key in raw_datasets[split].column_names:
+            raw_datasets[split] = raw_datasets[split].rename_column(data_args.dataset_message_key, "messages")
 
     # Filter out examples where messages is None
     # for split in raw_datasets:

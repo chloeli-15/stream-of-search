@@ -175,7 +175,8 @@ def visualize_results(all_results, output_dir="./results/visualizations"):
     plt.figure(figsize=(14, 8))
     
     # Group by model type and dataset
-    for i, dataset in enumerate(["2ppl", "3ppl", "4ppl"]):
+    # for i, dataset in enumerate(["2ppl", "3ppl", "4ppl"]):
+    for i, dataset in enumerate(["2ppl"]):
         dataset_df = df[df['Dataset'] == dataset]
         
         plt.subplot(1, 3, i+1)
@@ -262,11 +263,11 @@ if __name__ == "__main__":
     results['scores'] = {}
 
     for adapter in [
-            # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-seq8k-1k",
-            # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
-            # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
-        
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+            # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
+            # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",        
+            # "yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k",
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k",
+
             "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k",
             "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
             "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",
