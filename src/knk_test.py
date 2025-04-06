@@ -257,7 +257,7 @@ if __name__ == "__main__":
     context_len = 2048
     temperature = 0.7
 
-    keys = ["2ppl", "3ppl", "4ppl"]
+    keys = ["2ppl"] #, "3ppl", "4ppl"]
     results = {}
     results['trajectories'] = {}
     results['scores'] = {}
@@ -266,13 +266,16 @@ if __name__ == "__main__":
             # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
             # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",        
             # "yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k",
+            
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
             # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k",
 
             "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k",
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k",
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k"
+            
+            # ssh -o conda activate sos1 && cd ~/projects/sos/stream-of-search/ && python ./src/knk_test.py
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-5k",
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-o3-1k"
         ]:
         
         # if model: del model
