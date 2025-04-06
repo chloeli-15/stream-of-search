@@ -346,7 +346,7 @@ if __name__ == "__main__":
                     'discrepancies': data[discrepancies_column][i]
                 })
 
-        savepath = f"./results/ood/{adapter}/knk.json"
+        savepath = f"./results/{adapter.split("/")[-1]}/knk.json"
         os.makedirs(os.path.dirname(savepath), exist_ok=True)
         with open(savepath, 'w') as f:
             json.dump(results, f, indent=4)
