@@ -213,6 +213,16 @@ def custom_eval(args=None):
                 else:
                     raise ValueError(f"Unknown split: {split}")
 
+                if "deepseek" in args.adapter:
+                    print("Adding deepseek instructions to the prompt")
+                    deepseek_inst = "\nNote that the solution does exist. Verify your solutions before your present your final results and backtrack to correct mistakes from before your mistakes if you have to."
+
+                    data = data.map(lambda x: { # type: ignore
+                        'test_prompt': [
+                            {"content": x['test_prompt'][0]["content"] + deepseek_inst, "role": "user"}
+                        ],
+                    })
+                    
                 results = []
                 completions = eval_ll(model, tokenizer, data, batch_size=args.batch_size, context_len=args.ctx, temperature=args.temperature, n=args.gens)
                 # parse into list of dictionaries

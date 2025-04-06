@@ -263,6 +263,11 @@ if __name__ == "__main__":
     results['scores'] = {}
 
     for adapter in [
+        # "yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k",
+        # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-5k",
+        
+        "yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k",
+        "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
             # "yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k",
             # "chloeli/qwen-2.5-1.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",        
             # "yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k",
@@ -270,7 +275,7 @@ if __name__ == "__main__":
             # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-seq8k-5k",
             # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-seq8k-5k",
 
-            "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k",
+            # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-search-react-correct-seq10k-5k",
             
             # ssh -o conda activate sos1 && cd ~/projects/sos/stream-of-search/ && python ./src/knk_test.py
             # "chloeli/qwen-2.5-0.5B-instruct-sft-lora-countdown-optimal-1k",
@@ -300,6 +305,16 @@ if __name__ == "__main__":
                 "test_prompt": message_template(x['quiz']) 
             })
             
+            if "deepseek" in adapter:
+                print("Adding deepseek instructions to the prompt")
+                deepseek_inst = "\nNote that the solution does exist. Verify your solutions before your present your final results and backtrack to correct mistakes from before your mistakes if you have to."
+
+                data = data.map(lambda x: { # type: ignore
+                    'test_prompt': [
+                        {"content": x['test_prompt'][0]["content"] + deepseek_inst, "role": "user"}
+                    ],
+                })
+                
             # Generate completions for this batch
             for i, data_batch in tqdm(enumerate(data.iter(batch_size=batch_size)), total=len(data)//batch_size):   
                 chat_inputs = tokenizer.apply_chat_template(data_batch["test_prompt"], return_tensors="pt", padding=True, truncation=True, max_length=context_len, return_length=True, tokenize=False)
