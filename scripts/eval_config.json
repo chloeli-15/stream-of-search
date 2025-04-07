@@ -1,11 +1,23 @@
 {
     "models_messages_field_pairs":{        
+        "0": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-mixed-10k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "1": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-mixed-10k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "2": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-mixed-10k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "3": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-mixed-10k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        
+        "4": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "5": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        "6": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
+        "7": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
+       },
+    "prev":{        
+
+    
         "0": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         "1": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
         "2": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
-        "3": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"]
-       },
-    "prev":{        
+        "3": ["yeok/qwen-2.5-1.5B-instruct-sft-lora-countdown-deepseek-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
+        
         "-2": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages_sos", 128, "MelinaLaimon/stream-of-search"],
         "1": ["yeok/qwen-2.5-0.5B-instruct-sft-lora-countdown-deepseek-correct-5k", "messages", 128, "MelinaLaimon/stream-of-search-ood"],
 

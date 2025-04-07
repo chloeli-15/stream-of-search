@@ -150,10 +150,10 @@ def main():
         for i in range(min(len(hostnames), len(evaluation_queue))):
             model_name, messages_field, nums, dataset = evaluation_queue[i]
             # override ctx length
-            if 'react' in model_name:
+            if 'react' in model_name or 'deepseek' in model_name or 'mixed' in model_name:
                 args.ctx = 16384
                 batch_size = args.batch_size 
-            else:
+            else:   
                 args.ctx = 8192
                 batch_size = args.batch_size*2
  
